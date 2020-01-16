@@ -118,15 +118,17 @@ const parse = function (tokens) {
 	return parseTree;
 };
 
-console.log(parse([ { type: '(', value: undefined },
-	{ type: 'number', value: 12 },
-	{ type: '%', value: undefined },
-	{ type: 'number', value: 7 },
-	{ type: ')', value: undefined },
-	{ type: '*', value: undefined },
-	{ type: '(', value: undefined },
-	{ type: 'number', value: 3 },
-	{ type: '+', value: undefined },
-	{ type: 'number', value: 2 },
-	{ type: ')', value: undefined },
-	{ type: '(end)', value: undefined }]));
+module.exports = parse;
+
+// console.log(parse([ { type: '(', value: undefined },
+// 	{ type: 'number', value: 12 },
+// 	{ type: '%', value: undefined },
+// 	{ type: 'number', value: 7 },
+// 	{ type: ')', value: undefined },
+// 	{ type: '*', value: undefined },
+// 	{ type: '(', value: undefined },
+// 	{ type: 'number', value: 3 },
+// 	{ type: '+', value: undefined },
+// 	{ type: 'number', value: 2 },
+// 	{ type: ')', value: undefined },
+// 	{ type: '(end)', value: undefined }]));

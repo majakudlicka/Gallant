@@ -49,4 +49,5 @@ const lex = function (input) {
 	return tokens;
 };
 
-console.log(lex('(12 % 7) * (3 + 2)'));
+// console.log(lex('(12 % 7) * (3 + 2)'));
+module.exports = lex;
