@@ -94,9 +94,7 @@ const calculate = function (input) {
 		return e;
 	}
 };
-const input = '3\n'
-	+ '2 ^ 8\n'
-	+ '(12 % 7) * (3 + 2)\n'
-	+ '19 / -9';
+const input = 'example = abc'
+	+ 'example'
 
 console.log(calculate(input));
