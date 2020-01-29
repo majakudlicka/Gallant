@@ -1,5 +1,5 @@
 const lex = require('./Lexer');
-const parse = require('./Parser');
+const parse = require('../Parser/Parser');
 
 const evaluate = function (parseTree) {
 	const operators = {
