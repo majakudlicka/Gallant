@@ -1,4 +1,4 @@
-const lex = require('./Lexer');
+import { Lexer } from '../../src/Lexer/lexer';
 const parse = require('../Parser/Parser');
 
 const evaluate = function (parseTree) {
@@ -87,7 +87,8 @@ const evaluate = function (parseTree) {
 
 const calculate = function (input) {
 	try {
-		const tokens = lex(input);
+		const lexer = new Lexer(input);
+		const tokens = lexer.tokenize();
 		const parseTree = parse(tokens);
 		return evaluate(parseTree);
 	} catch (e) {
