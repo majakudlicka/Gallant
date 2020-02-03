@@ -1,16 +1,15 @@
 import { Token } from '../Lexer/token';
-const symbols = {};
+import {Lexer } from "../Lexer/lexer";
 
 export class Parser {
 	constructor(input) {
-		this.input = input;
-		this.position = 0;
-		this.line = 0;
-		this.column = 0;
+		this.lexer = new Lexer(input);
+		this.currentToken = this.lexer.nextToken();
 	}
 
 	parse() {
-		return this.input;
+		console.log('currentToken ', this.currentToken);
+		// return this.input;
 	}
 }
 
