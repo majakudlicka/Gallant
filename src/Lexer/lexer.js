@@ -42,7 +42,6 @@ export class Lexer {
 	}
 
 	recognizeComparisonOperator() {
-    	console.log('recognising comparison operator');
 		const position = this.position;
 		const line = this.line;
 		const column = this.column;
@@ -86,7 +85,6 @@ export class Lexer {
 	}
 
 	recognizeBooleanOperator() {
-		console.log('recognising boolean operator');
 		const position = this.position;
 		const line = this.line;
 		const column = this.column;
@@ -158,7 +156,6 @@ export class Lexer {
 	}
 
 	recognizeNewLine() {
-		console.log('trying to recognizeNewLine');
 		const line = this.line;
 		const column = this.column;
 
@@ -169,7 +166,6 @@ export class Lexer {
 	}
 
 	recognizeDot() {
-    	console.log('in recognize Dot');
 		const line = this.line;
 		const column = this.column;
 
@@ -180,7 +176,6 @@ export class Lexer {
 
 	// / Recognizes and returns an identifier token.
 	recognizeIdentifier() {
-		console.log('in recognize identifier...');
 		let identifier = '';
 		const line = this.line;
 		const column = this.column;
@@ -234,7 +229,6 @@ export class Lexer {
 	// / Recognizes and returns a number token.
 	// Decimal number can start with a dot...
 	recognizeNumberOrDot() {
-		console.log('trying to recognizeNumberOrDot');
 		const line = this.line;
 		const column = this.column;
 
@@ -250,10 +244,8 @@ export class Lexer {
 		// recognized in the 'number' variable. If no number has
 		// been recognized, 'number' will be 'null'.
 		const { isNumberRecognized, number, state } = fsm.run(fsmInput);
-		console.log({ isNumberRecognized, number, state });
 
 		if (isNumberRecognized) {
-			console.log('inside isNumberRecognised');
 			this.position += number.length;
 			this.column += number.length;
 			let tokenType;
@@ -315,7 +307,6 @@ export class Lexer {
 			switch (currentState) {
 				case State.Initial:
 					if (CharUtils.isDigit(character)) {
-						console.log('about to return State.integer');
 						return State.Integer;
 					}
 
@@ -397,35 +388,27 @@ export class Lexer {
 
 		const character = this.input.charAt(this.position);
 
-		console.log('character is ', character);
-
 		if (CharUtils.isNewLine(character)) {
-        	console.log('acknowledged newLIne');
 			return this.recognizeNewLine();
 		}
 
 		if (CharUtils.isLetterOrUnderscore(character)) {
-			console.log('acknowledged Letter');
 			return this.recognizeIdentifier();
 		}
 
 		if (CharUtils.isValidPartOfNumber(character)) {
-			console.log('acknowledged beginningOfNumber');
 			return this.recognizeNumberOrDot();
 		}
 
 		if (CharUtils.isOperator(character)) {
-			console.log('acknowledged Operator');
 			return this.recognizeOperator();
 		}
 
 		if (CharUtils.isDelimiter(character)) {
-			console.log('acknowledged Delimiter');
 			return this.recognizeDelimiter();
 		}
 
 		if (character === '"') {
-			console.log('acknowledged DoubleQuotes');
 			return this.recognizeString();
 		}
 
@@ -435,9 +418,7 @@ export class Lexer {
 	}
 
 	skipWhitespaces() {
-    	console.log('in wkipWhitespaces and new lines');
 		while (this.position < this.input.length && CharUtils.isWhitespace(this.input.charAt(this.position))) {
-        	console.log('inside the while loop');
 			this.position += 1;
            	this.column += 1;
 		}

@@ -1,4 +1,4 @@
-import { AstNode } from "./astNode";
+import { AstNode } from './AstNode';
 
 export class IntegerLiteral extends AstNode {
 	constructor(value) {

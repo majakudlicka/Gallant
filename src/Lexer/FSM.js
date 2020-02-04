@@ -15,12 +15,12 @@ export class FSM {
 		let currentState = this.initialState;
 		let value = '';
 
-		console.log({
-			states: this.states,
-			initialState: this.initialState,
-			acceptingStates: this.acceptingStates,
-			nextState: this.nextState
-		});
+		// console.log({
+		// 	states: this.states,
+		// 	initialState: this.initialState,
+		// 	acceptingStates: this.acceptingStates,
+		// 	nextState: this.nextState
+		// });
 
 		for (let i = 0, length = input.length; i < length; ++i) {
 			let character = input.charAt(i);
