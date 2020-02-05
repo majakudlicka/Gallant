@@ -1,8 +1,10 @@
 import { AstNode } from "./AstNode";
 
 export class BinaryExpression extends AstNode {
-	constructor(props) {
-		super(props);
+	constructor(value) {
+		super();
+		console.log('in the right constructor');
+		this.value = value;
 	}
 
 	isBinaryExpression() {

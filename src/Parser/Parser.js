@@ -6,6 +6,7 @@ import { StringLiteral } from './astNodes/StringLiteral';
 import { NullLiteral } from './astNodes/NullLiteral';
 import { BooleanLiteral } from './astNodes/BooleanLiteral';
 import { TreeNode } from "./astNodes/TreeNode";
+import {BinaryExpression} from "./astNodes/BinaryExpression";
 
 export class Parser {
 	constructor(input) {
@@ -60,24 +61,48 @@ export class Parser {
 	}
 
 	parse() {
-		const expressionTree = this.constructTree();
-		console.log('tree ', expressionTree);
-		// if (this.currentToken.type === 'integer') {
-		// 	return new IntegerLiteral(this.currentToken.value);
-		// } if (this.currentToken.type === 'decimal') {
-		// 	return new DecimalLiteral(this.currentToken.value);
-		// } if (this.currentToken.type === 'string') {
-		// 	return new StringLiteral(this.currentToken.value);
-		// } if (this.currentToken.type === 'null') {
-		// 	return new NullLiteral(this.currentToken.value);
-		// } if (this.currentToken.type === 'true') {
-		// 	return new BooleanLiteral(this.currentToken.value);
-		// } if (this.currentToken.type === 'false') {
-		// 	return new BooleanLiteral(this.currentToken.value);
-		// }
-		// // const next = this.lexer.nextToken();
-		// console.log('next ', next);
-		// return this.input;
+		// const expressionTree = this.constructTree();
+		// console.log('tree ', expressionTree);
+		this.expression = this.parseValue(this.currentToken);
+		this.currentToken = this.lexer.nextToken();
+		if (this.isAdditiveOperator(this.currentToken)) {
+			let binaryExpression = new BinaryExpression();
+			binaryExpression.operator = this.currentToken.value;
+			this.currentToken = this.lexer.nextToken();
+			binaryExpression.left = this.expression;
+			binaryExpression.right = this.parseValue(this.currentToken);
+			this.expression = binaryExpression;
+		}
+		console.log('expression ', this.expression);
+		return this.expression;
+	}
+
+	isAdditiveOperator() {
+		return this.currentToken.type === '-' || this.currentToken.type === '+';
+	}
+
+	discardNewlines() {
+		while (this.currentToken.type === '\n') {
+			this.currentToken = this.lexer.nextToken();
+		}
+	}
+
+	parseValue(input) {
+		let value = null;
+		if (this.currentToken.type === 'integer') {
+			value = new IntegerLiteral(this.currentToken.value);
+		} if (this.currentToken.type === 'decimal') {
+			value = new DecimalLiteral(this.currentToken.value);
+		} if (this.currentToken.type === 'string') {
+			value = new StringLiteral(this.currentToken.value);
+		} if (this.currentToken.type === 'null') {
+			value = new NullLiteral(this.currentToken.value);
+		} if (this.currentToken.type === 'true') {
+			value = new BooleanLiteral(this.currentToken.value);
+		} if (this.currentToken.type === 'false') {
+			value = new BooleanLiteral(this.currentToken.value);
+		}
+		return value;
 	}
 
 	eatWhiteSpace() {
