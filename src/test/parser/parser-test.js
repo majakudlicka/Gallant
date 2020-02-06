@@ -10,8 +10,9 @@ describe('Parser', () => {
 		it('should parse a simple integer literal', () => {
 			const parser = new Parser('42');
 			const expression = parser.parse();
-			assert.equal(true, expression.isIntegerLiteral());
+			assert.equal(true, expression.isConstantNode());
 			assert.equal('42', expression.value);
+			assert.equal('integer', expression.type);
 		});
 
 		it('should parse a simple decimal literal', () => {
@@ -19,11 +20,12 @@ describe('Parser', () => {
 
 			const expression = parser.parse();
 
-			assert.equal(true, expression.isDecimalLiteral());
+			assert.equal(true, expression.isConstantNode());
 			assert.equal('3.14159', expression.value);
+			assert.equal('decimal', expression.type);
 		});
 
-		it('should parse a simple string literal', () => {
+		it.only('should parse a simple string literal', () => {
 			const parser = new Parser('"Hello, World!"');
 
 			const expression = parser.parse();
@@ -58,27 +60,10 @@ describe('Parser', () => {
 			assert.equal('false', expression.value);
 		});
 
-		// it.only('should parse a simple addition', () => {
-		// 	const parser = new Parser('1 + 2');
-		//
-		// 	const expression = parser.parse();
-		//
-		// 	console.log('expression ', expression);
-		// 	assert.equal(true, expression.isBinaryExpression());
-		//
-		// 	assert.equal('+', expression.operator);
-		//
-		// 	assert.equal(true, expression.left.isIntegerLiteral());
-		// 	assert.equal('1', expression.left.value);
-		//
-		// 	assert.equal(true, expression.right.isIntegerLiteral());
-		// 	assert.equal('2', expression.right.value);
-		// });
-
 		it('should parse a simple addition', () => {
 			const parser = new Parser('1 + 2');
 
-			const expression = parser.parseStart();
+			const expression = parser.parse();
 
 			console.log('expression ', expression);
 			assert.equal(true, expression.isOperatorNode());
@@ -95,7 +80,7 @@ describe('Parser', () => {
 		it('should correctly handle left associativity for arithmetic operators', () => {
 			const parser = new Parser('7 - 4 + 2');
 
-			const expression = parser.parseStart();
+			const expression = parser.parse();
 
 			console.log(expression);
 
@@ -115,10 +100,10 @@ describe('Parser', () => {
 			assert.equal('2', expression.right.value);
 		});
 
-		it.only('should correctly handle operator precedence', () => {
+		it('should correctly handle operator precedence', () => {
 			const parser = new Parser('1 + 3 * 5 - 8');
 
-			const expression = parser.parseStart();
+			const expression = parser.parse();
 
 			assert.equal(true, expression.isOperatorNode());
 			assert.equal('-', expression.operator);
