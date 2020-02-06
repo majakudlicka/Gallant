@@ -58,13 +58,30 @@ describe('Parser', () => {
 			assert.equal('false', expression.value);
 		});
 
-		it.only('should parse a simple addition', () => {
-			const parser = new Parser('1+2');
+		// it.only('should parse a simple addition', () => {
+		// 	const parser = new Parser('1 + 2');
+		//
+		// 	const expression = parser.parse();
+		//
+		// 	console.log('expression ', expression);
+		// 	assert.equal(true, expression.isBinaryExpression());
+		//
+		// 	assert.equal('+', expression.operator);
+		//
+		// 	assert.equal(true, expression.left.isIntegerLiteral());
+		// 	assert.equal('1', expression.left.value);
+		//
+		// 	assert.equal(true, expression.right.isIntegerLiteral());
+		// 	assert.equal('2', expression.right.value);
+		// });
 
-			const expression = parser.parse();
+		it('should parse a simple addition', () => {
+			const parser = new Parser('1 + 2');
+
+			const expression = parser.parseStart();
 
 			console.log('expression ', expression);
-			assert.equal(true, expression.isBinaryExpression());
+			assert.equal(true, expression.isOperatorNode());
 
 			assert.equal('+', expression.operator);
 
@@ -78,15 +95,13 @@ describe('Parser', () => {
 		it('should correctly handle left associativity for arithmetic operators', () => {
 			const parser = new Parser('7 - 4 + 2');
 
-			const expression = parser.parse();
+			const expression = parser.parseStart();
 
 			console.log(expression);
 
-			assert.equal(true, expression.isBinaryExpression());
+			assert.equal(true, expression.isOperatorNode());
 
 			assert.equal('+', expression.operator);
-
-			assert.equal(true, expression.left.isBinaryExpression());
 
 			assert.equal('-', expression.left.operator);
 
@@ -100,24 +115,24 @@ describe('Parser', () => {
 			assert.equal('2', expression.right.value);
 		});
 
-		it('should correctly handle operator precedence', () => {
+		it.only('should correctly handle operator precedence', () => {
 			const parser = new Parser('1 + 3 * 5 - 8');
 
-			const expression = parser.parse();
+			const expression = parser.parseStart();
 
-			assert.equal(true, expression.isBinaryExpression());
+			assert.equal(true, expression.isOperatorNode());
 			assert.equal('-', expression.operator);
 
 			const { left } = expression;
 
-			assert.equal(true, left.isBinaryExpression());
+			assert.equal(true, left.isOperatorNode());
 			assert.equal('+', left.operator);
 			assert.equal(true, left.left.isIntegerLiteral());
 			assert.equal('1', left.left.value);
 
 			const multiplication = left.right;
 
-			assert.equal(true, multiplication.isBinaryExpression());
+			assert.equal(true, multiplication.isOperatorNode());
 			assert.equal('*', multiplication.operator);
 			assert.equal(true, multiplication.left.isIntegerLiteral());
 			assert.equal('3', multiplication.left.value);

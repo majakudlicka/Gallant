@@ -5,8 +5,9 @@ import { DecimalLiteral } from './astNodes/DecimalLiteral';
 import { StringLiteral } from './astNodes/StringLiteral';
 import { NullLiteral } from './astNodes/NullLiteral';
 import { BooleanLiteral } from './astNodes/BooleanLiteral';
-import { TreeNode } from "./astNodes/TreeNode";
-import {BinaryExpression} from "./astNodes/BinaryExpression";
+import { TreeNode } from './astNodes/TreeNode';
+import { BinaryExpression } from './astNodes/BinaryExpression';
+import { OperatorNode } from './astNodes/OperatorNode';
 
 export class Parser {
 	constructor(input) {
@@ -21,52 +22,53 @@ export class Parser {
 		return false;
 	}
 
-	constructTree() {
-		const st = [];
-		let t;
-		let t1;
-		let t2;
-
-		let token = this.currentToken;
-		// Traverse through every character of
-		// input expression
-		while (token && token.type !== 'EndOfInput') {
-			console.log('token in while loop ', token);
-
-			// If operand, simply push into stack
-			if (!this.isOperator(token.type)) {
-				t = new TreeNode(token.value);
-				st.push(t);
-				console.log('puhsed ', token.value, ' to the stack');
-			} else {
-				t = new TreeNode(token.value);
-				t1 = st.pop();	 // Remove top
-				t2 = st.pop();
-				t.right = t1;
-				t.left = t2;
-				st.push(t);
-				console.log('associated operator with children and pushed to stack ', token.value);
-			}
-
-			token = this.lexer.nextToken();
-		}
-
-		console.log('t before reassignment ', t);
-		// only element will be root of expression
-		// tree
-		t = st[st.length - 1];
-		st.pop();
-
-		return t;
-	}
+	// constructTree() {
+	// 	const st = [];
+	// 	let t;
+	// 	let t1;
+	// 	let t2;
+	//
+	// 	let token = this.currentToken;
+	// 	// Traverse through every character of
+	// 	// input expression
+	// 	while (token && token.type !== 'EndOfInput') {
+	// 		console.log('token in while loop ', token);
+	//
+	// 		// If operand, simply push into stack
+	// 		if (!this.isOperator(token.type)) {
+	// 			t = new TreeNode(token.value);
+	// 			st.push(t);
+	// 			console.log('puhsed ', token.value, ' to the stack');
+	// 		} else {
+	// 			t = new TreeNode(token.value);
+	// 			t1 = st.pop();	 // Remove top
+	// 			t2 = st.pop();
+	// 			t.right = t1;
+	// 			t.left = t2;
+	// 			st.push(t);
+	// 			console.log('associated operator with children and pushed to stack ', token.value);
+	// 		}
+	//
+	// 		token = this.lexer.nextToken();
+	// 	}
+	//
+	// 	console.log('t before reassignment ', t);
+	// 	// only element will be root of expression
+	// 	// tree
+	// 	t = st[st.length - 1];
+	// 	st.pop();
+	//
+	// 	return t;
+	// }
 
 	parse() {
 		// const expressionTree = this.constructTree();
 		// console.log('tree ', expressionTree);
+		// try to do parseValue + parseAdditive using recursion - or what math.js is doing
 		this.expression = this.parseValue(this.currentToken);
 		this.currentToken = this.lexer.nextToken();
 		if (this.isAdditiveOperator(this.currentToken)) {
-			let binaryExpression = new BinaryExpression();
+			const binaryExpression = new BinaryExpression();
 			binaryExpression.operator = this.currentToken.value;
 			this.currentToken = this.lexer.nextToken();
 			binaryExpression.left = this.expression;
@@ -107,5 +109,51 @@ export class Parser {
 
 	eatWhiteSpace() {
 
+	}
+
+	parseStart() {
+		const node = this.parseAddSubtract();
+		return node;
+	}
+
+	parseMultiplyDivide() {
+		let node = this.parseNumber();
+
+		while (this.currentToken.type === '*' || this.currentToken.type === '/' || this.currentToken.type === '%') {
+			const name = this.currentToken.value;
+			const operator = this.currentToken.type;
+
+			this.currentToken = this.lexer.nextToken();
+			const left = node;
+			const right = this.parseNumber();
+			node = new OperatorNode(name, operator, left, right);
+		}
+
+		return node;
+	}
+
+	parseAddSubtract() {
+		let node = this.parseMultiplyDivide();
+
+		while (this.currentToken.type === '+' || this.currentToken.type === '-') {
+			const name = this.currentToken.value;
+			const operator = this.currentToken.type;
+
+			this.currentToken = this.lexer.nextToken();
+			const left = node;
+			const right = this.parseMultiplyDivide();
+			node = new OperatorNode(name, operator, left, right);
+		}
+
+		return node;
+	}
+
+	parseNumber() {
+		if (this.currentToken.type === 'integer') {
+			let node = new IntegerLiteral(this.currentToken.value);
+			this.currentToken = this.lexer.nextToken();
+			return node;
+		}
+		// return parseParenthesis
 	}
 }
