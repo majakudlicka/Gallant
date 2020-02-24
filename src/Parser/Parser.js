@@ -3,7 +3,10 @@ import { Lexer } from '../Lexer/lexer';
 import { ConstantNode } from './astNodes/ConstantNode';
 import { OperatorNode } from './astNodes/OperatorNode';
 import { ConditionalNode } from './astNodes/ConditionalNode';
-import {WhileLoopNode} from "./astNodes/WhileLoopNode";
+import { WhileLoopNode } from './astNodes/WhileLoopNode';
+import { AssignmentNode } from './astNodes/AssignmentNode';
+import { SymbolNode } from './astNodes/SymbolNode';
+import { BlockNode } from './astNodes/BlockNode';
 
 export class Parser {
 	constructor(input) {
@@ -35,7 +38,7 @@ export class Parser {
 
 	parse() {
 		console.log('currentToken ', this.currentToken);
-		const node = this.parseWhileLoop();
+		const node = this.parseBlock();
 		return node;
 	}
 
@@ -43,48 +46,49 @@ export class Parser {
 		this.currentToken = this.lexer.nextToken();
 	}
 
-	parseAssignment() {
-		let name, args, value, valid
+	parseBlock() {
+		let node;
+		const blocks = [];
 
+		if (this.currentToken.value !== '' && this.currentToken.value !== '\n' && this.currentToken.value !== ';') {
+			node = this.parseAssignment();
+		}
+
+		// TODO: simplify this loop
+		while (this.currentToken.value === '\n' || this.currentToken.value === ';') {
+			if (blocks.length === 0 && node) {
+				blocks.push(node);
+			}
+			this.next();
+			if (this.currentToken.type === 'EndOfInput') break;
+			if (this.currentToken.value !== '' && this.currentToken.value !== '\n' && this.currentToken.value !== ';') {
+				node = this.parseAssignment();
+				blocks.push(node);
+			}
+		}
+
+		if (blocks.length > 0) {
+			return new BlockNode(blocks);
+		}
+		return node;
+	}
+
+	parseAssignment() {
 		const node = this.parseWhileLoop();
 
 		if (this.currentToken.value === '=') {
-			if (isSymbolNode(node)) {
+			if (node.isSymbolNode()) {
 				// parse a variable assignment like 'a = 2/3'
-				name = node.name
-				getTokenSkipNewline(state)
-				value = parseAssignment(state)
-				return new AssignmentNode(new SymbolNode(name), value)
-			} else if (isAccessorNode(node)) {
-				// parse a matrix subset assignment like 'A[1,2] = 4'
-				getTokenSkipNewline(state)
-				value = parseAssignment(state)
-				return new AssignmentNode(node.object, node.index, value)
-			} else if (isFunctionNode(node) && isSymbolNode(node.fn)) {
-				// parse function assignment like 'f(x) = x^2'
-				valid = true
-				args = []
-
-				name = node.name
-				node.args.forEach(function (arg, index) {
-					if (isSymbolNode(arg)) {
-						args[index] = arg.name
-					} else {
-						valid = false
-					}
-				})
-
-				if (valid) {
-					getTokenSkipNewline(state)
-					value = parseAssignment(state)
-					return new FunctionAssignmentNode(name, args, value)
-				}
+				const { name } = node;
+				this.next();
+				const value = this.parseAssignment();
+				return new AssignmentNode(new SymbolNode(name), value);
 			}
 
-			throw createSyntaxError(state, 'Invalid left hand side of assignment operator =')
+			throw new Error('Invalid left hand side of assignment operator =');
 		}
 
-		return node
+		return node;
 	}
 
 	parseWhileLoop() {
@@ -93,9 +97,9 @@ export class Parser {
 		while (this.currentToken.type === 'while') {
 			this.next();
 			this.expect('(');
-			const condition = this.parseConstant();
+			const condition = this.parseSymbolOrConstant();
 			this.expect(')');
-			const body = this.parseConstant();
+			const body = this.parseSymbolOrConstant();
 			node = new WhileLoopNode(condition, body);
 		}
 
@@ -103,18 +107,18 @@ export class Parser {
 	}
 
 	parseConditional() {
-		let node = this.parseConstant();
+		let node = this.parseSymbolOrConstant();
 
 		while (this.currentToken.type === 'if') {
 			this.next();
 			this.expect('(');
-			const condition = this.parseConstant();
+			const condition = this.parseSymbolOrConstant();
 			this.expect(')');
-			const trueExpr = this.parseConstant();
+			const trueExpr = this.parseSymbolOrConstant();
 			let falseExpr = null;
 			if (this.currentToken.type === 'else') {
 				this.next();
-				falseExpr = this.parseConstant();
+				falseExpr = this.parseSymbolOrConstant();
 			}
 			node = new ConditionalNode(condition, trueExpr, falseExpr);
 		}
@@ -180,7 +184,8 @@ export class Parser {
 			this.next();
 			return node;
 		}
-		return 'Oi-oi';
+		console.log('currentToken is ', this.currentToken);
+		// return 'Oi-oi';
 		// return parseParenthesis
 	}
 
@@ -194,12 +199,19 @@ export class Parser {
 	}
 
 	// Can this be combined with the string ?
-	parseConstant() {
+	// Rename symbol to indentifier?
+	parseSymbolOrConstant() {
 		if (this.isConstant()) {
 			const node = new ConstantNode(this.currentToken.value, this.currentToken.type);
+			this.next();
+			return node;
+		} if (this.currentToken.type === 'identifier') {
+			const node = new SymbolNode(this.currentToken.value);
 			this.next();
 			return node;
 		}
 		return this.parseString();
 	}
 }
+
+// TODO use TokenType mappings

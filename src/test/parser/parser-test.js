@@ -162,69 +162,48 @@ describe('Parser', () => {
 			assert.equal('42', node.body.value);
 		});
 
-		it.only('should parse a let node', () => {
-			const parser = new Parser('let a: Int = 2, b = 3 in a + b');
+		it('should parse an assignment', () => {
+			const parser = new Parser('a = 5');
 
 			const node = parser.parse();
 
-			assert.equal(true, node.isLet());
-
-			const { initializations } = node;
-			assert.equal(2, initializations.length);
-
-			assert.equal(initializations[0].identifier, 'a');
-			assert.equal(initializations[0].type, 'Int');
-			assert.equal(true, initializations[0].value.isConstantNode());
-			assert.equal('2', initializations[0].value.value);
-
-			assert.equal(initializations[1].identifier, 'b');
-			assert.equal(initializations[1].type, undefined);
-			assert.equal(true, initializations[1].value.isConstantNode());
-			assert.equal('3', initializations[1].value.value);
-
-			const { body } = node;
-
-			assert.equal(true, body.isBinaryExpression());
-
-			assert.equal('+', body.operator);
-			assert.equal(true, body.left.isReference());
-			assert.equal('a', body.left.identifier);
-
-			assert.equal(true, body.right.isReference());
-			assert.equal('b', body.right.identifier);
+			assert.equal(true, node.isAssignmentNode());
+			assert.equal(true, node.symbol.isSymbolNode());
+			assert.equal(true, node.value.isConstantNode());
+			assert.equal('a', node.symbol.name);
+			assert.equal(5, node.value.value);
 		});
 
-		it('should parse a this node', () => {
-			const parser = new Parser('this');
+		// it('should parse a this node', () => {
+		// 	const parser = new Parser('this');
+		//
+		// 	const node = parser.parse();
+		//
+		// 	assert.equal(true, node.isThis());
+		// });
 
-			const node = parser.parse();
-
-			assert.equal(true, node.isThis());
-		});
-
-		it('should parse a block of nodes', () => {
-			const parser = new Parser('{\n'
-				+ '"hello"\n'
+		it.only('should parse a block of nodes', () => {
+			const parser = new Parser('"hello"\n'
 				+ '42\n'
-				+ 'true\n'
-				+ '}');
+				+ 'true\n');
 
 			const node = parser.parse();
 
-			assert.equal(true, node.isBlock());
+			assert.equal(true, node.isBlockNode());
 
-			const { nodes } = node;
+			const { blocks } = node;
+			console.log('blocks ', blocks);
 
-			assert.equal(3, nodes.length);
+			assert.equal(3, blocks.length);
 
-			assert.equal(true, nodes[0].isStringLiteral());
-			assert.equal('"hello"', nodes[0].value);
+			assert.equal(true, blocks[0].isConstantNode());
+			assert.equal('"hello"', blocks[0].value);
 
-			assert.equal(true, nodes[1].isConstantNode());
-			assert.equal('42', nodes[1].value);
+			assert.equal(true, blocks[1].isConstantNode());
+			assert.equal('42', blocks[1].value);
 
-			assert.equal(true, nodes[2].isConstantNode());
-			assert.equal('true', nodes[2].value);
+			assert.equal(true, blocks[2].isConstantNode());
+			assert.equal('true', blocks[2].value);
 		});
 
 		it('should parse a constructor call', () => {
