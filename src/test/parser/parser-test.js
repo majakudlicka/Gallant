@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-// import { Expression } from '../../main/ast/expression'
+// import { Expression } from '../../main/ast/node'
 import { Parser } from '../../Parser/Parser';
 import { Token } from '../../Lexer/token';
 
@@ -9,175 +9,180 @@ describe('Parser', () => {
 
 		it('should parse a simple integer literal', () => {
 			const parser = new Parser('42');
-			const expression = parser.parse();
-			assert.equal(true, expression.isConstantNode());
-			assert.equal('42', expression.value);
-			assert.equal('integer', expression.type);
+			const node = parser.parse();
+			assert.equal(true, node.isConstantNode());
+			assert.equal('42', node.value);
+			assert.equal('integer', node.type);
 		});
 
 		it('should parse a simple decimal literal', () => {
 			const parser = new Parser('3.14159');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isConstantNode());
-			assert.equal('3.14159', expression.value);
-			assert.equal('decimal', expression.type);
+			assert.equal(true, node.isConstantNode());
+			assert.equal('3.14159', node.value);
+			assert.equal('decimal', node.type);
 		});
 
-		it.only('should parse a simple string literal', () => {
+		it('should parse a simple string literal', () => {
 			const parser = new Parser('"Hello, World!"');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isStringLiteral());
-			assert.equal('"Hello, World!"', expression.value);
+			assert.equal(true, node.isConstantNode());
+			assert.equal('"Hello, World!"', node.value);
+			assert.equal('string', node.type);
 		});
 
 		it('should parse a null literal', () => {
 			const parser = new Parser('null');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isNullLiteral());
+			assert.equal(true, node.isConstantNode());
+			assert.equal('null', node.value);
+			assert.equal('null', node.type);
 		});
 
 		it('should parse the boolean literal "true"', () => {
 			const parser = new Parser('true');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isBooleanLiteral());
-			assert.equal('true', expression.value);
+			assert.equal(true, node.isConstantNode());
+			assert.equal('true', node.value);
+			assert.equal('true', node.type);
 		});
 
 		it('should parse the boolean literal "false"', () => {
 			const parser = new Parser('false');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isBooleanLiteral());
-			assert.equal('false', expression.value);
+			assert.equal(true, node.isConstantNode());
+			assert.equal('false', node.value);
+			assert.equal('false', node.type);
 		});
 
 		it('should parse a simple addition', () => {
 			const parser = new Parser('1 + 2');
 
-			const expression = parser.parse();
+			const node = parser.parse();
+			assert.equal(true, node.isOperatorNode());
 
-			console.log('expression ', expression);
-			assert.equal(true, expression.isOperatorNode());
+			assert.equal('+', node.operator);
 
-			assert.equal('+', expression.operator);
+			assert.equal(true, node.left.isConstantNode());
+			assert.equal('1', node.left.value);
 
-			assert.equal(true, expression.left.isIntegerLiteral());
-			assert.equal('1', expression.left.value);
-
-			assert.equal(true, expression.right.isIntegerLiteral());
-			assert.equal('2', expression.right.value);
+			assert.equal(true, node.right.isConstantNode());
+			assert.equal('2', node.right.value);
 		});
 
 		it('should correctly handle left associativity for arithmetic operators', () => {
 			const parser = new Parser('7 - 4 + 2');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			console.log(expression);
+			assert.equal(true, node.isOperatorNode());
 
-			assert.equal(true, expression.isOperatorNode());
+			assert.equal('+', node.operator);
 
-			assert.equal('+', expression.operator);
+			assert.equal('-', node.left.operator);
 
-			assert.equal('-', expression.left.operator);
+			assert.equal(true, node.left.left.isConstantNode());
+			assert.equal('7', node.left.left.value);
 
-			assert.equal(true, expression.left.left.isIntegerLiteral());
-			assert.equal('7', expression.left.left.value);
+			assert.equal(true, node.left.right.isConstantNode());
+			assert.equal('4', node.left.right.value);
 
-			assert.equal(true, expression.left.right.isIntegerLiteral());
-			assert.equal('4', expression.left.right.value);
-
-			assert.equal(true, expression.right.isIntegerLiteral());
-			assert.equal('2', expression.right.value);
+			assert.equal(true, node.right.isConstantNode());
+			assert.equal('2', node.right.value);
 		});
 
 		it('should correctly handle operator precedence', () => {
 			const parser = new Parser('1 + 3 * 5 - 8');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isOperatorNode());
-			assert.equal('-', expression.operator);
+			assert.equal(true, node.isOperatorNode());
+			assert.equal('-', node.operator);
 
-			const { left } = expression;
+			const { left } = node;
 
 			assert.equal(true, left.isOperatorNode());
 			assert.equal('+', left.operator);
-			assert.equal(true, left.left.isIntegerLiteral());
+			assert.equal(true, left.left.isConstantNode());
 			assert.equal('1', left.left.value);
 
 			const multiplication = left.right;
 
 			assert.equal(true, multiplication.isOperatorNode());
 			assert.equal('*', multiplication.operator);
-			assert.equal(true, multiplication.left.isIntegerLiteral());
+			assert.equal(true, multiplication.left.isConstantNode());
 			assert.equal('3', multiplication.left.value);
-			assert.equal(true, multiplication.right.isIntegerLiteral());
+			assert.equal(true, multiplication.right.isConstantNode());
 			assert.equal('5', multiplication.right.value);
 
-			const { right } = expression;
-			assert.equal(true, right.isIntegerLiteral());
+			const { right } = node;
+			assert.equal(true, right.isConstantNode());
 			assert.equal('8', right.value);
 		});
 
-		it('should parse an if/else expression', () => {
+		// Need more tests for if - else ?
+		it('should parse an if/else node', () => {
 			const parser = new Parser('if (true) 1 else 2');
 
-			const expression = parser.parse();
+			const node = parser.parse();
+			console.log('node ', node);
 
-			assert.equal(true, expression.isIfElse());
+			assert.equal(true, node.isConditionalNode());
 
-			assert.equal(true, expression.thenBranch.isIntegerLiteral());
-			assert.equal('1', expression.thenBranch.value);
+			assert.equal('true', node.condition.value);
 
-			assert.equal(true, expression.elseBranch.isIntegerLiteral());
-			assert.equal('2', expression.elseBranch.value);
+			assert.equal(true, node.trueExpr.isConstantNode());
+			assert.equal('1', node.trueExpr.value);
+
+			assert.equal(true, node.falseExpr.isConstantNode());
+			assert.equal('2', node.falseExpr.value);
 		});
 
-		it('should parse a while expression', () => {
+		it('should parse a while node', () => {
 			const parser = new Parser('while (true) 42');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isWhile());
+			assert.equal(true, node.isWhileLoopNode());
 
-			assert.equal(true, expression.condition.isBooleanLiteral());
-			assert.equal('true', expression.condition.value);
+			assert.equal(true, node.condition.isConstantNode());
+			assert.equal('true', node.condition.value);
 
-			assert.equal(true, expression.body.isIntegerLiteral());
-			assert.equal('42', expression.body.value);
+			assert.equal(true, node.body.isConstantNode());
+			assert.equal('42', node.body.value);
 		});
 
-		it('should parse a let expression', () => {
+		it.only('should parse a let node', () => {
 			const parser = new Parser('let a: Int = 2, b = 3 in a + b');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isLet());
+			assert.equal(true, node.isLet());
 
-			const { initializations } = expression;
+			const { initializations } = node;
 			assert.equal(2, initializations.length);
 
 			assert.equal(initializations[0].identifier, 'a');
 			assert.equal(initializations[0].type, 'Int');
-			assert.equal(true, initializations[0].value.isIntegerLiteral());
+			assert.equal(true, initializations[0].value.isConstantNode());
 			assert.equal('2', initializations[0].value.value);
 
 			assert.equal(initializations[1].identifier, 'b');
 			assert.equal(initializations[1].type, undefined);
-			assert.equal(true, initializations[1].value.isIntegerLiteral());
+			assert.equal(true, initializations[1].value.isConstantNode());
 			assert.equal('3', initializations[1].value.value);
 
-			const { body } = expression;
+			const { body } = node;
 
 			assert.equal(true, body.isBinaryExpression());
 
@@ -189,93 +194,93 @@ describe('Parser', () => {
 			assert.equal('b', body.right.identifier);
 		});
 
-		it('should parse a this expression', () => {
+		it('should parse a this node', () => {
 			const parser = new Parser('this');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isThis());
+			assert.equal(true, node.isThis());
 		});
 
-		it('should parse a block of expressions', () => {
+		it('should parse a block of nodes', () => {
 			const parser = new Parser('{\n'
 				+ '"hello"\n'
 				+ '42\n'
 				+ 'true\n'
 				+ '}');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isBlock());
+			assert.equal(true, node.isBlock());
 
-			const { expressions } = expression;
+			const { nodes } = node;
 
-			assert.equal(3, expressions.length);
+			assert.equal(3, nodes.length);
 
-			assert.equal(true, expressions[0].isStringLiteral());
-			assert.equal('"hello"', expressions[0].value);
+			assert.equal(true, nodes[0].isStringLiteral());
+			assert.equal('"hello"', nodes[0].value);
 
-			assert.equal(true, expressions[1].isIntegerLiteral());
-			assert.equal('42', expressions[1].value);
+			assert.equal(true, nodes[1].isConstantNode());
+			assert.equal('42', nodes[1].value);
 
-			assert.equal(true, expressions[2].isBooleanLiteral());
-			assert.equal('true', expressions[2].value);
+			assert.equal(true, nodes[2].isConstantNode());
+			assert.equal('true', nodes[2].value);
 		});
 
 		it('should parse a constructor call', () => {
 			const parser = new Parser('new Integer(42)');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isConstructorCall());
-			assert.equal('Integer', expression.type);
-			assert.equal(1, expression.args.length);
-			assert.equal(true, expression.args[0].isIntegerLiteral());
-			assert.equal('42', expression.args[0].value);
+			assert.equal(true, node.isConstructorCall());
+			assert.equal('Integer', node.type);
+			assert.equal(1, node.args.length);
+			assert.equal(true, node.args[0].isConstantNode());
+			assert.equal('42', node.args[0].value);
 		});
 
-		it('should parse a negative expression', () => {
+		it('should parse a negative node', () => {
 			const parser = new Parser('-42');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isUnaryExpression());
-			assert.equal('-', expression.operator);
+			assert.equal(true, node.isUnaryExpression());
+			assert.equal('-', node.operator);
 
-			assert.equal(true, expression.expression.isIntegerLiteral());
-			assert.equal('42', expression.expression.value);
+			assert.equal(true, node.node.isConstantNode());
+			assert.equal('42', node.node.value);
 		});
 
-		it('should parse a negated boolean expression', () => {
+		it('should parse a negated boolean node', () => {
 			const parser = new Parser('!true');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isUnaryExpression());
-			assert.equal('!', expression.operator);
+			assert.equal(true, node.isUnaryExpression());
+			assert.equal('!', node.operator);
 
-			assert.equal(true, expression.expression.isBooleanLiteral());
-			assert.equal('true', expression.expression.value);
+			assert.equal(true, node.node.isConstantNode());
+			assert.equal('true', node.node.value);
 		});
 
-		it('should parse a parenthesized expression', () => {
+		it('should parse a parenthesized node', () => {
 			const parser = new Parser('1 + (2 - 3.14)');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isBinaryExpression());
-			assert.equal('+', expression.operator);
+			assert.equal(true, node.isBinaryExpression());
+			assert.equal('+', node.operator);
 
-			const { left } = expression;
+			const { left } = node;
 
-			assert.equal(true, left.isIntegerLiteral());
+			assert.equal(true, left.isConstantNode());
 			assert.equal('1', left.value);
 
-			const { right } = expression;
+			const { right } = node;
 
 			assert.equal(true, right.isBinaryExpression());
 			assert.equal('-', right.operator);
-			assert.equal(true, right.left.isIntegerLiteral());
+			assert.equal(true, right.left.isConstantNode());
 			assert.equal('2', right.left.value);
 			assert.equal(true, right.right.isDecimalLiteral());
 			assert.equal('3.14', right.right.value);
@@ -284,43 +289,43 @@ describe('Parser', () => {
 		it('should parse a simple method call', () => {
 			const parser = new Parser('car.drive(2)');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isFunctionCall());
+			assert.equal(true, node.isFunctionCall());
 
-			const { object } = expression;
+			const { object } = node;
 			assert.equal(true, object.isReference());
 			assert.equal('car', object.identifier);
 
-			assert.equal(expression.functionName, 'drive');
+			assert.equal(node.functionName, 'drive');
 
-			assert.equal(1, expression.args.length);
-			assert.equal(true, expression.args[0].isIntegerLiteral());
-			assert.equal('2', expression.args[0].value);
+			assert.equal(1, node.args.length);
+			assert.equal(true, node.args[0].isConstantNode());
+			assert.equal('2', node.args[0].value);
 		});
 
 		it('should parse chain method calls', () => {
 			const parser = new Parser('node.add(42).push("Hello")');
 
-			const expression = parser.parse();
+			const node = parser.parse();
 
-			assert.equal(true, expression.isFunctionCall());
+			assert.equal(true, node.isFunctionCall());
 
-			assert.equal(expression.functionName, 'push');
+			assert.equal(node.functionName, 'push');
 
-			const { object } = expression;
+			const { object } = node;
 
 			assert.equal(true, object.isFunctionCall());
 			assert.equal('add', object.functionName);
 			assert.equal(true, object.object.isReference());
 			assert.equal('node', object.object.identifier);
 			assert.equal(1, object.args.length);
-			assert.equal(true, object.args[0].isIntegerLiteral());
+			assert.equal(true, object.args[0].isConstantNode());
 			assert.equal('42', object.args[0].value);
 
-			assert.equal(1, expression.args.length);
-			assert.equal(true, expression.args[0].isStringLiteral());
-			assert.equal('"Hello"', expression.args[0].value);
+			assert.equal(1, node.args.length);
+			assert.equal(true, node.args[0].isStringLiteral());
+			assert.equal('"Hello"', node.args[0].value);
 		});
 	});
 
@@ -352,11 +357,11 @@ describe('Parser', () => {
 
 			assert.equal(true, body.isBlock());
 
-			const { expressions } = body;
+			const { nodes } = body;
 
-			assert.equal(1, expressions.length);
+			assert.equal(1, nodes.length);
 
-			assert.equal(true, expressions[0].isIfElse());
+			assert.equal(true, nodes[0].isIfElse());
 		});
 	});
 
