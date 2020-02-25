@@ -7,6 +7,7 @@ import { WhileLoopNode } from './astNodes/WhileLoopNode';
 import { AssignmentNode } from './astNodes/AssignmentNode';
 import { SymbolNode } from './astNodes/SymbolNode';
 import { BlockNode } from './astNodes/BlockNode';
+import { ParenthesisNode } from './astNodes/ParenthesisNode';
 
 export class Parser {
 	constructor(input) {
@@ -184,9 +185,38 @@ export class Parser {
 			this.next();
 			return node;
 		}
-		console.log('currentToken is ', this.currentToken);
-		// return 'Oi-oi';
-		// return parseParenthesis
+		return this.parseParentheses();
+	}
+
+	parseParentheses() {
+		let node;
+
+		// check if it is a parenthesized expression
+		if (this.currentToken.value === '(') {
+			this.next();
+
+			node = this.parseAssignment();
+
+			if (this.currentToken.value !== ')') {
+				throw new Error('Parenthesis ) expected');
+			}
+			this.next();
+
+			node = new ParenthesisNode(node);
+			// node = parseAccessors(state, node)
+			return node;
+		}
+
+		return this.parseEnd();
+	}
+
+	parseEnd() {
+		if (this.currentToken.value === '') {
+			// syntax error or unexpected end of expression
+			throw new Error('Unexpected end of expression');
+		} else {
+			throw new Error('Value expected');
+		}
 	}
 
 	parseString() {
@@ -215,3 +245,11 @@ export class Parser {
 }
 
 // TODO use TokenType mappings
+// TODO eslint errors
+// TODO sync parser to lexer and compiler
+// TODO Add all isBlahNode props to basic Ast node
+// TODO Figure out why row & column are not working
+// TODO Add 'hi' and 'hello' as keywords to introduce new vars
+// TODO Add support for objects
+// TODO Add support for arrays
+// TODO Add support for functions

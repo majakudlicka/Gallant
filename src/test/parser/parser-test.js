@@ -182,7 +182,7 @@ describe('Parser', () => {
 		// 	assert.equal(true, node.isThis());
 		// });
 
-		it.only('should parse a block of nodes', () => {
+		it('should parse a block of nodes', () => {
 			const parser = new Parser('"hello"\n'
 				+ '42\n'
 				+ 'true\n');
@@ -192,7 +192,6 @@ describe('Parser', () => {
 			assert.equal(true, node.isBlockNode());
 
 			const { blocks } = node;
-			console.log('blocks ', blocks);
 
 			assert.equal(3, blocks.length);
 
@@ -206,48 +205,48 @@ describe('Parser', () => {
 			assert.equal('true', blocks[2].value);
 		});
 
-		it('should parse a constructor call', () => {
-			const parser = new Parser('new Integer(42)');
-
-			const node = parser.parse();
-
-			assert.equal(true, node.isConstructorCall());
-			assert.equal('Integer', node.type);
-			assert.equal(1, node.args.length);
-			assert.equal(true, node.args[0].isConstantNode());
-			assert.equal('42', node.args[0].value);
-		});
+		// it('should parse a constructor call', () => {
+		// 	const parser = new Parser('new Integer(42)');
+		//
+		// 	const node = parser.parse();
+		//
+		// 	assert.equal(true, node.isConstructorCall());
+		// 	assert.equal('Integer', node.type);
+		// 	assert.equal(1, node.args.length);
+		// 	assert.equal(true, node.args[0].isConstantNode());
+		// 	assert.equal('42', node.args[0].value);
+		// });
 
 		it('should parse a negative node', () => {
 			const parser = new Parser('-42');
 
 			const node = parser.parse();
 
-			assert.equal(true, node.isUnaryExpression());
+			assert.equal(true, node.isOperatorNode());
 			assert.equal('-', node.operator);
 
-			assert.equal(true, node.node.isConstantNode());
-			assert.equal('42', node.node.value);
+			assert.equal(true, node.right.isConstantNode());
+			assert.equal('42', node.right.value);
 		});
 
-		it('should parse a negated boolean node', () => {
-			const parser = new Parser('!true');
-
-			const node = parser.parse();
-
-			assert.equal(true, node.isUnaryExpression());
-			assert.equal('!', node.operator);
-
-			assert.equal(true, node.node.isConstantNode());
-			assert.equal('true', node.node.value);
-		});
+		// it.only('should parse a negated boolean node', () => {
+		// 	const parser = new Parser('!true');
+		//
+		// 	const node = parser.parse();
+		//
+		// 	assert.equal(true, node.isOperatorNode());
+		// 	assert.equal('!', node.operator);
+		//
+		// 	assert.equal(true, node.right.isConstantNode());
+		// 	assert.equal('true', node.right.value);
+		// });
 
 		it('should parse a parenthesized node', () => {
 			const parser = new Parser('1 + (2 - 3.14)');
 
 			const node = parser.parse();
 
-			assert.equal(true, node.isBinaryExpression());
+			assert.equal(true, node.isOperatorNode());
 			assert.equal('+', node.operator);
 
 			const { left } = node;
@@ -257,12 +256,13 @@ describe('Parser', () => {
 
 			const { right } = node;
 
-			assert.equal(true, right.isBinaryExpression());
-			assert.equal('-', right.operator);
-			assert.equal(true, right.left.isConstantNode());
-			assert.equal('2', right.left.value);
-			assert.equal(true, right.right.isDecimalLiteral());
-			assert.equal('3.14', right.right.value);
+			assert.equal(true, right.isParenthesisNode());
+			assert.equal(true, right.content.isOperatorNode());
+			assert.equal('-', right.content.operator);
+			assert.equal(true, right.content.left.isConstantNode());
+			assert.equal('2', right.content.left.value);
+			assert.equal(true, right.content.right.isConstantNode());
+			assert.equal('3.14', right.content.right.value);
 		});
 
 		it('should parse a simple method call', () => {
