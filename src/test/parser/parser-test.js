@@ -265,23 +265,53 @@ describe('Parser', () => {
 			assert.equal('3.14', right.content.right.value);
 		});
 
-		it('should parse a simple method call', () => {
-			const parser = new Parser('car.drive(2)');
+		it('should parse a function call with no arguments', () => {
+			const parser = new Parser('baz()');
 
 			const node = parser.parse();
 
-			assert.equal(true, node.isFunctionCall());
+			assert.equal(true, node.isFunctionNode());
 
-			const { object } = node;
-			assert.equal(true, object.isReference());
-			assert.equal('car', object.identifier);
+			const { identifier } = node;
+			assert.equal(true, identifier.isSymbolNode());
+			assert.equal('baz', identifier.name);
 
-			assert.equal(node.functionName, 'drive');
+			assert.equal(0, node.args.length);
+		});
+
+		it('should parse a function call with one argument', () => {
+			const parser = new Parser('foo(2)');
+
+			const node = parser.parse();
+
+			assert.equal(true, node.isFunctionNode());
+
+			const { identifier } = node;
+			assert.equal(true, identifier.isSymbolNode());
+			assert.equal('foo', identifier.name);
 
 			assert.equal(1, node.args.length);
 			assert.equal(true, node.args[0].isConstantNode());
 			assert.equal('2', node.args[0].value);
 		});
+
+		it('should parse a function call with more than one argument', () => {
+			const parser = new Parser('bar(2,3)');
+
+			const node = parser.parse();
+
+			assert.equal(true, node.isFunctionNode());
+
+			const { identifier } = node;
+			assert.equal(true, identifier.isSymbolNode());
+			assert.equal('bar', identifier.name);
+
+			assert.equal(2, node.args.length);
+			assert.equal('2', node.args[0].value);
+			assert.equal('3', node.args[1].value);
+		});
+
+		// Function assignment
 
 		it('should parse chain method calls', () => {
 			const parser = new Parser('node.add(42).push("Hello")');

@@ -8,6 +8,7 @@ import { AssignmentNode } from './astNodes/AssignmentNode';
 import { SymbolNode } from './astNodes/SymbolNode';
 import { BlockNode } from './astNodes/BlockNode';
 import { ParenthesisNode } from './astNodes/ParenthesisNode';
+import { FunctionNode } from './astNodes/FunctionNode';
 
 export class Parser {
 	constructor(input) {
@@ -203,11 +204,83 @@ export class Parser {
 			this.next();
 
 			node = new ParenthesisNode(node);
-			// node = parseAccessors(state, node)
+			node = this.parseAccessors(node);
 			return node;
 		}
 
 		return this.parseEnd();
+	}
+
+	parseAccessors(node) {
+		let params;
+		console.log('inside parseAccessors');
+
+		while (this.currentToken.value === '(' || this.currentToken.value === '[' || this.currentToken.value === '.') {
+			params = [];
+
+			console.log('inside while loop');
+
+			if (this.currentToken.value === '(') {
+				// function invocation like fn(2, 3) or obj.fn(2, 3)
+				this.next();
+				console.log('inside iffy');
+
+				if (this.currentToken.value !== ')') {
+					console.log('and inside nested iffy = currenttoken is ', this.currentToken);
+					params.push(this.parseAssignment());
+
+					// parse a list with parameters
+					while (this.currentToken.value === ',') {
+						this.next();
+						params.push(this.parseAssignment());
+					}
+				}
+
+				if (this.currentToken.value !== ')') {
+					throw new Error('Parenthesis ) expected');
+				}
+				this.next();
+
+				// eslint-disable-next-line no-param-reassign
+				node = new FunctionNode(node, params);
+			} else if (this.currentToken.value === '[') {
+				// index notation like variable[2, 3]
+				// this.next();
+				//
+				// if (this.currentToken.value !== ']') {
+				// 	params.push(this.parseAssignment())
+				//
+				// 	// parse a list with parameters
+				// 	while (this.currentToken.value === ',') { // eslint-disable-line no-unmodified-loop-condition
+				// 		this.next();
+				// 		params.push(this.parseAssignment())
+				// 	}
+				// }
+				//
+				// if (this.currentToken.value !== ']') {
+				// 	throw createSyntaxError(state, 'Parenthesis ] expected')
+				// }
+				// closeParams(state)
+				// getToken(state)
+				//
+				// node = new AccessorNode(node, new IndexNode(params))
+			} else {
+				console.log('IN ELSE IN PARSEACCESSORS');
+				// dot notation like variable.prop
+				// getToken(state)
+				//
+				// if (this.currentToken.valueType !== TOKENTYPE.SYMBOL) {
+				// 	throw createSyntaxError(state, 'Property name expected after dot')
+				// }
+				// params.push(new ConstantNode(this.currentToken.value))
+				// getToken(state)
+				//
+				// const dotNotation = true
+				// node = new AccessorNode(node, new IndexNode(params, dotNotation))
+			}
+		}
+
+		return node;
 	}
 
 	parseEnd() {
@@ -236,8 +309,10 @@ export class Parser {
 			this.next();
 			return node;
 		} if (this.currentToken.type === 'identifier') {
-			const node = new SymbolNode(this.currentToken.value);
+			let node = new SymbolNode(this.currentToken.value);
+			console.log('just created symbol node');
 			this.next();
+			node = this.parseAccessors(node);
 			return node;
 		}
 		return this.parseString();
@@ -253,3 +328,4 @@ export class Parser {
 // TODO Add support for objects
 // TODO Add support for arrays
 // TODO Add support for functions
+// TODO Add more info to errors (error logging method incl currentToken, line, col
