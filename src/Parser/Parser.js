@@ -9,6 +9,7 @@ import { SymbolNode } from './astNodes/SymbolNode';
 import { BlockNode } from './astNodes/BlockNode';
 import { ParenthesisNode } from './astNodes/ParenthesisNode';
 import { FunctionNode } from './astNodes/FunctionNode';
+import { FunctionAssignmentNode } from './astNodes/FunctionAssignmentNode';
 
 export class Parser {
 	constructor(input) {
@@ -85,6 +86,29 @@ export class Parser {
 				this.next();
 				const value = this.parseAssignment();
 				return new AssignmentNode(new SymbolNode(name), value);
+			} if (node.isFunctionNode() && node.identifier.isSymbolNode()) {
+				// parse function assignment like 'f(x) = x^2'
+
+				let valid = true;
+				const args = [];
+
+				const { name } = node;
+				node.args.forEach((arg, index) => {
+					if (arg.isSymbolNode()) {
+						args[index] = arg.name;
+					} else {
+						valid = false;
+					}
+				});
+
+				if (valid) {
+					// getTokenSkipNewline(state)
+					this.next();
+					this.expect('{')
+					const value = this.parseBlock();
+					this.expect('}')
+					return new FunctionAssignmentNode(name, args, value);
+				}
 			}
 
 			throw new Error('Invalid left hand side of assignment operator =');
@@ -329,3 +353,5 @@ export class Parser {
 // TODO Add support for arrays
 // TODO Add support for functions
 // TODO Add more info to errors (error logging method incl currentToken, line, col
+// TODO Use destructuring in Nodes constructors
+// TODO Rename Function assignment to function definition and function to function call (or something like that)

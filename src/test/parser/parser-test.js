@@ -313,57 +313,45 @@ describe('Parser', () => {
 
 		// Function assignment
 
-		it('should parse chain method calls', () => {
-			const parser = new Parser('node.add(42).push("Hello")');
+		// it('should parse chain method calls', () => {
+		// 	const parser = new Parser('node.add(42).push("Hello")');
+		//
+		// 	const node = parser.parse();
+		//
+		// 	assert.equal(true, node.isFunctionCall());
+		//
+		// 	assert.equal(node.functionName, 'push');
+		//
+		// 	const { object } = node;
+		//
+		// 	assert.equal(true, object.isFunctionCall());
+		// 	assert.equal('add', object.functionName);
+		// 	assert.equal(true, object.object.isReference());
+		// 	assert.equal('node', object.object.identifier);
+		// 	assert.equal(1, object.args.length);
+		// 	assert.equal(true, object.args[0].isConstantNode());
+		// 	assert.equal('42', object.args[0].value);
+		//
+		// 	assert.equal(1, node.args.length);
+		// 	assert.equal(true, node.args[0].isStringLiteral());
+		// 	assert.equal('"Hello"', node.args[0].value);
+		// });
+
+		it('should parse a function definition', () => {
+			const parser = new Parser('foo(a,b) = {'
+				+ ' if (a > b) a else b'
+				+ ' }');
 
 			const node = parser.parse();
 
-			assert.equal(true, node.isFunctionCall());
+			assert.equal(true, node.isFunctionAssignmentNode());
 
-			assert.equal(node.functionName, 'push');
+			assert.equal('foo', node.name);
 
-			const { object } = node;
+			const { parameters, body } = node;
 
-			assert.equal(true, object.isFunctionCall());
-			assert.equal('add', object.functionName);
-			assert.equal(true, object.object.isReference());
-			assert.equal('node', object.object.identifier);
-			assert.equal(1, object.args.length);
-			assert.equal(true, object.args[0].isConstantNode());
-			assert.equal('42', object.args[0].value);
-
-			assert.equal(1, node.args.length);
-			assert.equal(true, node.args[0].isStringLiteral());
-			assert.equal('"Hello"', node.args[0].value);
-		});
-	});
-
-	describe('#parseFunction', () => {
-
-		it('should parse a function definition', () => {
-			const parser = new Parser('func max(a: Int, b: Int): Int = {'
-				+ 'if (a > b) a else b'
-				+ '}');
-
-			const func = parser.parseFunction();
-
-			assert.equal(true, func.isFunction());
-
-			assert.equal('max', func.name);
-
-			const { parameters } = func;
-
-			assert.equal(2, parameters.length);
-
-			assert.equal('a', parameters[0].identifier);
-			assert.equal('Int', parameters[0].type);
-			assert.equal('b', parameters[1].identifier);
-			assert.equal('Int', parameters[1].type);
-
-			assert.equal('Int', func.returnType);
-
-			const { body } = func;
-
+			assert.equal(1, parameters.length);
+			assert.equal('x', parameters[0].name);
 			assert.equal(true, body.isBlock());
 
 			const { nodes } = body;
@@ -373,6 +361,8 @@ describe('Parser', () => {
 			assert.equal(true, nodes[0].isIfElse());
 		});
 	});
+
+
 
 	describe('#parseClass', () => {
 
