@@ -135,7 +135,6 @@ describe('Parser', () => {
 			const parser = new Parser('if (true) 1 else 2');
 
 			const node = parser.parse();
-			console.log('node ', node);
 
 			assert.equal(true, node.isConditionalNode());
 
@@ -337,28 +336,26 @@ describe('Parser', () => {
 		// 	assert.equal('"Hello"', node.args[0].value);
 		// });
 
-		it('should parse a function definition', () => {
+		it.only('should parse a function definition', () => {
 			const parser = new Parser('foo(a,b) = {'
-				+ ' if (a > b) a else b'
+				+ ' if (true) 1 else 2'
 				+ ' }');
 
 			const node = parser.parse();
+
+			console.log('node is ', node);
 
 			assert.equal(true, node.isFunctionAssignmentNode());
 
 			assert.equal('foo', node.name);
 
-			const { parameters, body } = node;
+			const { params, body } = node;
 
-			assert.equal(1, parameters.length);
-			assert.equal('x', parameters[0].name);
-			assert.equal(true, body.isBlock());
-
-			const { nodes } = body;
-
-			assert.equal(1, nodes.length);
-
-			assert.equal(true, nodes[0].isIfElse());
+			assert.equal(2, params.length);
+			assert.equal('a', params[0]);
+			assert.equal('b', params[1]);
+			assert.equal(true, body.isBlockNode());
+			assert.equal(true, body.blocks[0].isConditionalNode());
 		});
 	});
 

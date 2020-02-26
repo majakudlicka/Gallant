@@ -80,6 +80,7 @@ export class Parser {
 		const node = this.parseWhileLoop();
 
 		if (this.currentToken.value === '=') {
+			console.log('about to fail and node is ', node);
 			if (node.isSymbolNode()) {
 				// parse a variable assignment like 'a = 2/3'
 				const { name } = node;
@@ -87,12 +88,10 @@ export class Parser {
 				const value = this.parseAssignment();
 				return new AssignmentNode(new SymbolNode(name), value);
 			} if (node.isFunctionNode() && node.identifier.isSymbolNode()) {
-				// parse function assignment like 'f(x) = x^2'
-
 				let valid = true;
 				const args = [];
 
-				const { name } = node;
+				const {name} = node.identifier;
 				node.args.forEach((arg, index) => {
 					if (arg.isSymbolNode()) {
 						args[index] = arg.name;
@@ -104,7 +103,8 @@ export class Parser {
 				if (valid) {
 					// getTokenSkipNewline(state)
 					this.next();
-					this.expect('{')
+					this.expect('{');
+					console.log('About to parseBlock and currenToken is ', this.currentToken);
 					const value = this.parseBlock();
 					this.expect('}')
 					return new FunctionAssignmentNode(name, args, value);
@@ -134,6 +134,7 @@ export class Parser {
 
 	parseConditional() {
 		let node = this.parseSymbolOrConstant();
+		console.log('in ');
 
 		while (this.currentToken.type === 'if') {
 			this.next();
@@ -232,25 +233,20 @@ export class Parser {
 			return node;
 		}
 
-		return this.parseEnd();
+		// return this.parseEnd();
 	}
 
 	parseAccessors(node) {
 		let params;
-		console.log('inside parseAccessors');
 
 		while (this.currentToken.value === '(' || this.currentToken.value === '[' || this.currentToken.value === '.') {
 			params = [];
 
-			console.log('inside while loop');
-
 			if (this.currentToken.value === '(') {
 				// function invocation like fn(2, 3) or obj.fn(2, 3)
 				this.next();
-				console.log('inside iffy');
 
 				if (this.currentToken.value !== ')') {
-					console.log('and inside nested iffy = currenttoken is ', this.currentToken);
 					params.push(this.parseAssignment());
 
 					// parse a list with parameters

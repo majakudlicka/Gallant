@@ -1,6 +1,8 @@
-export class FunctionNode {
+import { AstNode } from './AstNode';
+
+export class FunctionNode extends AstNode {
 	constructor(identifier, args) {
-		//TODO: Can use destructuring?
+		super();
 		this.identifier = identifier;
 		this.args = args;
 	}
