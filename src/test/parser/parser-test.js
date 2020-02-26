@@ -1,7 +1,5 @@
 import * as assert from 'assert';
-// import { Expression } from '../../main/ast/node'
 import { Parser } from '../../Parser/Parser';
-import { Token } from '../../Lexer/token';
 
 describe('Parser', () => {
 
@@ -130,6 +128,16 @@ describe('Parser', () => {
 			assert.equal('8', right.value);
 		});
 
+		it('should parse relational expressions', () => {
+			const parser = new Parser('a > b');
+			const node = parser.parse();
+			assert.equal(true, node.isOperatorNode());
+			assert.equal('>', node.name);
+			assert.equal(true, node.left.isSymbolNode());
+			assert.equal('a', node.left.name);
+			assert.equal('b', node.right.name);
+		});
+
 		// Need more tests for if - else ?
 		it('should parse an if/else node', () => {
 			const parser = new Parser('if (true) 1 else 2');
@@ -228,7 +236,7 @@ describe('Parser', () => {
 			assert.equal('42', node.right.value);
 		});
 
-		// it.only('should parse a negated boolean node', () => {
+		// it('should parse a negated boolean node', () => {
 		// 	const parser = new Parser('!true');
 		//
 		// 	const node = parser.parse();
@@ -310,8 +318,6 @@ describe('Parser', () => {
 			assert.equal('3', node.args[1].value);
 		});
 
-		// Function assignment
-
 		// it('should parse chain method calls', () => {
 		// 	const parser = new Parser('node.add(42).push("Hello")');
 		//
@@ -336,189 +342,94 @@ describe('Parser', () => {
 		// 	assert.equal('"Hello"', node.args[0].value);
 		// });
 
-		it.only('should parse a function definition', () => {
+		it('should parse a function definition', () => {
 			const parser = new Parser('foo(a,b) = {'
-				+ ' if (true) 1 else 2'
+				+ ' if (a > b) a else b'
 				+ ' }');
 
 			const node = parser.parse();
-
-			console.log('node is ', node);
-
 			assert.equal(true, node.isFunctionAssignmentNode());
-
 			assert.equal('foo', node.name);
-
 			const { params, body } = node;
-
 			assert.equal(2, params.length);
 			assert.equal('a', params[0]);
 			assert.equal('b', params[1]);
-			assert.equal(true, body.isBlockNode());
-			assert.equal(true, body.blocks[0].isConditionalNode());
+			assert.equal(true, body.isConditionalNode());
 		});
 	});
 
 
+	//
+	// describe('#parseClass', () => {
+	//
+	// 	it('should parse a class definition', () => {
+	// 		const parser = new Parser('class Fraction(n: Int, d: Int) {\n'
+	// 			+ 'var num: Int = n\n'
+	// 			+ ''
+	// 			+ 'var den: Int = d\n'
+	// 			+ ''
+	// 			+ 'func gcd(): Int = {\n'
+	// 			+ '    let a = num, b = den in {\n'
+	// 			+ '        if (b == 0) a else gcd(b, a % b)\n'
+	// 			+ '    }\n'
+	// 			+ '}\n'
+	// 			+ ''
+	// 			+ 'override func toString(): String = n.toString() + "/" + d.toString()'
+	// 			+ '}');
+	//
+	// 		const klass = parser.parseClass();
+	//
+	// 		assert.equal('Fraction', klass.name);
+	//
+	// 		const { parameters } = klass;
+	//
+	// 		assert.equal(2, parameters.length);
+	//
+	// 		assert.equal('n', parameters[0].identifier);
+	// 		assert.equal('Int', parameters[0].type);
+	//
+	// 		assert.equal('d', parameters[1].identifier);
+	// 		assert.equal('Int', parameters[1].type);
+	//
+	// 		const variables = klass.properties;
+	//
+	// 		assert.equal(2, variables.length);
+	//
+	// 		assert.equal('num', variables[0].name);
+	// 		assert.equal('Int', variables[0].type);
+	// 		assert.equal(true, variables[0].value.isReference());
+	// 		assert.equal('n', variables[0].value.identifier);
+	//
+	// 		assert.equal('den', variables[1].name);
+	// 		assert.equal('Int', variables[1].type);
+	// 		assert.equal(true, variables[1].value.isReference());
+	// 		assert.equal('d', variables[1].value.identifier);
+	//
+	// 		const { functions } = klass;
+	//
+	// 		assert.equal(2, functions.length);
+	//
+	// 		assert.equal('gcd', functions[0].name);
+	// 		assert.equal('toString', functions[1].name);
+	// 		assert.equal(true, functions[1].override);
+	// 	});
+	// });
 
-	describe('#parseClass', () => {
-
-		it('should parse a class definition', () => {
-			const parser = new Parser('class Fraction(n: Int, d: Int) {\n'
-				+ 'var num: Int = n\n'
+	it('should parse a simple program', () => {
+		const parser = new Parser(
+			'x = 6\n'
+				+ 'y = 7\n'
 				+ ''
-				+ 'var den: Int = d\n'
+				+ 'foo(a,b) = {'
+					+ ' if (a > b) a else b'
+					+ ' }\n'
 				+ ''
-				+ 'func gcd(): Int = {\n'
-				+ '    let a = num, b = den in {\n'
-				+ '        if (b == 0) a else gcd(b, a % b)\n'
-				+ '    }\n'
-				+ '}\n'
-				+ ''
-				+ 'override func toString(): String = n.toString() + "/" + d.toString()'
-				+ '}');
+				+ 'foo(x,y)'
+		);
 
-			const klass = parser.parseClass();
+		const node = parser.parse();
+		assert.equal(true, node.isBlockNode());
 
-			assert.equal('Fraction', klass.name);
-
-			const { parameters } = klass;
-
-			assert.equal(2, parameters.length);
-
-			assert.equal('n', parameters[0].identifier);
-			assert.equal('Int', parameters[0].type);
-
-			assert.equal('d', parameters[1].identifier);
-			assert.equal('Int', parameters[1].type);
-
-			const variables = klass.properties;
-
-			assert.equal(2, variables.length);
-
-			assert.equal('num', variables[0].name);
-			assert.equal('Int', variables[0].type);
-			assert.equal(true, variables[0].value.isReference());
-			assert.equal('n', variables[0].value.identifier);
-
-			assert.equal('den', variables[1].name);
-			assert.equal('Int', variables[1].type);
-			assert.equal(true, variables[1].value.isReference());
-			assert.equal('d', variables[1].value.identifier);
-
-			const { functions } = klass;
-
-			assert.equal(2, functions.length);
-
-			assert.equal('gcd', functions[0].name);
-			assert.equal('toString', functions[1].name);
-			assert.equal(true, functions[1].override);
-		});
-	});
-
-	describe('#parseProgram', () => {
-
-		it('should parse multiple class definitions', () => {
-			const parser = new Parser(
-				'class Fraction(n: Int, d: Int) {\n'
-				+ 'var num: Int = n\n'
-				+ ''
-				+ 'var den: Int = d\n'
-				+ ''
-				+ 'func gcd(): Int = {\n'
-				+ '    let a = num, b = den in {\n'
-				+ '        if (b == 0) a else gcd(b, a % b)\n'
-				+ '    }\n'
-				+ '}\n'
-				+ ''
-				+ 'override func toString(): String = n.toString() + "/" + d.toString()'
-				+ '}\n'
-				+ '\n'
-				+ 'class Complex(a: Double, b: Double) {\n'
-				+ 'var x: Double = a\n'
-				+ ''
-				+ 'var y: Double = b\n'
-				+ ''
-				+ 'override func toString(): String = x.toString() + " + " + b.toString() + "i"'
-				+ '}'
-			);
-
-			const program = parser.parseProgram();
-
-			assert.equal(2, program.classesCount());
-
-			const fraction = program.classes[0];
-
-			assert.equal('Fraction', fraction.name);
-
-			const fractionParameters = fraction.parameters;
-
-			assert.equal(2, fractionParameters.length);
-
-			assert.equal('n', fractionParameters[0].identifier);
-			assert.equal('Int', fractionParameters[0].type);
-
-			assert.equal('d', fractionParameters[1].identifier);
-			assert.equal('Int', fractionParameters[1].type);
-
-			const fractionVariables = fraction.properties;
-
-			assert.equal(2, fractionVariables.length);
-
-			assert.equal('num', fractionVariables[0].name);
-			assert.equal('Int', fractionVariables[0].type);
-			assert.equal(true, fractionVariables[0].value.isReference());
-			assert.equal('n', fractionVariables[0].value.identifier);
-
-			assert.equal('den', fractionVariables[1].name);
-			assert.equal('Int', fractionVariables[1].type);
-			assert.equal(true, fractionVariables[1].value.isReference());
-			assert.equal('d', fractionVariables[1].value.identifier);
-
-			const fractionFunctions = fraction.functions;
-
-			assert.equal(2, fractionFunctions.length);
-
-			assert.equal('gcd', fractionFunctions[0].name);
-			assert.equal('toString', fractionFunctions[1].name);
-			assert.equal(true, fractionFunctions[1].override);
-
-			const complex = program.classes[1];
-
-			assert.equal('Complex', complex.name);
-
-			const complexParameters = complex.parameters;
-
-			assert.equal(2, complexParameters.length);
-
-			assert.equal('a', complexParameters[0].identifier);
-			assert.equal('Double', complexParameters[0].type);
-
-			assert.equal('b', complexParameters[1].identifier);
-			assert.equal('Double', complexParameters[1].type);
-
-			const complexVariables = complex.properties;
-
-			assert.equal(2, complexVariables.length);
-
-			assert.equal('x', complexVariables[0].name);
-			assert.equal('Double', complexVariables[0].type);
-			assert.equal(true, complexVariables[0].value.isReference());
-			assert.equal('a', complexVariables[0].value.identifier);
-
-			assert.equal('y', complexVariables[1].name);
-			assert.equal('Double', complexVariables[1].type);
-			assert.equal(true, complexVariables[1].value.isReference());
-			assert.equal('b', complexVariables[1].value.identifier);
-
-			const complexFunctions = complex.functions;
-
-			assert.equal(1, complexFunctions.length);
-
-			assert.equal('toString', complexFunctions[0].name);
-			assert.equal(true, complexFunctions[0].override);
-
-		});
 	});
 
 });

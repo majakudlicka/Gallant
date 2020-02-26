@@ -10,6 +10,7 @@ import { BlockNode } from './astNodes/BlockNode';
 import { ParenthesisNode } from './astNodes/ParenthesisNode';
 import { FunctionNode } from './astNodes/FunctionNode';
 import { FunctionAssignmentNode } from './astNodes/FunctionAssignmentNode';
+import { RelationalNode } from './astNodes/RelationalNode';
 
 export class Parser {
 	constructor(input) {
@@ -76,11 +77,39 @@ export class Parser {
 		return node;
 	}
 
+	parseRelational() {
+		const params = [this.parseSymbolOrConstant()];
+		const conditionals = [];
+
+		const operators = {
+			'==': 'equal',
+			'!=': 'unequal',
+			'<': 'smaller',
+			'>': 'larger',
+			'<=': 'smallerEq',
+			'>=': 'largerEq'
+		};
+
+		while (operators[this.currentToken.value]) {
+			const cond = { name: this.currentToken.value, fn: operators[this.currentToken.value] };
+			conditionals.push(cond);
+			this.next();
+			params.push(this.parseSymbolOrConstant());
+		}
+
+		if (params.length === 1) {
+			return params[0];
+		} if (params.length === 2) {
+			return new OperatorNode(conditionals[0].name, conditionals[0].fn, params[0], params[1]);
+		}
+		return new RelationalNode(conditionals.map(c => c.fn), params);
+
+	}
+
 	parseAssignment() {
 		const node = this.parseWhileLoop();
 
 		if (this.currentToken.value === '=') {
-			console.log('about to fail and node is ', node);
 			if (node.isSymbolNode()) {
 				// parse a variable assignment like 'a = 2/3'
 				const { name } = node;
@@ -91,7 +120,7 @@ export class Parser {
 				let valid = true;
 				const args = [];
 
-				const {name} = node.identifier;
+				const { name } = node.identifier;
 				node.args.forEach((arg, index) => {
 					if (arg.isSymbolNode()) {
 						args[index] = arg.name;
@@ -104,9 +133,8 @@ export class Parser {
 					// getTokenSkipNewline(state)
 					this.next();
 					this.expect('{');
-					console.log('About to parseBlock and currenToken is ', this.currentToken);
 					const value = this.parseBlock();
-					this.expect('}')
+					this.expect('}');
 					return new FunctionAssignmentNode(name, args, value);
 				}
 			}
@@ -133,19 +161,18 @@ export class Parser {
 	}
 
 	parseConditional() {
-		let node = this.parseSymbolOrConstant();
-		console.log('in ');
+		let node = this.parseRelational();
 
 		while (this.currentToken.type === 'if') {
 			this.next();
 			this.expect('(');
-			const condition = this.parseSymbolOrConstant();
+			const condition = this.parseRelational();
 			this.expect(')');
-			const trueExpr = this.parseSymbolOrConstant();
+			const trueExpr = this.parseRelational();
 			let falseExpr = null;
 			if (this.currentToken.type === 'else') {
 				this.next();
-				falseExpr = this.parseSymbolOrConstant();
+				falseExpr = this.parseRelational();
 			}
 			node = new ConditionalNode(condition, trueExpr, falseExpr);
 		}
@@ -321,8 +348,6 @@ export class Parser {
 		return this.parseAddSubtract();
 	}
 
-	// Can this be combined with the string ?
-	// Rename symbol to indentifier?
 	parseSymbolOrConstant() {
 		if (this.isConstant()) {
 			const node = new ConstantNode(this.currentToken.value, this.currentToken.type);
@@ -330,7 +355,6 @@ export class Parser {
 			return node;
 		} if (this.currentToken.type === 'identifier') {
 			let node = new SymbolNode(this.currentToken.value);
-			console.log('just created symbol node');
 			this.next();
 			node = this.parseAccessors(node);
 			return node;
@@ -351,3 +375,5 @@ export class Parser {
 // TODO Add more info to errors (error logging method incl currentToken, line, col
 // TODO Use destructuring in Nodes constructors
 // TODO Rename Function assignment to function definition and function to function call (or something like that)
+// TODO Change order of functions to make some logical sense
+// TODO Do we need RelationalNode type ?

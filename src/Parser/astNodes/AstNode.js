@@ -44,4 +44,8 @@ export class AstNode {
 	isParenthesisNode() {
 		return false;
 	}
+
+	isRelationalNode() {
+		return false;
+	}
 }

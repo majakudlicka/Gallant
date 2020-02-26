@@ -414,7 +414,7 @@ export class Lexer {
 
 		// Throw an error if the current character does not match
 		// any production rule of the lexical grammar.
-		throw new Error('Unrecognized character ${character} at line ${this.line} and column ${this.column}.');
+		throw new Error(`Unrecognized character ${character} at line ${this.line} and column ${this.column}.`);
 	}
 
 	skipWhitespaces() {
