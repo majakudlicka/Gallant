@@ -1,13 +1,13 @@
 import { AstNode } from './AstNode';
 
-export class FunctionNode extends AstNode {
+export class FunctionCallNode extends AstNode {
 	constructor(identifier, args) {
 		super();
 		this.identifier = identifier;
 		this.args = args;
 	}
 
-	isFunctionNode() {
+	isFunctionCallNode() {
 		return true;
 	}
 }

@@ -8,7 +8,7 @@ import { AssignmentNode } from './astNodes/AssignmentNode';
 import { SymbolNode } from './astNodes/SymbolNode';
 import { BlockNode } from './astNodes/BlockNode';
 import { ParenthesisNode } from './astNodes/ParenthesisNode';
-import { FunctionNode } from './astNodes/FunctionNode';
+import { FunctionCallNode } from './astNodes/FunctionCallNode';
 import { FunctionAssignmentNode } from './astNodes/FunctionAssignmentNode';
 import { RelationalNode } from './astNodes/RelationalNode';
 
@@ -81,6 +81,7 @@ export class Parser {
 		const params = [this.parseSymbolOrConstant()];
 		const conditionals = [];
 
+		// TODO DIfferent data structure ?
 		const operators = {
 			'==': 'equal',
 			'!=': 'unequal',
@@ -91,7 +92,7 @@ export class Parser {
 		};
 
 		while (operators[this.currentToken.value]) {
-			const cond = { name: this.currentToken.value, fn: operators[this.currentToken.value] };
+			const cond = { name: this.currentToken.value, fn: this.currentToken.value };
 			conditionals.push(cond);
 			this.next();
 			params.push(this.parseSymbolOrConstant());
@@ -116,7 +117,7 @@ export class Parser {
 				this.next();
 				const value = this.parseAssignment();
 				return new AssignmentNode(new SymbolNode(name), value);
-			} if (node.isFunctionNode() && node.identifier.isSymbolNode()) {
+			} if (node.isFunctionCallNode() && node.identifier.isSymbolNode()) {
 				let valid = true;
 				const args = [];
 
@@ -151,9 +152,11 @@ export class Parser {
 		while (this.currentToken.type === 'while') {
 			this.next();
 			this.expect('(');
-			const condition = this.parseSymbolOrConstant();
+			const condition = this.parseAssignment();
 			this.expect(')');
-			const body = this.parseSymbolOrConstant();
+			this.expect('{');
+			const body = this.parseBlock();
+			this.expect('}');
 			node = new WhileLoopNode(condition, body);
 		}
 
@@ -289,7 +292,7 @@ export class Parser {
 				this.next();
 
 				// eslint-disable-next-line no-param-reassign
-				node = new FunctionNode(node, params);
+				node = new FunctionCallNode(node, params);
 			} else if (this.currentToken.value === '[') {
 				// index notation like variable[2, 3]
 				// this.next();

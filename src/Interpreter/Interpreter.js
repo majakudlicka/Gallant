@@ -1,9 +1,8 @@
 import { Parser } from '../Parser/Parser';
-import { SymbolTable } from "../Parser/semanticAnalysis/symbolTable";
+import { SymbolTable } from '../Parser/semanticAnalysis/symbolTable';
 
 export class Interpreter {
 	constructor(input) {
-		this.output = '';
 		this.parser = new Parser(input);
 		this.symbolTable = new SymbolTable();
 		this.ast = this.parser.parse();
@@ -14,21 +13,102 @@ export class Interpreter {
 	}
 
 	interpretNode(node) {
+		console.log('node is ', node);
 		if (node.isConstantNode()) {
 			return this.interpretConstantNode(node);
 		}
 		if (node.isAssignmentNode()) {
 			return this.interpretAssignmentNode(node);
 		}
-		if (node.isBlockNode()) {
-			this.interpretBlockNode(node);
+		if (node.isFunctionAssignmentNode()) {
+			return this.interpretFunctionAssignmentNode(node);
 		}
-
-		return this.output;
+		if (node.isConditionalNode()) {
+			return this.interpretConditionalNode(node);
+		}
+		if (node.isFunctionCallNode()) {
+			return this.interpretFunctionCall(node);
+		}
+		if (node.isBlockNode()) {
+			return this.interpretBlockNode(node);
+		}
+		if (node.isSymbolNode()) {
+			return this.interpretSymbolNode(node);
+		}
+		if (node.isOperatorNode()) {
+			return this.interpretOperatorNode(node);
+		}
+		if (node.isWhileLoopNode()) {
+			return this.interpretWhileLoopNode(node);
+		}
 	}
 
-	add(str) {
-		this.output += str;
+	interpretWhileLoopNode(node) {
+		const condition = this.interpretNode(node.condition);
+		let lastEvaluated;
+		while (condition) {
+			lastEvaluated = this.interpretNode(node.body);
+		}
+		return lastEvaluated;
+	}
+
+	interpretOperatorNode(node) {
+		const left = this.interpretNode(node.left);
+		const right = this.interpretNode(node.right);
+		let res;
+		console.log('node operator ', node.operator);
+		// TODO Can this be done in any smarter way?
+		switch (node.operator) {
+			case '+':
+				res = left + right;
+				break;
+			case '-':
+				res = left - right;
+				break;
+			case '*':
+				res = left * right;
+				break;
+			case '/':
+				res = left / right;
+				break;
+			case '%':
+				res = left % right;
+				break;
+			case '==':
+				res = left === right;
+				break;
+			case '!=':
+				res = left !== right;
+				break;
+			case '<':
+				res = left < right;
+				break;
+			case '>':
+				res = left > right;
+				break;
+			case '<=':
+				res = left <= right;
+				break;
+			case '>=':
+				res = left >= right;
+				break;
+			default:
+				throw new Error('Unrecognized operator');
+		}
+		return res;
+	}
+
+	interpretConditionalNode(node) {
+		const condition = this.interpretNode(node.condition);
+		if (condition) {
+			return this.interpretNode(node.trueExpr);
+		} else {
+			return this.interpretNode(node.falseExpr);
+		}
+	}
+
+	interpretFunctionAssignmentNode(node) {
+		this.symbolTable.addSymbol(node.name, node);
 	}
 
 	interpretAssignmentNode(node) {
@@ -42,21 +122,43 @@ export class Interpreter {
 	}
 
 	interpretConstantNode(node) {
-		console.log('node is ', node);
 		// boolean constants
 		if (['true', 'false'].includes(node.type)) {
 			// eslint-disable-next-line no-eval
 			return !eval(node.value);
-		} else if (node.type === 'string') {
-			const reversedString = node.value.split("").reverse().join("");
+		} if (node.type === 'string') {
+			const reversedString = node.value.split('').reverse().join('');
 			return eval(reversedString);
-		} else {
-			return eval(node.value);
 		}
+		return eval(node.value);
+
+	}
+
+	interpretFunctionCall(node) {
+		// identifier, args
+		const functionDef = this.symbolTable.findSymbol(node.identifier.name);
+		if (node.args.length !== functionDef.params.length) {
+			throw new Error('Invalid number of parameters');
+		}
+		this.symbolTable.enterNewScope();
+		const parsedArgs = node.args.map(a=> this.interpretNode(a));
+		functionDef.params.forEach((param, index)=>{
+			this.symbolTable.addSymbol(param, parsedArgs[index]);
+		});
+		const res = this.interpretNode(functionDef.body);
+		console.log('res is ', res);
+		this.symbolTable.exitScope();
+		return res;
+
 	}
 
 	interpretBlockNode(node) {
+		const size = node.blocks.length;
+		for (let i = 0; i < size - 1; i++) {
+			this.interpretNode(node.blocks[i]);
+		}
 
+		return this.interpretNode(node.blocks[size - 1]);
 	}
 
 

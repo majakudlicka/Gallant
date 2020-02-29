@@ -11,6 +11,10 @@ export class SymbolTable {
 		this.currentScope.set(identifier, value);
 	}
 
+	hasSymbol(identifier) {
+		return this.currentScope.has(identifier);
+	}
+
 	enterNewScope() {
 		this.scopeStack.push(new Map());
 		this.currentScopeIndex++;

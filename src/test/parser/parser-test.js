@@ -155,8 +155,11 @@ describe('Parser', () => {
 			assert.equal('2', node.falseExpr.value);
 		});
 
-		it('should parse a while node', () => {
-			const parser = new Parser('while (true) 42');
+		it.only('should parse a while node', () => {
+			const parser = new Parser('while (i > 0) {'
+			+ 'y = y * 4'
+			+ 'i = i - 1'
+			+ '}');
 
 			const node = parser.parse();
 
@@ -277,7 +280,7 @@ describe('Parser', () => {
 
 			const node = parser.parse();
 
-			assert.equal(true, node.isFunctionNode());
+			assert.equal(true, node.isFunctionCallNode());
 
 			const { identifier } = node;
 			assert.equal(true, identifier.isSymbolNode());
@@ -291,7 +294,7 @@ describe('Parser', () => {
 
 			const node = parser.parse();
 
-			assert.equal(true, node.isFunctionNode());
+			assert.equal(true, node.isFunctionCallNode());
 
 			const { identifier } = node;
 			assert.equal(true, identifier.isSymbolNode());
@@ -307,7 +310,7 @@ describe('Parser', () => {
 
 			const node = parser.parse();
 
-			assert.equal(true, node.isFunctionNode());
+			assert.equal(true, node.isFunctionCallNode());
 
 			const { identifier } = node;
 			assert.equal(true, identifier.isSymbolNode());
@@ -317,30 +320,6 @@ describe('Parser', () => {
 			assert.equal('2', node.args[0].value);
 			assert.equal('3', node.args[1].value);
 		});
-
-		// it('should parse chain method calls', () => {
-		// 	const parser = new Parser('node.add(42).push("Hello")');
-		//
-		// 	const node = parser.parse();
-		//
-		// 	assert.equal(true, node.isFunctionCall());
-		//
-		// 	assert.equal(node.functionName, 'push');
-		//
-		// 	const { object } = node;
-		//
-		// 	assert.equal(true, object.isFunctionCall());
-		// 	assert.equal('add', object.functionName);
-		// 	assert.equal(true, object.object.isReference());
-		// 	assert.equal('node', object.object.identifier);
-		// 	assert.equal(1, object.args.length);
-		// 	assert.equal(true, object.args[0].isConstantNode());
-		// 	assert.equal('42', object.args[0].value);
-		//
-		// 	assert.equal(1, node.args.length);
-		// 	assert.equal(true, node.args[0].isStringLiteral());
-		// 	assert.equal('"Hello"', node.args[0].value);
-		// });
 
 		it('should parse a function definition', () => {
 			const parser = new Parser('foo(a,b) = {'
@@ -358,63 +337,6 @@ describe('Parser', () => {
 		});
 	});
 
-
-	//
-	// describe('#parseClass', () => {
-	//
-	// 	it('should parse a class definition', () => {
-	// 		const parser = new Parser('class Fraction(n: Int, d: Int) {\n'
-	// 			+ 'var num: Int = n\n'
-	// 			+ ''
-	// 			+ 'var den: Int = d\n'
-	// 			+ ''
-	// 			+ 'func gcd(): Int = {\n'
-	// 			+ '    let a = num, b = den in {\n'
-	// 			+ '        if (b == 0) a else gcd(b, a % b)\n'
-	// 			+ '    }\n'
-	// 			+ '}\n'
-	// 			+ ''
-	// 			+ 'override func toString(): String = n.toString() + "/" + d.toString()'
-	// 			+ '}');
-	//
-	// 		const klass = parser.parseClass();
-	//
-	// 		assert.equal('Fraction', klass.name);
-	//
-	// 		const { parameters } = klass;
-	//
-	// 		assert.equal(2, parameters.length);
-	//
-	// 		assert.equal('n', parameters[0].identifier);
-	// 		assert.equal('Int', parameters[0].type);
-	//
-	// 		assert.equal('d', parameters[1].identifier);
-	// 		assert.equal('Int', parameters[1].type);
-	//
-	// 		const variables = klass.properties;
-	//
-	// 		assert.equal(2, variables.length);
-	//
-	// 		assert.equal('num', variables[0].name);
-	// 		assert.equal('Int', variables[0].type);
-	// 		assert.equal(true, variables[0].value.isReference());
-	// 		assert.equal('n', variables[0].value.identifier);
-	//
-	// 		assert.equal('den', variables[1].name);
-	// 		assert.equal('Int', variables[1].type);
-	// 		assert.equal(true, variables[1].value.isReference());
-	// 		assert.equal('d', variables[1].value.identifier);
-	//
-	// 		const { functions } = klass;
-	//
-	// 		assert.equal(2, functions.length);
-	//
-	// 		assert.equal('gcd', functions[0].name);
-	// 		assert.equal('toString', functions[1].name);
-	// 		assert.equal(true, functions[1].override);
-	// 	});
-	// });
-
 	it('should parse a simple program', () => {
 		const parser = new Parser(
 			'x = 6\n'
@@ -429,6 +351,7 @@ describe('Parser', () => {
 
 		const node = parser.parse();
 		assert.equal(true, node.isBlockNode());
+		// TODO Add more assertions
 
 	});
 

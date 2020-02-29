@@ -33,7 +33,7 @@ export class AstNode {
 		return false;
 	}
 
-	isFunctionNode() {
+	isFunctionCallNode() {
 		return false;
 	}
 
