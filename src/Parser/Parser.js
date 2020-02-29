@@ -377,3 +377,5 @@ export class Parser {
 // TODO Rename Function assignment to function definition and function to function call (or something like that)
 // TODO Change order of functions to make some logical sense
 // TODO Do we need RelationalNode type ?
+// TODO Change strings to use $
+// TODO Console.log some mirror related phrasem (mirror, mirror, on the wall...)

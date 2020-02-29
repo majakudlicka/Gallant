@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { SymbolTable } from '../../Parser/semanticAnalysis/symbolTable';
 
-describe.only('Symbol Table', () => {
+describe('Symbol Table', () => {
 
 	it('Should add symbols to current scope', () => {
 		const St = new SymbolTable();
