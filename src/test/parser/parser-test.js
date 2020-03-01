@@ -155,24 +155,27 @@ describe('Parser', () => {
 			assert.equal('2', node.falseExpr.value);
 		});
 
-		it.only('should parse a while node', () => {
-			const parser = new Parser('while (i > 0) {'
-			+ 'y = y * 4'
-			+ 'i = i - 1'
+		it('should parse a while node', () => {
+			const parser = new Parser('while (i > 0) {\n'
+			+ 'y = y * 4\n'
+			+ 'i = i - 1\n'
 			+ '}');
 
 			const node = parser.parse();
 
 			assert.equal(true, node.isWhileLoopNode());
 
-			assert.equal(true, node.condition.isConstantNode());
-			assert.equal('true', node.condition.value);
+			const { body, condition } = node;
+			assert.equal(true, condition.isOperatorNode());
+			assert.equal('>', condition.operator);
 
-			assert.equal(true, node.body.isConstantNode());
-			assert.equal('42', node.body.value);
+			assert.equal(true, body.isBlockNode());
+			assert.equal(2, body.blocks.length);
+			assert.equal(true, body.blocks[0].isAssignmentNode());
+			assert.equal(true, body.blocks[1].isAssignmentNode());
 		});
 
-		it('should parse an assignment', () => {
+		it('should parse a simple assignment', () => {
 			const parser = new Parser('a = 5');
 
 			const node = parser.parse();
@@ -182,6 +185,19 @@ describe('Parser', () => {
 			assert.equal(true, node.value.isConstantNode());
 			assert.equal('a', node.symbol.name);
 			assert.equal(5, node.value.value);
+		});
+
+		it('should parse a more complex assignment', () => {
+			const parser = new Parser('i = i + 1');
+
+			const node = parser.parse();
+
+			assert.equal(true, node.isAssignmentNode());
+			const { symbol, value } = node;
+			assert.equal(true, symbol.isSymbolNode());
+			assert.equal(true, value.isOperatorNode());
+			assert.equal('i', symbol.name);
+			assert.equal('+', value.operator);
 		});
 
 		// it('should parse a this node', () => {

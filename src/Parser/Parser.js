@@ -41,7 +41,6 @@ export class Parser {
 	}
 
 	parse() {
-		console.log('currentToken ', this.currentToken);
 		const node = this.parseBlock();
 		return node;
 	}
@@ -67,7 +66,7 @@ export class Parser {
 			if (this.currentToken.type === 'EndOfInput') break;
 			if (this.currentToken.value !== '' && this.currentToken.value !== '\n' && this.currentToken.value !== ';') {
 				node = this.parseAssignment();
-				blocks.push(node);
+				if (node) blocks.push(node);
 			}
 		}
 
@@ -78,7 +77,7 @@ export class Parser {
 	}
 
 	parseRelational() {
-		const params = [this.parseSymbolOrConstant()];
+		const params = [this.parseAddSubtract()];
 		const conditionals = [];
 
 		// TODO DIfferent data structure ?
@@ -95,7 +94,7 @@ export class Parser {
 			const cond = { name: this.currentToken.value, fn: this.currentToken.value };
 			conditionals.push(cond);
 			this.next();
-			params.push(this.parseSymbolOrConstant());
+			params.push(this.parseAddSubtract());
 		}
 
 		if (params.length === 1) {
@@ -205,14 +204,14 @@ export class Parser {
 	}
 
 	parseMultiplyDivide() {
-		let node = this.parseNumber();
+		let node = this.parseSymbolOrConstant();
 
 		while (this.isMultiplyDivisionOrModuloOperator()) {
 			const name = this.currentToken.value;
 			const operator = this.currentToken.type;
 			this.next();
 			const left = node;
-			const right = this.parseNumber();
+			const right = this.parseSymbolOrConstant();
 			node = new OperatorNode(name, operator, left, right);
 		}
 
@@ -315,7 +314,6 @@ export class Parser {
 				//
 				// node = new AccessorNode(node, new IndexNode(params))
 			} else {
-				console.log('IN ELSE IN PARSEACCESSORS');
 				// dot notation like variable.prop
 				// getToken(state)
 				//
@@ -348,7 +346,7 @@ export class Parser {
 			this.next();
 			return node;
 		}
-		return this.parseAddSubtract();
+		return this.parseNumber();
 	}
 
 	parseSymbolOrConstant() {
@@ -382,3 +380,4 @@ export class Parser {
 // TODO Do we need RelationalNode type ?
 // TODO Change strings to use $
 // TODO Console.log some mirror related phrasem (mirror, mirror, on the wall...)
+// TODO introduce ; and sort out strange issues with new lines
