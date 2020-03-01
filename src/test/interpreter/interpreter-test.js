@@ -148,14 +148,16 @@ describe('Interpreter', () => {
 	it.only('Should interpret a while loop', () => {
 		const source = 'x = 5\n'
 			+ 'y = 0\n'
-			+ 'while (false) y = 3';
-			// + 'y = 3'
-			// + 'x = x - 1';
+		 	+ 'while (x > 0) {\n'
+			+ 'y = y + 4\n'
+			+ 'x = x - 1\n'
+			+ '}';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		console.log('output ', output);
-		assert.equal(3, i.symbolTable.findSymbol('y'));
-		assert.equal(5, i.symbolTable.findSymbol('x'));
+		console.log('i.symbolTable ', i.symbolTable);
+		assert.equal(0, i.symbolTable.findSymbol('x'));
+		assert.equal(20, i.symbolTable.findSymbol('y'));
 	});
 
 

@@ -13,7 +13,6 @@ export class Interpreter {
 	}
 
 	interpretNode(node) {
-		console.log('node is ', node);
 		if (node.isConstantNode()) {
 			return this.interpretConstantNode(node);
 		}
@@ -44,10 +43,11 @@ export class Interpreter {
 	}
 
 	interpretWhileLoopNode(node) {
-		const condition = this.interpretNode(node.condition);
+		let condition = this.interpretNode(node.condition);
 		let lastEvaluated;
 		while (condition) {
 			lastEvaluated = this.interpretNode(node.body);
+			condition = this.interpretNode(node.condition);
 		}
 		return lastEvaluated;
 	}
