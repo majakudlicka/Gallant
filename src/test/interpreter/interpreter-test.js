@@ -58,6 +58,17 @@ describe('Interpreter', () => {
 		assert.equal(true, i.symbolTable.hasSymbol('foo'));
 	});
 
+	it('Should NOT add variables declared within functions to global scope', () => {
+		const source = 'foo() = {'
+			+ 'x = 4\n'
+			+ 'y = 5\n'
+			+ ' }\n';
+		const i = new Interpreter(source);
+		i.interpret();
+		assert.equal(undefined, i.symbolTable.findSymbol('x'));
+		assert.equal(undefined, i.symbolTable.findSymbol('y'));
+	});
+
 	it('Should interpret an if-else statement and execute if branch', () => {
 		// false evaluates to true
 		const source = ' if (false) 1 else 2';
@@ -116,6 +127,13 @@ describe('Interpreter', () => {
 		assert.equal(30, output);
 	});
 
+	it('Should interpret an expression involving parenthesis', () => {
+		const source = ' (10 + 5) * 4';
+		const i = new Interpreter(source);
+		const output = i.interpret();
+		assert.equal(60, output);
+	});
+
 	it('Should interpret simple relational expression', () => {
 		const source = ' 10 > 5';
 		const i = new Interpreter(source);
@@ -145,7 +163,7 @@ describe('Interpreter', () => {
 		assert.equal(5, output);
 	});
 
-	it.only('Should interpret a while loop', () => {
+	it('Should interpret a while loop', () => {
 		const source = 'x = 5\n'
 			+ 'y = 0\n'
 			+ 'while (x > 0) {\n'
@@ -158,5 +176,26 @@ describe('Interpreter', () => {
 		assert.equal(20, i.symbolTable.findSymbol('y'));
 	});
 
+	it('Should interpret a standalone array', () => {
+		const source = '[1, 2, 3]';
+		const i = new Interpreter(source);
+		const output = i.interpret();
+		assert.deepEqual([1, 2, 3], output);
+	});
+
+	it('Should interpret an assignment with array on the right hand side', () => {
+		const source = 'arr = [1, 2, 3]';
+		const i = new Interpreter(source);
+		i.interpret();
+		assert.deepEqual([1, 2, 3], i.symbolTable.findSymbol('arr'));
+	});
+
+	it.only('Should access array element by index', () => {
+		const source = 'arr = [1, 2, 3]\n'
+			+ 'arr@0';
+		const i = new Interpreter(source);
+		const output = i.interpret();
+		assert.equal(1, output);
+	});
 
 });

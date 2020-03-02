@@ -16,6 +16,9 @@ export class Interpreter {
 		if (node.isConstantNode()) {
 			return this.interpretConstantNode(node);
 		}
+		if (node.isParenthesisNode()) {
+			return this.interpretParenthesisNode(node);
+		}
 		if (node.isAssignmentNode()) {
 			return this.interpretAssignmentNode(node);
 		}
@@ -40,6 +43,33 @@ export class Interpreter {
 		if (node.isWhileLoopNode()) {
 			return this.interpretWhileLoopNode(node);
 		}
+		if (node.isArrayNode()) {
+			return this.interpretArrayNode(node);
+		}
+		if (node.isAccessorNode()) {
+			return this.interpretAccessorNode(node);
+		}
+	}
+
+	interpretArrayNode(node) {
+		const res = [];
+		node.content.forEach(n=> {
+			res.push(this.interpretNode(n));
+		});
+		return res;
+	}
+
+	interpretAccessorNode(node) {
+		console.log('in accessorNode');
+		// TODO Rethink terminology object vs array
+		const obj = this.symbolTable.findSymbol(node.objectRef);
+		if (!obj) throw new Error('Object doesnt exist in current scope');
+		const index = this.interpretNode(node.index);
+		return obj[index];
+	}
+
+	interpretParenthesisNode(node) {
+		return this.interpretNode(node.content);
 	}
 
 	interpretWhileLoopNode(node) {
@@ -117,6 +147,8 @@ export class Interpreter {
 		}
 		else if (node.value.isOperatorNode()) {
 			value = this.interpretOperatorNode(node.value);
+		} else if (node.value.isArrayNode()) {
+			value = this.interpretArrayNode(node.value);
 		}
 		// TODO Are there any other types of nodes that can be used on the right of assignment ?
 		this.symbolTable.addSymbol(node.symbol.name, value);
@@ -158,6 +190,7 @@ export class Interpreter {
 	}
 
 	interpretBlockNode(node) {
+		console.log('in blcok Node');
 		const size = node.blocks.length;
 		for (let i = 0; i < size - 1; i++) {
 			this.interpretNode(node.blocks[i]);

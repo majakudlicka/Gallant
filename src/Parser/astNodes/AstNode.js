@@ -48,4 +48,12 @@ export class AstNode {
 	isRelationalNode() {
 		return false;
 	}
+
+	isArrayNode() {
+		return false;
+	}
+
+	isAccessorNode() {
+		return false;
+	}
 }

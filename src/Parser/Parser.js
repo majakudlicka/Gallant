@@ -11,6 +11,8 @@ import { ParenthesisNode } from './astNodes/ParenthesisNode';
 import { FunctionCallNode } from './astNodes/FunctionCallNode';
 import { FunctionAssignmentNode } from './astNodes/FunctionAssignmentNode';
 import { RelationalNode } from './astNodes/RelationalNode';
+import { ArrayNode } from './astNodes/ArrayNode';
+import { AccessorNode } from './astNodes/AccessorNode';
 
 export class Parser {
 	constructor(input) {
@@ -41,6 +43,7 @@ export class Parser {
 	}
 
 	parse() {
+		console.log('currentToken ', this.currentToken);
 		const node = this.parseBlock();
 		return node;
 	}
@@ -52,10 +55,13 @@ export class Parser {
 	parseBlock() {
 		let node;
 		const blocks = [];
+		console.log('in parseBlock');
 
 		if (this.currentToken.value !== '' && this.currentToken.value !== '\n' && this.currentToken.value !== ';') {
+			console.log('in first iffy');
 			node = this.parseAssignment();
 		}
+		console.log('after iffy this.currentToken is ', this.currentToken);
 
 		// TODO: simplify this loop
 		while (this.currentToken.value === '\n' || this.currentToken.value === ';') {
@@ -268,7 +274,7 @@ export class Parser {
 	parseAccessors(node) {
 		let params;
 
-		while (this.currentToken.value === '(' || this.currentToken.value === '[' || this.currentToken.value === '.') {
+		while (this.currentToken.value === '(' || this.currentToken.value === '@' || this.currentToken.value === '.') {
 			params = [];
 
 			if (this.currentToken.value === '(') {
@@ -292,27 +298,11 @@ export class Parser {
 
 				// eslint-disable-next-line no-param-reassign
 				node = new FunctionCallNode(node, params);
-			} else if (this.currentToken.value === '[') {
-				// index notation like variable[2, 3]
-				// this.next();
-				//
-				// if (this.currentToken.value !== ']') {
-				// 	params.push(this.parseAssignment())
-				//
-				// 	// parse a list with parameters
-				// 	while (this.currentToken.value === ',') { // eslint-disable-line no-unmodified-loop-condition
-				// 		this.next();
-				// 		params.push(this.parseAssignment())
-				// 	}
-				// }
-				//
-				// if (this.currentToken.value !== ']') {
-				// 	throw createSyntaxError(state, 'Parenthesis ] expected')
-				// }
-				// closeParams(state)
-				// getToken(state)
-				//
-				// node = new AccessorNode(node, new IndexNode(params))
+				// TODO
+			} else if (this.currentToken.value === '@') {
+				this.next();
+				// eslint-disable-next-line no-param-reassign
+				node = new AccessorNode(node, this.parseSymbolOrConstant());
 			} else {
 				// dot notation like variable.prop
 				// getToken(state)
@@ -346,6 +336,36 @@ export class Parser {
 			this.next();
 			return node;
 		}
+		return this.parseArray();
+	}
+
+	parseArray() {
+		if (this.currentToken.type === '[') {
+			this.next();
+			const content = [];
+			if (this.currentToken.value !== ']') {
+				content.push(this.parseAssignment());
+
+				while (this.currentToken.value === ',') {
+					this.next();
+					content.push(this.parseAssignment());
+				}
+			}
+
+			if (this.currentToken.value !== ']') {
+				throw new Error(('Parenthesis ] expected'));
+			}
+			// while (this.currentToken.type !== ']') {
+			// 	if (this.currentToken.type === ',') {
+			// 		this.next();
+			// 	} else {
+			// 		content.push(this.parseSymbolOrConstant());
+			// 		this.next();
+			// 	}
+			// }
+			return new ArrayNode(content);
+		}
+
 		return this.parseNumber();
 	}
 
@@ -381,3 +401,4 @@ export class Parser {
 // TODO Change strings to use $
 // TODO Console.log some mirror related phrasem (mirror, mirror, on the wall...)
 // TODO introduce ; and sort out strange issues with new lines
+// TODO Replace hardcoded tokens with .tokentype

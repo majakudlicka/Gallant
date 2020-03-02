@@ -175,7 +175,7 @@ describe('Parser', () => {
 			assert.equal(true, body.blocks[1].isAssignmentNode());
 		});
 
-		it('should parse a simple assignment', () => {
+		it('should parse an assignment to a constant', () => {
 			const parser = new Parser('a = 5');
 
 			const node = parser.parse();
@@ -187,7 +187,7 @@ describe('Parser', () => {
 			assert.equal(5, node.value.value);
 		});
 
-		it('should parse a more complex assignment', () => {
+		it('should parse an assignment to an expression', () => {
 			const parser = new Parser('i = i + 1');
 
 			const node = parser.parse();
@@ -231,18 +231,6 @@ describe('Parser', () => {
 			assert.equal('true', blocks[2].value);
 		});
 
-		// it('should parse a constructor call', () => {
-		// 	const parser = new Parser('new Integer(42)');
-		//
-		// 	const node = parser.parse();
-		//
-		// 	assert.equal(true, node.isConstructorCall());
-		// 	assert.equal('Integer', node.type);
-		// 	assert.equal(1, node.args.length);
-		// 	assert.equal(true, node.args[0].isConstantNode());
-		// 	assert.equal('42', node.args[0].value);
-		// });
-
 		it('should parse a negative node', () => {
 			const parser = new Parser('-42');
 
@@ -254,18 +242,6 @@ describe('Parser', () => {
 			assert.equal(true, node.right.isConstantNode());
 			assert.equal('42', node.right.value);
 		});
-
-		// it('should parse a negated boolean node', () => {
-		// 	const parser = new Parser('!true');
-		//
-		// 	const node = parser.parse();
-		//
-		// 	assert.equal(true, node.isOperatorNode());
-		// 	assert.equal('!', node.operator);
-		//
-		// 	assert.equal(true, node.right.isConstantNode());
-		// 	assert.equal('true', node.right.value);
-		// });
 
 		it('should parse a parenthesized node', () => {
 			const parser = new Parser('1 + (2 - 3.14)');
@@ -369,6 +345,41 @@ describe('Parser', () => {
 		assert.equal(true, node.isBlockNode());
 		// TODO Add more assertions
 
+	});
+
+	it('should parse an array', () => {
+		const parser = new Parser(
+			'[1, 2, 3]'
+		);
+		const node = parser.parse();
+		assert.equal(true, node.isArrayNode());
+		assert.equal(3, node.size);
+		const [node1, node2, node3] = node.content;
+		assert.equal(true, node1.isConstantNode());
+		assert.equal(true, node2.isConstantNode());
+		assert.equal(true, node3.isConstantNode());
+	});
+
+	it('should parse an assignment with array on the right hand side', () => {
+		const parser = new Parser(
+			'arr = [1, 2, 3]'
+		);
+		const node = parser.parse();
+		assert.equal(true, node.isAssignmentNode());
+		const { value, symbol } = node;
+		assert.equal(true, value.isArrayNode());
+		assert.equal(true, symbol.isSymbolNode());
+	});
+
+	it('should parse an array accessor', () => {
+		const parser = new Parser(
+			'arr@0'
+		);
+		const node = parser.parse();
+		assert.equal(true, node.isAccessorNode());
+		const { objectRef, index } = node;
+		assert.equal(true, objectRef.isSymbolNode());
+		assert.equal(true, index.isConstantNode());
 	});
 
 });

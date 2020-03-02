@@ -41,6 +41,6 @@ export class CharUtils {
 	}
 
 	static isDelimiter(char) {
-		return /[:,{[()\]}]/.test(char);
+		return /[:,@{[()\]}]/.test(char);
 	}
 }
