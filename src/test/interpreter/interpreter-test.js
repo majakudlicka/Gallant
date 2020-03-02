@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { Interpreter } from '../../Interpreter/Interpreter';
-import {Parser} from "../../Parser/Parser";
+import { Parser } from '../../Parser/Parser';
 // import { Parser } from '../../Parser/Parser';
 
 describe('Interpreter', () => {
@@ -148,14 +148,12 @@ describe('Interpreter', () => {
 	it.only('Should interpret a while loop', () => {
 		const source = 'x = 5\n'
 			+ 'y = 0\n'
-		 	+ 'while (x > 0) {\n'
+			+ 'while (x > 0) {\n'
 			+ 'y = y + 4\n'
 			+ 'x = x - 1\n'
 			+ '}';
 		const i = new Interpreter(source);
-		const output = i.interpret();
-		console.log('output ', output);
-		console.log('i.symbolTable ', i.symbolTable);
+		i.interpret();
 		assert.equal(0, i.symbolTable.findSymbol('x'));
 		assert.equal(20, i.symbolTable.findSymbol('y'));
 	});

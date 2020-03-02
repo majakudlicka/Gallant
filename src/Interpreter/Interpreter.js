@@ -56,7 +56,6 @@ export class Interpreter {
 		const left = this.interpretNode(node.left);
 		const right = this.interpretNode(node.right);
 		let res;
-		console.log('node operator ', node.operator);
 		// TODO Can this be done in any smarter way?
 		switch (node.operator) {
 			case '+':
@@ -112,7 +111,14 @@ export class Interpreter {
 	}
 
 	interpretAssignmentNode(node) {
-		const value = this.interpretConstantNode(node.value);
+		let value;
+		if (node.value.isConstantNode()) {
+			value = this.interpretConstantNode(node.value);
+		}
+		else if (node.value.isOperatorNode()) {
+			value = this.interpretOperatorNode(node.value);
+		}
+		// TODO Are there any other types of nodes that can be used on the right of assignment ?
 		this.symbolTable.addSymbol(node.symbol.name, value);
 		return value;
 	}
@@ -146,7 +152,6 @@ export class Interpreter {
 			this.symbolTable.addSymbol(param, parsedArgs[index]);
 		});
 		const res = this.interpretNode(functionDef.body);
-		console.log('res is ', res);
 		this.symbolTable.exitScope();
 		return res;
 
