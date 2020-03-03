@@ -55,13 +55,10 @@ export class Parser {
 	parseBlock() {
 		let node;
 		const blocks = [];
-		console.log('in parseBlock');
 
 		if (this.currentToken.value !== '' && this.currentToken.value !== '\n' && this.currentToken.value !== ';') {
-			console.log('in first iffy');
 			node = this.parseAssignment();
 		}
-		console.log('after iffy this.currentToken is ', this.currentToken);
 
 		// TODO: simplify this loop
 		while (this.currentToken.value === '\n' || this.currentToken.value === ';') {
@@ -143,6 +140,10 @@ export class Parser {
 					this.expect('}');
 					return new FunctionAssignmentNode(name, args, value);
 				}
+			} if (node.isAccessorNode()) {
+				this.next();
+				const value = this.parseAssignment();
+				return new AssignmentNode(node, value);
 			}
 
 			throw new Error('Invalid left hand side of assignment operator =');
@@ -351,10 +352,10 @@ export class Parser {
 					content.push(this.parseAssignment());
 				}
 			}
-
-			if (this.currentToken.value !== ']') {
-				throw new Error(('Parenthesis ] expected'));
-			}
+			this.expect(']');
+			// if (this.currentToken.value !== ']') {
+			// 	throw new Error(('Parenthesis ] expected'));
+			// }
 			// while (this.currentToken.type !== ']') {
 			// 	if (this.currentToken.type === ',') {
 			// 		this.next();

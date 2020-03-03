@@ -190,12 +190,24 @@ describe('Interpreter', () => {
 		assert.deepEqual([1, 2, 3], i.symbolTable.findSymbol('arr'));
 	});
 
-	it.only('Should access array element by index', () => {
+	it('Should access array element by index', () => {
 		const source = 'arr = [1, 2, 3]\n'
 			+ 'arr@0';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(1, output);
+	});
+
+	it.only('Should interpret program that loops through array and multiplies each element by 3', () => {
+		const source = 'arr = [1, 2, 3]\n'
+			+ 'i = 0\n'
+			+ 'while (i < arr@size) {\n'
+			+ 'arr@i = arr@i * 3\n'
+			+ 'i = i + 1\n'
+			+ '}';
+		const i = new Interpreter(source);
+		i.interpret();
+		assert.deepEqual([3, 6, 9], i.symbolTable.findSymbol('arr'));
 	});
 
 });

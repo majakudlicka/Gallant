@@ -53,17 +53,20 @@ export class Interpreter {
 
 	interpretArrayNode(node) {
 		const res = [];
-		node.content.forEach(n=> {
+		node.content.forEach(n => {
 			res.push(this.interpretNode(n));
 		});
 		return res;
 	}
 
 	interpretAccessorNode(node) {
-		console.log('in accessorNode');
+		// TODO Clean up this func
 		// TODO Rethink terminology object vs array
-		const obj = this.symbolTable.findSymbol(node.objectRef);
+		const obj = this.interpretNode(node.objectRef);
 		if (!obj) throw new Error('Object doesnt exist in current scope');
+		if (node.index.name === 'size') {
+			return obj.length;
+		}
 		const index = this.interpretNode(node.index);
 		return obj[index];
 	}
@@ -131,9 +134,9 @@ export class Interpreter {
 		const condition = this.interpretNode(node.condition);
 		if (condition) {
 			return this.interpretNode(node.trueExpr);
-		} else {
-			return this.interpretNode(node.falseExpr);
 		}
+		return this.interpretNode(node.falseExpr);
+
 	}
 
 	interpretFunctionAssignmentNode(node) {
@@ -144,14 +147,19 @@ export class Interpreter {
 		let value;
 		if (node.value.isConstantNode()) {
 			value = this.interpretConstantNode(node.value);
-		}
-		else if (node.value.isOperatorNode()) {
+		} else if (node.value.isOperatorNode()) {
 			value = this.interpretOperatorNode(node.value);
 		} else if (node.value.isArrayNode()) {
 			value = this.interpretArrayNode(node.value);
 		}
-		// TODO Are there any other types of nodes that can be used on the right of assignment ?
-		this.symbolTable.addSymbol(node.symbol.name, value);
+		if (node.symbol.isAccessorNode()) {
+			const { objectRef, index } = node.symbol;
+			const arr = this.interpretNode(objectRef);
+			arr[this.interpretNode(index)] = value;
+			this.symbolTable.addSymbol(objectRef, arr);
+		} else {
+			this.symbolTable.addSymbol(node.symbol.name, value);
+		}
 		return value;
 	}
 
@@ -179,8 +187,8 @@ export class Interpreter {
 			throw new Error('Invalid number of parameters');
 		}
 		this.symbolTable.enterNewScope();
-		const parsedArgs = node.args.map(a=> this.interpretNode(a));
-		functionDef.params.forEach((param, index)=>{
+		const parsedArgs = node.args.map(a => this.interpretNode(a));
+		functionDef.params.forEach((param, index) => {
 			this.symbolTable.addSymbol(param, parsedArgs[index]);
 		});
 		const res = this.interpretNode(functionDef.body);
@@ -190,7 +198,6 @@ export class Interpreter {
 	}
 
 	interpretBlockNode(node) {
-		console.log('in blcok Node');
 		const size = node.blocks.length;
 		for (let i = 0; i < size - 1; i++) {
 			this.interpretNode(node.blocks[i]);
