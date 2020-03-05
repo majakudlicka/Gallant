@@ -198,7 +198,7 @@ describe('Interpreter', () => {
 		assert.equal(1, output);
 	});
 
-	it.only('Should interpret program that loops through array and multiplies each element by 3', () => {
+	it('Should interpret program that loops through array and multiplies each element by 3', () => {
 		const source = 'arr = [1, 2, 3]\n'
 			+ 'i = 0\n'
 			+ 'while (i < arr@size) {\n'

@@ -13,6 +13,7 @@ import { FunctionAssignmentNode } from './astNodes/FunctionAssignmentNode';
 import { RelationalNode } from './astNodes/RelationalNode';
 import { ArrayNode } from './astNodes/ArrayNode';
 import { AccessorNode } from './astNodes/AccessorNode';
+import { MapNode } from './astNodes/MapNode';
 
 export class Parser {
 	constructor(input) {
@@ -353,18 +354,34 @@ export class Parser {
 				}
 			}
 			this.expect(']');
-			// if (this.currentToken.value !== ']') {
-			// 	throw new Error(('Parenthesis ] expected'));
-			// }
-			// while (this.currentToken.type !== ']') {
-			// 	if (this.currentToken.type === ',') {
-			// 		this.next();
-			// 	} else {
-			// 		content.push(this.parseSymbolOrConstant());
-			// 		this.next();
-			// 	}
-			// }
 			return new ArrayNode(content);
+		}
+
+		return this.parseMap();
+	}
+
+	parseMap() {
+		if (this.currentToken.type === '{') {
+			this.next();
+			const keyValuePairs = [];
+			if (this.currentToken.value !== '}') {
+				const {symbol, value} = this.parseAssignment();
+				if (!symbol || !value) {
+					throw new Error('Syntax error parsing map');
+				}
+				keyValuePairs.push([symbol, value]);
+				while (this.currentToken.value === ',') {
+					this.next();
+					// TODO: refactor to avoid duplicating code
+					const {symbol, value} = this.parseAssignment();
+					if (!symbol || !value) {
+						throw new Error('Syntax error parsing map');
+					}
+					keyValuePairs.push([symbol, value]);
+				}
+			}
+			this.expect('}');
+			return new MapNode(keyValuePairs);
 		}
 
 		return this.parseNumber();

@@ -56,4 +56,8 @@ export class AstNode {
 	isAccessorNode() {
 		return false;
 	}
+
+	isMapNode() {
+		return false;
+	}
 }
