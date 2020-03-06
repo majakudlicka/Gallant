@@ -1,9 +1,9 @@
 import { AstNode } from './AstNode';
 
 export class AccessorNode extends AstNode {
-	constructor(objectRef, index) {
+	constructor(ref, index) {
 		super();
-		this.objectRef = objectRef;
+		this.ref = ref;
 		this.index = index;
 	}
 

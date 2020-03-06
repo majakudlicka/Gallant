@@ -49,6 +49,19 @@ export class Interpreter {
 		if (node.isAccessorNode()) {
 			return this.interpretAccessorNode(node);
 		}
+		if (node.isMapNode()) {
+			return this.interpretMapNode(node);
+		}
+	}
+
+	interpretMapNode(node) {
+		const m = new Map();
+		node.keyValuePairs.forEach(([s, v])=>{
+			const symbol = s.name;
+			const value = this.interpretNode(v);
+			m.set(symbol, value);
+		});
+		return m;
 	}
 
 	interpretArrayNode(node) {
@@ -62,13 +75,13 @@ export class Interpreter {
 	interpretAccessorNode(node) {
 		// TODO Clean up this func
 		// TODO Rethink terminology object vs array
-		const obj = this.interpretNode(node.objectRef);
-		if (!obj) throw new Error('Object doesnt exist in current scope');
+		const arr = this.interpretNode(node.ref);
+		if (!arr) throw new Error('Object doesnt exist in current scope');
 		if (node.index.name === 'size') {
-			return obj.length;
+			return arr.length;
 		}
 		const index = this.interpretNode(node.index);
-		return obj[index];
+		return arr[index];
 	}
 
 	interpretParenthesisNode(node) {
@@ -151,6 +164,8 @@ export class Interpreter {
 			value = this.interpretOperatorNode(node.value);
 		} else if (node.value.isArrayNode()) {
 			value = this.interpretArrayNode(node.value);
+		} else if (node.value.isMapNode()) {
+			value = this.interpretMapNode(node.value);
 		}
 		if (node.symbol.isAccessorNode()) {
 			const { objectRef, index } = node.symbol;

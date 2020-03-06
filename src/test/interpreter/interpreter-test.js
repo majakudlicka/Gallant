@@ -210,4 +210,20 @@ describe('Interpreter', () => {
 		assert.deepEqual([3, 6, 9], i.symbolTable.findSymbol('arr'));
 	});
 
+	it('Should interpret a simple map', () => {
+		const source = '{a = 1, b = 2}';
+		const i = new Interpreter(source);
+		const output = i.interpret();
+		assert.equal(2, output.size);
+		assert.equal(1, output.get('a'));
+		assert.equal(2, output.get('b'));
+	});
+
+	it('Should interpret an assignment to map', () => {
+		const source = 'myMap = {a = 1, b = 2}';
+		const i = new Interpreter(source);
+		i.interpret();
+		assert.deepEqual(new Map([['a', 1], ['b', 2]]), i.symbolTable.findSymbol('myMap'));
+	});
+
 });

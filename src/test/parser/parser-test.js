@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { Parser } from '../../Parser/Parser';
 
-describe.only('Parser', () => {
+describe('Parser', () => {
 
 	it('should parse a simple integer literal', () => {
 		const parser = new Parser('42');
@@ -374,8 +374,8 @@ describe.only('Parser', () => {
 		);
 		const node = parser.parse();
 		assert.equal(true, node.isAccessorNode());
-		const { objectRef, index } = node;
-		assert.equal(true, objectRef.isSymbolNode());
+		const { ref, index } = node;
+		assert.equal(true, ref.isSymbolNode());
 		assert.equal(true, index.isConstantNode());
 	});
 
@@ -384,11 +384,8 @@ describe.only('Parser', () => {
 			'{a = 1, b = 2}'
 		);
 		const node = parser.parse();
-		console.log('node is ', node);
 		assert.equal(true, node.isMapNode());
-		assert.equal(2, node.map.size);
-		// assert.equal(1, node.map.get('a'));
-		// assert.equal(2, node.map.get('b'));
-	})
+		assert.equal(2, node.keyValuePairs.length);
+	});
 
 });
