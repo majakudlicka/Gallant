@@ -3,7 +3,7 @@ import { Parser } from '../../Parser/Parser';
 
 describe('Parser', () => {
 
-	it.only('should parse a new variable declaration using keyword hi', () => {
+	it('should parse a new variable declaration using keyword hi', () => {
 		const parser = new Parser('hi a = 5');
 		const node = parser.parse();
 		assert.equal(true, node.isAssignmentNode());
@@ -11,23 +11,45 @@ describe('Parser', () => {
 		assert.equal(true, node.value.isConstantNode());
 		assert.equal('a', node.symbol.name);
 		assert.equal(5, node.value.value);
+		assert.equal(true, node.greeted);
+	});
+
+	it('should parse a new variable declaration using keyword hola', () => {
+		const parser = new Parser('hola someVar = 6');
+		const node = parser.parse();
+		assert.equal(true, node.isAssignmentNode());
+		assert.equal(true, node.symbol.isSymbolNode());
+		assert.equal(true, node.value.isConstantNode());
+		assert.equal('someVar', node.symbol.name);
+		assert.equal(6, node.value.value);
+		assert.equal(true, node.greeted);
+	});
+
+	it('should parse a new variable declaration using keyword aloha', () => {
+		const parser = new Parser('aloha mySexyHawaianVar = 10');
+		const node = parser.parse();
+		assert.equal(true, node.isAssignmentNode());
+		assert.equal(true, node.symbol.isSymbolNode());
+		assert.equal(true, node.value.isConstantNode());
+		assert.equal('mySexyHawaianVar', node.symbol.name);
+		assert.equal(10, node.value.value);
+		assert.equal(true, node.greeted);
 	});
 
 	it('should parse a simple integer literal', () => {
-		const parser = new Parser('42');
+		const parser = new Parser('89');
 		const node = parser.parse();
 		assert.equal(true, node.isConstantNode());
-		assert.equal('42', node.value);
+		assert.equal('89', node.value);
 		assert.equal('integer', node.type);
 	});
 
 	it('should parse a simple decimal literal', () => {
-		const parser = new Parser('3.14159');
-
+		const parser = new Parser('5.26');
 		const node = parser.parse();
 
 		assert.equal(true, node.isConstantNode());
-		assert.equal('3.14159', node.value);
+		assert.equal('5.26', node.value);
 		assert.equal('decimal', node.type);
 	});
 
@@ -193,6 +215,7 @@ describe('Parser', () => {
 		assert.equal(true, node.value.isConstantNode());
 		assert.equal('a', node.symbol.name);
 		assert.equal(5, node.value.value);
+		assert.equal(false, node.greeted);
 	});
 
 	it('should parse an assignment to an expression', () => {
@@ -206,15 +229,8 @@ describe('Parser', () => {
 		assert.equal(true, value.isOperatorNode());
 		assert.equal('i', symbol.name);
 		assert.equal('+', value.operator);
+		assert.equal(false, node.greeted);
 	});
-
-	// it('should parse a this node', () => {
-	// 	const parser = new Parser('this');
-	//
-	// 	const node = parser.parse();
-	//
-	// 	assert.equal(true, node.isThis());
-	// });
 
 	it('should parse a block of nodes', () => {
 		const parser = new Parser('"hello"\n'
@@ -336,7 +352,7 @@ describe('Parser', () => {
 		assert.equal(true, body.isConditionalNode());
 	});
 
-	it('should parse a simple program', () => {
+	it.only('should parse a simple program', () => {
 		const parser = new Parser(
 			'x = 6\n'
 				+ 'y = 7\n'

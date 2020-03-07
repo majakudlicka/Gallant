@@ -1,6 +1,6 @@
 export class AstNode {
 
-	constructor() {
+	constructor(line, column) {
 		this.line = -1;
 		this.column = -1;
 	}

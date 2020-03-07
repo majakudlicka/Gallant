@@ -159,11 +159,16 @@ export class Interpreter {
 	}
 
 	interpretFunctionAssignmentNode(node) {
+		const isReassignment = this.symbolTable.hasSymbol(node.name);
+		if (!isReassignment && !node.greeted) {
+			throw new Error('Functions must be greeted before they can used');
+		}
 		this.symbolTable.addSymbol(node.name, node);
 	}
 
 	interpretAssignmentNode(node) {
 		let value;
+
 		if (node.value && node.value.isConstantNode()) {
 			value = this.interpretConstantNode(node.value);
 		} else if (node.value.isOperatorNode()) {
@@ -184,6 +189,10 @@ export class Interpreter {
 			}
 			this.symbolTable.addSymbol(ref, obj);
 		} else {
+			const isReassignment = this.symbolTable.hasSymbol(node.symbol.name);
+			if (!isReassignment && !node.greeted) {
+				throw new Error('Variables must be greeted before they can used');
+			}
 			this.symbolTable.addSymbol(node.symbol.name, value);
 		}
 		return value;

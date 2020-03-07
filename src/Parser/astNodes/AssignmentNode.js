@@ -1,11 +1,11 @@
 import { AstNode } from './AstNode';
 
 export class AssignmentNode extends AstNode {
-	constructor(symbol, value, firstAssignment = false) {
+	constructor(symbol, value, greeted = false) {
 		super();
 		this.value = value;
 		this.symbol = symbol;
-		this.firstAssignment = firstAssignment;
+		this.greeted = greeted;
 	}
 
 	isAssignmentNode() {

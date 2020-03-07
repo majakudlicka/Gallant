@@ -64,12 +64,14 @@ export class Parser {
 		// TODO: simplify this loop
 		while (this.currentToken.value === '\n' || this.currentToken.value === ';') {
 			if (blocks.length === 0 && node) {
+				console.log('node in parseBlock is ', node);
 				blocks.push(node);
 			}
 			this.next();
 			if (this.currentToken.type === 'EndOfInput') break;
 			if (this.currentToken.value !== '' && this.currentToken.value !== '\n' && this.currentToken.value !== ';') {
 				node = this.parseAssignment();
+				console.log('node in parseBlock is ', node);
 				if (node) blocks.push(node);
 			}
 		}
@@ -111,13 +113,13 @@ export class Parser {
 	}
 
 	parseAssignment() {
-		const node = this.parseWhileLoop();
-		let firstAssignment = false;
+		let greeted = false;
 		// TODO rmeove magic strings
 		if (['hello', 'hi', 'hola', 'aloha'].includes(this.currentToken.value)) {
-			firstAssignment = true;
+			greeted = true;
 			this.next();
 		}
+		const node = this.parseWhileLoop();
 
 		if (this.currentToken.value === '=') {
 			if (node.isSymbolNode()) {
@@ -125,7 +127,7 @@ export class Parser {
 				const { name } = node;
 				this.next();
 				const value = this.parseAssignment();
-				return new AssignmentNode(new SymbolNode(name), value, firstAssignment);
+				return new AssignmentNode(new SymbolNode(name), value, greeted);
 			} if (node.isFunctionCallNode() && node.identifier.isSymbolNode()) {
 				// parse function assignment
 				let valid = true;
@@ -146,12 +148,12 @@ export class Parser {
 					this.expect('{');
 					const value = this.parseBlock();
 					this.expect('}');
-					return new FunctionAssignmentNode(name, args, value, firstAssignment);
+					return new FunctionAssignmentNode(name, args, value, greeted);
 				}
 			} if (node.isAccessorNode()) {
 				this.next();
 				const value = this.parseAssignment();
-				return new AssignmentNode(node, value, firstAssignment);
+				return new AssignmentNode(node, value, greeted);
 			}
 
 			throw new Error('Invalid left hand side of assignment operator =');
@@ -412,7 +414,6 @@ export class Parser {
 // TODO use TokenType mappings
 // TODO eslint errors
 // TODO sync parser to lexer and compiler
-// TODO Add all isBlahNode props to basic Ast node
 // TODO Figure out why row & column are not working
 // TODO Add 'hi' and 'hello' as keywords to introduce new vars
 // TODO Add support for objects
