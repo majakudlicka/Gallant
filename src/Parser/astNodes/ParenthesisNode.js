@@ -1,8 +1,8 @@
 import { AstNode } from './AstNode';
 
 export class ParenthesisNode extends AstNode {
-	constructor(content) {
-		super();
+	constructor(content, line) {
+		super(line);
 		this.content = content;
 	}
 

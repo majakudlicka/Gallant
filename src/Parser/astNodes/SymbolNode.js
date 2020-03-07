@@ -1,8 +1,8 @@
 import { AstNode } from './AstNode';
 
 export class SymbolNode extends AstNode {
-	constructor(name) {
-		super();
+	constructor(name, line) {
+		super(line);
 		this.name = name;
 	}
 

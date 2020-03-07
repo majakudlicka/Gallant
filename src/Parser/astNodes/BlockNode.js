@@ -1,8 +1,8 @@
 import { AstNode } from './AstNode';
 
 export class BlockNode extends AstNode {
-	constructor(blocks) {
-		super();
+	constructor(blocks, line) {
+		super(line);
 		this.blocks = blocks;
 	}
 

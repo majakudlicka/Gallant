@@ -1,11 +1,10 @@
 import { AstNode } from './AstNode';
 
 export class FunctionCallNode extends AstNode {
-	constructor(identifier, args, greeted = false) {
-		super();
+	constructor(identifier, args, line) {
+		super(line);
 		this.identifier = identifier;
 		this.args = args;
-		this.greeted = greeted
 	}
 
 	isFunctionCallNode() {

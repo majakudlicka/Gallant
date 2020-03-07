@@ -1,8 +1,8 @@
 import { AstNode } from './AstNode';
 
 export class RelationalNode extends AstNode {
-	constructor(conditionals, params) {
-		super();
+	constructor(conditionals, params, line) {
+		super(line);
 		this.conditionals = conditionals;
 		this.params = params;
 	}

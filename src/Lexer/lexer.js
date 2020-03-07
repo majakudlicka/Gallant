@@ -7,8 +7,8 @@ export class Lexer {
 	constructor(input) {
 		this.input = input;
 		this.position = 0;
-		this.line = 0;
-		this.column = 0;
+		this.line = 1;
+		this.column = 1;
 	}
 
 	recognizeDelimiter() {
@@ -372,7 +372,7 @@ export class Lexer {
 	// / Returns the next recognized 'Token' in the input.
 	nextToken() {
 		if (this.position >= this.input.length) {
-			return new Token(TokenType.EndOfInput);
+			return new Token(TokenType.EndOfInput, 'EndOfInput', this.line, this.column);
 		}
 
 		// We skip all the whitespaces and new lines in the input.

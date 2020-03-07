@@ -352,7 +352,7 @@ describe('Parser', () => {
 		assert.equal(true, body.isConditionalNode());
 	});
 
-	it.only('should parse a simple program', () => {
+	it('should parse a simple program', () => {
 		const parser = new Parser(
 			'x = 6\n'
 				+ 'y = 7\n'
@@ -366,8 +366,12 @@ describe('Parser', () => {
 
 		const node = parser.parse();
 		assert.equal(true, node.isBlockNode());
-		// TODO Add more assertions
-
+		const { blocks } = node;
+		assert.equal(4, blocks.length);
+		assert.equal(true, blocks[0].isAssignmentNode());
+		assert.equal(true, blocks[1].isAssignmentNode());
+		assert.equal(true, blocks[2].isFunctionAssignmentNode());
+		assert.equal(true, blocks[3].isFunctionCallNode());
 	});
 
 	it('should parse an array', () => {

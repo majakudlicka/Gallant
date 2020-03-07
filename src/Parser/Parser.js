@@ -64,20 +64,19 @@ export class Parser {
 		// TODO: simplify this loop
 		while (this.currentToken.value === '\n' || this.currentToken.value === ';') {
 			if (blocks.length === 0 && node) {
-				console.log('node in parseBlock is ', node);
 				blocks.push(node);
 			}
 			this.next();
 			if (this.currentToken.type === 'EndOfInput') break;
 			if (this.currentToken.value !== '' && this.currentToken.value !== '\n' && this.currentToken.value !== ';') {
 				node = this.parseAssignment();
-				console.log('node in parseBlock is ', node);
 				if (node) blocks.push(node);
 			}
 		}
 
 		if (blocks.length > 0) {
-			return new BlockNode(blocks);
+			const { line } = this.currentToken;
+			return new BlockNode(blocks, line);
 		}
 		return node;
 	}
@@ -102,13 +101,13 @@ export class Parser {
 			this.next();
 			params.push(this.parseAddSubtract());
 		}
-
+		const { line } = this.currentToken;
 		if (params.length === 1) {
 			return params[0];
 		} if (params.length === 2) {
-			return new OperatorNode(conditionals[0].name, conditionals[0].fn, params[0], params[1]);
+			return new OperatorNode(conditionals[0].name, conditionals[0].fn, params[0], params[1], line);
 		}
-		return new RelationalNode(conditionals.map(c => c.fn), params);
+		return new RelationalNode(conditionals.map(c => c.fn), params, line);
 
 	}
 
@@ -127,7 +126,8 @@ export class Parser {
 				const { name } = node;
 				this.next();
 				const value = this.parseAssignment();
-				return new AssignmentNode(new SymbolNode(name), value, greeted);
+				const { line } = this.currentToken;
+				return new AssignmentNode(new SymbolNode(name, line), value, greeted, line);
 			} if (node.isFunctionCallNode() && node.identifier.isSymbolNode()) {
 				// parse function assignment
 				let valid = true;
@@ -143,17 +143,18 @@ export class Parser {
 				});
 
 				if (valid) {
-					// getTokenSkipNewline(state)
 					this.next();
 					this.expect('{');
 					const value = this.parseBlock();
 					this.expect('}');
-					return new FunctionAssignmentNode(name, args, value, greeted);
+					const { line } = this.currentToken;
+					return new FunctionAssignmentNode(name, args, value, greeted, line);
 				}
 			} if (node.isAccessorNode()) {
 				this.next();
 				const value = this.parseAssignment();
-				return new AssignmentNode(node, value, greeted);
+				const { line } = this.currentToken;
+				return new AssignmentNode(node, value, greeted, line);
 			}
 
 			throw new Error('Invalid left hand side of assignment operator =');
@@ -173,7 +174,8 @@ export class Parser {
 			this.expect('{');
 			const body = this.parseBlock();
 			this.expect('}');
-			node = new WhileLoopNode(condition, body);
+			const { line } = this.currentToken;
+			node = new WhileLoopNode(condition, body, line);
 		}
 
 		return node;
@@ -182,6 +184,7 @@ export class Parser {
 	parseConditional() {
 		let node = this.parseRelational();
 
+		const { line } = this.currentToken;
 		while (this.currentToken.type === 'if') {
 			this.next();
 			this.expect('(');
@@ -193,7 +196,7 @@ export class Parser {
 				this.next();
 				falseExpr = this.parseRelational();
 			}
-			node = new ConditionalNode(condition, trueExpr, falseExpr);
+			node = new ConditionalNode(condition, trueExpr, falseExpr, line);
 		}
 
 		return node;
@@ -222,6 +225,7 @@ export class Parser {
 
 	parseMultiplyDivide() {
 		let node = this.parseSymbolOrConstant();
+		const { line } = this.currentToken;
 
 		while (this.isMultiplyDivisionOrModuloOperator()) {
 			const name = this.currentToken.value;
@@ -229,7 +233,7 @@ export class Parser {
 			this.next();
 			const left = node;
 			const right = this.parseSymbolOrConstant();
-			node = new OperatorNode(name, operator, left, right);
+			node = new OperatorNode(name, operator, left, right, line);
 		}
 
 		return node;
@@ -237,6 +241,7 @@ export class Parser {
 
 	parseAddSubtract() {
 		let node = this.parseMultiplyDivide();
+		const { line } = this.currentToken;
 
 		while (this.isAdditiveOperator()) {
 			const name = this.currentToken.value;
@@ -245,7 +250,7 @@ export class Parser {
 			this.next();
 			const left = node;
 			const right = this.parseMultiplyDivide();
-			node = new OperatorNode(name, operator, left, right);
+			node = new OperatorNode(name, operator, left, right, line);
 		}
 
 		return node;
@@ -253,7 +258,10 @@ export class Parser {
 
 	parseNumber() {
 		if (this.isNumber()) {
-			const node = new ConstantNode(this.currentToken.value, this.currentToken.type);
+			const {
+				value, type, line
+			} = this.currentToken;
+			const node = new ConstantNode(value, type, line);
 			this.next();
 			return node;
 		}
@@ -268,13 +276,14 @@ export class Parser {
 			this.next();
 
 			node = this.parseAssignment();
+			const { line } = this.currentToken;
 
 			if (this.currentToken.value !== ')') {
 				throw new Error('Parenthesis ) expected');
 			}
 			this.next();
 
-			node = new ParenthesisNode(node);
+			node = new ParenthesisNode(node, line);
 			node = this.parseAccessors(node);
 			return node;
 		}
@@ -306,26 +315,16 @@ export class Parser {
 					throw new Error('Parenthesis ) expected');
 				}
 				this.next();
+				const { line } = this.currentToken;
 
 				// eslint-disable-next-line no-param-reassign
-				node = new FunctionCallNode(node, params);
+				node = new FunctionCallNode(node, params, line);
 				// TODO
 			} else if (this.currentToken.value === '@') {
 				this.next();
+				const { line } = this.currentToken;
 				// eslint-disable-next-line no-param-reassign
-				node = new AccessorNode(node, this.parseSymbolOrConstant());
-			} else {
-				// dot notation like variable.prop
-				// getToken(state)
-				//
-				// if (this.currentToken.valueType !== TOKENTYPE.SYMBOL) {
-				// 	throw createSyntaxError(state, 'Property name expected after dot')
-				// }
-				// params.push(new ConstantNode(this.currentToken.value))
-				// getToken(state)
-				//
-				// const dotNotation = true
-				// node = new AccessorNode(node, new IndexNode(params, dotNotation))
+				node = new AccessorNode(node, this.parseSymbolOrConstant(), line);
 			}
 		}
 
@@ -343,7 +342,8 @@ export class Parser {
 
 	parseString() {
 		if (this.currentToken.type === 'string') {
-			const node = new ConstantNode(this.currentToken.value, this.currentToken.type);
+			const { line } = this.currentToken;
+			const node = new ConstantNode(this.currentToken.value, this.currentToken.type, line);
 			this.next();
 			return node;
 		}
@@ -352,6 +352,7 @@ export class Parser {
 
 	parseArray() {
 		if (this.currentToken.type === '[') {
+			const { line } = this.currentToken;
 			this.next();
 			const content = [];
 			if (this.currentToken.value !== ']') {
@@ -363,7 +364,7 @@ export class Parser {
 				}
 			}
 			this.expect(']');
-			return new ArrayNode(content);
+			return new ArrayNode(content, line);
 		}
 
 		return this.parseMap();
@@ -371,10 +372,11 @@ export class Parser {
 
 	parseMap() {
 		if (this.currentToken.type === '{') {
+			const { line } = this.currentToken;
 			this.next();
 			const keyValuePairs = [];
 			if (this.currentToken.value !== '}') {
-				const {symbol, value} = this.parseAssignment();
+				const { symbol, value } = this.parseAssignment();
 				if (!symbol || !value) {
 					throw new Error('Syntax error parsing map');
 				}
@@ -382,7 +384,7 @@ export class Parser {
 				while (this.currentToken.value === ',') {
 					this.next();
 					// TODO: refactor to avoid duplicating code
-					const {symbol, value} = this.parseAssignment();
+					const { symbol, value } = this.parseAssignment();
 					if (!symbol || !value) {
 						throw new Error('Syntax error parsing map');
 					}
@@ -390,19 +392,22 @@ export class Parser {
 				}
 			}
 			this.expect('}');
-			return new MapNode(keyValuePairs);
+			return new MapNode(keyValuePairs, line);
 		}
 
 		return this.parseNumber();
 	}
 
 	parseSymbolOrConstant() {
+		const {
+			value, type, line
+		} = this.currentToken;
 		if (this.isConstant()) {
-			const node = new ConstantNode(this.currentToken.value, this.currentToken.type);
+			const node = new ConstantNode(value, type, line);
 			this.next();
 			return node;
 		} if (this.currentToken.type === 'identifier') {
-			let node = new SymbolNode(this.currentToken.value);
+			let node = new SymbolNode(value, line);
 			this.next();
 			node = this.parseAccessors(node);
 			return node;
@@ -428,3 +433,4 @@ export class Parser {
 // TODO Console.log some mirror related phrasem (mirror, mirror, on the wall...)
 // TODO introduce ; and sort out strange issues with new lines
 // TODO Replace hardcoded tokens with .tokentype
+// TODO Lines should start at 1

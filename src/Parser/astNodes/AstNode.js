@@ -1,8 +1,7 @@
 export class AstNode {
 
-	constructor(line, column) {
-		this.line = -1;
-		this.column = -1;
+	constructor(line = -1) {
+		this.line = line;
 	}
 
 	isSymbolNode() {

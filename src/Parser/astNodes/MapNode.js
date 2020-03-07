@@ -1,8 +1,8 @@
 import { AstNode } from './AstNode';
 
 export class MapNode extends AstNode {
-	constructor(keyValuePairs) {
-		super();
+	constructor(keyValuePairs, line) {
+		super(line);
 		this.keyValuePairs = keyValuePairs;
 	}
 

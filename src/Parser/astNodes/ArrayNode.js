@@ -1,8 +1,8 @@
 import { AstNode } from './AstNode';
 
 export class ArrayNode extends AstNode {
-	constructor(content) {
-		super();
+	constructor(content, line) {
+		super(line);
 		this.content = content;
 		this.size = content.length;
 	}
