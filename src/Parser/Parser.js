@@ -112,15 +112,22 @@ export class Parser {
 
 	parseAssignment() {
 		const node = this.parseWhileLoop();
+		let firstAssignment = false;
+		// TODO rmeove magic strings
+		if (['hello', 'hi', 'hola', 'aloha'].includes(this.currentToken.value)) {
+			firstAssignment = true;
+			this.next();
+		}
 
 		if (this.currentToken.value === '=') {
 			if (node.isSymbolNode()) {
-				// parse a variable assignment like 'a = 2/3'
+				// parse a variable assignment
 				const { name } = node;
 				this.next();
 				const value = this.parseAssignment();
-				return new AssignmentNode(new SymbolNode(name), value);
+				return new AssignmentNode(new SymbolNode(name), value, firstAssignment);
 			} if (node.isFunctionCallNode() && node.identifier.isSymbolNode()) {
+				// parse function assignment
 				let valid = true;
 				const args = [];
 
@@ -139,12 +146,12 @@ export class Parser {
 					this.expect('{');
 					const value = this.parseBlock();
 					this.expect('}');
-					return new FunctionAssignmentNode(name, args, value);
+					return new FunctionAssignmentNode(name, args, value, firstAssignment);
 				}
 			} if (node.isAccessorNode()) {
 				this.next();
 				const value = this.parseAssignment();
-				return new AssignmentNode(node, value);
+				return new AssignmentNode(node, value, firstAssignment);
 			}
 
 			throw new Error('Invalid left hand side of assignment operator =');

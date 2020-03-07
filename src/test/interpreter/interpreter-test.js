@@ -226,4 +226,30 @@ describe('Interpreter', () => {
 		assert.deepEqual(new Map([['a', 1], ['b', 2]]), i.symbolTable.findSymbol('myMap'));
 	});
 
+	it('Should access map by key name', () => {
+		const source = 'myMap = {a = 1, b = 2}\n'
+		+ 'myMap@a';
+		const i = new Interpreter(source);
+		const output = i.interpret();
+		assert.equal(output, 1);
+	});
+
+	it('Should modify map', () => {
+		const source = 'myMap = {a = 1, b = 2}\n'
+			+ 'myMap@a = 5\n'
+			+ 'myMap@a';
+		const i = new Interpreter(source);
+		const output = i.interpret();
+		assert.equal(output, 5);
+	});
+
+	it('Should return size of the map', () => {
+		const source = 'myMap = {a = 1, b = 2}\n'
+			+ 'myMap@size';
+
+		const i = new Interpreter(source);
+		const output = i.interpret();
+		assert.equal(output, 2);
+	});
+
 });

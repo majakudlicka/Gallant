@@ -3,6 +3,16 @@ import { Parser } from '../../Parser/Parser';
 
 describe('Parser', () => {
 
+	it.only('should parse a new variable declaration using keyword hi', () => {
+		const parser = new Parser('hi a = 5');
+		const node = parser.parse();
+		assert.equal(true, node.isAssignmentNode());
+		assert.equal(true, node.symbol.isSymbolNode());
+		assert.equal(true, node.value.isConstantNode());
+		assert.equal('a', node.symbol.name);
+		assert.equal(5, node.value.value);
+	});
+
 	it('should parse a simple integer literal', () => {
 		const parser = new Parser('42');
 		const node = parser.parse();
@@ -374,9 +384,9 @@ describe('Parser', () => {
 		);
 		const node = parser.parse();
 		assert.equal(true, node.isAccessorNode());
-		const { ref, index } = node;
+		const { ref, key } = node;
 		assert.equal(true, ref.isSymbolNode());
-		assert.equal(true, index.isConstantNode());
+		assert.equal(true, key.isConstantNode());
 	});
 
 	it('should parse a simple map map', () => {

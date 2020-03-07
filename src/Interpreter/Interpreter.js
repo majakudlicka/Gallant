@@ -74,14 +74,20 @@ export class Interpreter {
 
 	interpretAccessorNode(node) {
 		// TODO Clean up this func
-		// TODO Rethink terminology object vs array
-		const arr = this.interpretNode(node.ref);
-		if (!arr) throw new Error('Object doesnt exist in current scope');
-		if (node.index.name === 'size') {
-			return arr.length;
+		// obj could be map or array
+		const obj = this.interpretNode(node.ref);
+		if (!obj) throw new Error('Object you are trying to access does not exist in the current scope');
+		if (node.key.name === 'size') {
+			return Array.isArray(obj) ? obj.length : obj.size;
 		}
-		const index = this.interpretNode(node.index);
-		return arr[index];
+		if (Array.isArray(obj)) {
+			const index = this.interpretNode(node.key);
+			return obj[index];
+		} else {
+			const key = node.key && node.key.name;
+			return obj.get(key);
+		}
+
 	}
 
 	interpretParenthesisNode(node) {
@@ -158,7 +164,7 @@ export class Interpreter {
 
 	interpretAssignmentNode(node) {
 		let value;
-		if (node.value.isConstantNode()) {
+		if (node.value && node.value.isConstantNode()) {
 			value = this.interpretConstantNode(node.value);
 		} else if (node.value.isOperatorNode()) {
 			value = this.interpretOperatorNode(node.value);
@@ -168,10 +174,15 @@ export class Interpreter {
 			value = this.interpretMapNode(node.value);
 		}
 		if (node.symbol.isAccessorNode()) {
-			const { objectRef, index } = node.symbol;
-			const arr = this.interpretNode(objectRef);
-			arr[this.interpretNode(index)] = value;
-			this.symbolTable.addSymbol(objectRef, arr);
+			const { ref, key } = node.symbol;
+			// Obj could be array or map
+			const obj = this.interpretNode(ref);
+			if (Array.isArray(obj)) {
+				obj[this.interpretNode(key)] = value;
+			} else {
+				obj.set(key.name, value);
+			}
+			this.symbolTable.addSymbol(ref, obj);
 		} else {
 			this.symbolTable.addSymbol(node.symbol.name, value);
 		}

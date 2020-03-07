@@ -195,28 +195,20 @@ export class Lexer {
 		this.position += identifier.length;
 		this.column += identifier.length;
 
+		// TODO Clean this up!
 		const keywords = [
-			'class',
-			'else',
-			'extends',
-			'false',
-			'final',
-			'func',
-			'for',
 			'if',
-			'in',
-			'let',
-			'new',
-			'null',
-			'override',
-			'private',
-			'return',
-			'super',
-			'to',
-			'this',
+			'else',
 			'true',
-			'var',
-			'while'
+			'false',
+			'func',
+			'null',
+			'this',
+			'while',
+			'hi',
+			'hello',
+			'hola',
+			'aloha'
 		];
 
 		if (keywords.includes(identifier)) {
