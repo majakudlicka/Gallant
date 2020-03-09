@@ -38,7 +38,7 @@ export class Parser {
 	}
 
 	discardNewlines() {
-		while (this.currentToken.type === '\n') {
+		while (this.currentToken.value === '\n') {
 			this.next();
 		}
 	}
@@ -185,14 +185,14 @@ export class Parser {
 		let node = this.parseRelational();
 
 		const { line } = this.currentToken;
-		while (this.currentToken.type === 'if') {
+		while (this.currentToken.value === 'if') {
 			this.next();
 			this.expect('(');
 			const condition = this.parseRelational();
 			this.expect(')');
 			const trueExpr = this.parseRelational();
 			let falseExpr = null;
-			if (this.currentToken.type === 'else') {
+			if (this.currentToken.value === 'else') {
 				this.next();
 				falseExpr = this.parseRelational();
 			}
@@ -202,10 +202,10 @@ export class Parser {
 		return node;
 	}
 
-	expect(tokenType) {
+	expect(tokenValue) {
 		// this.next();
-		if (this.currentToken.type !== tokenType) {
-			throw new Error(`Expected '${tokenType}' but found '${this.currentToken.value}'.`);
+		if (this.currentToken.value !== tokenValue) {
+			throw new Error(`Expected '${tokenValue}' but found '${this.currentToken.value}'.`);
 		}
 		this.next();
 		// if (tokenType !== '/n') {
@@ -351,7 +351,7 @@ export class Parser {
 	}
 
 	parseArray() {
-		if (this.currentToken.type === '[') {
+		if (this.currentToken.value === '[') {
 			const { line } = this.currentToken;
 			this.next();
 			const content = [];
@@ -371,7 +371,7 @@ export class Parser {
 	}
 
 	parseMap() {
-		if (this.currentToken.type === '{') {
+		if (this.currentToken.value === '{') {
 			const { line } = this.currentToken;
 			this.next();
 			const keyValuePairs = [];
