@@ -213,6 +213,7 @@ export class Lexer {
 		return new Token(TokenTypes.String, string, line);
 	}
 
+	// Use Finite State Machine to recognize different types of numbers
 	buildNumberRecognizer() {
 		// We name our states for readability.
 		const State = {
@@ -220,21 +221,14 @@ export class Lexer {
 			Integer: 2,
 			BeginNumberWithFractionalPart: 3,
 			NumberWithFractionalPart: 4,
-			// TODO remove me
-			BeginNumberWithExponent: 5,
-			// TODO remove me
-			BeginNumberWithSignedExponent: 6,
-			// TODO remove me
-			NumberWithExponent: 7,
 			NoNextState: -1
 		};
 
 		const fsm = new FSM();
-		fsm.states = new Set([State.Initial, State.Integer, State.BeginNumberWithFractionalPart, State.NumberWithFractionalPart,
-			State.BeginNumberWithFractionalPart, State.BeginNumberWithExponent, State.BeginNumberWithSignedExponent,
-			State.NumberWithExponent, State.NoNextState]);
+		fsm.states = new Set([State.Initial, State.Integer, State.BeginNumberWithFractionalPart,
+			State.NumberWithFractionalPart, State.NoNextState]);
 		fsm.initialState = State.Initial;
-		fsm.acceptingStates = new Set([State.Integer, State.NumberWithFractionalPart, State.NumberWithExponent]);
+		fsm.acceptingStates = new Set([State.Integer, State.NumberWithFractionalPart]);
 		fsm.nextState = (currentState, character) => {
 			switch (currentState) {
 				case State.Initial:
@@ -257,10 +251,6 @@ export class Lexer {
 						return State.BeginNumberWithFractionalPart;
 					}
 
-					if (character.toLowerCase() === 'e') {
-						return State.BeginNumberWithExponent;
-					}
-
 					break;
 
 				case State.BeginNumberWithFractionalPart:
@@ -275,29 +265,8 @@ export class Lexer {
 						return State.NumberWithFractionalPart;
 					}
 
-					if (character.toLowerCase() === 'e') {
-						return State.BeginNumberWithExponent;
-					}
-
 					break;
 
-				case State.BeginNumberWithExponent:
-					if (character === '+' || character === '-') {
-						return State.BeginNumberWithSignedExponent;
-					}
-
-					if (CharUtils.isDigit()) {
-						return State.NumberWithExponent;
-					}
-
-					break;
-
-				case State.BeginNumberWithSignedExponent:
-					if (CharUtils.isDigit()) {
-						return State.NumberWithExponent;
-					}
-
-					break;
 
 				default:
 					break;

@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { TokenTypes, TokenValues } from '../../Lexer/tokenStructure';
 import { Lexer } from '../../Lexer/lexer';
 
-describe.only('Lexer', () => {
+describe('Lexer', () => {
 
 	describe('#nextToken', () => {
 
@@ -468,141 +468,83 @@ describe.only('Lexer', () => {
 	});
 
 	describe('#tokenize', () => {
+		it('should properly tokenize a full function definition', () => {
+			const lexer = new Lexer('foo(a,b) = {\n'
+				+ 'a + b\n'
+				+ ' }');
 
-		// TODO needs to be rewritten using correct syntax
-		// it('should properly tokenize a full method definition', () => {
-		// 	const lexer = new Lexer('func add(a: Int, b: Int): Int = {\n'
-        //         + '   a + b\n'
-        //         + '}');
-		//
-		// 	const tokens = lexer.tokenize();
-		//
-		// 	assert.equal(21, tokens.length);
-		//
-		// 	assert.equal(tokens[0].type, TokenTypes.Func);
-		//
-		// 	assert.equal(tokens[1].type, TokenTypes.Identifier);
-		// 	assert.equal(tokens[1].value, 'add');
-		//
-		// 	assert.equal(tokens[2].type, TokenTypes.Delimiter);
-		//
-		// 	assert.equal(tokens[3].type, TokenTypes.Identifier);
-		// 	assert.equal(tokens[3].value, 'a');
-		//
-		// 	assert.equal(tokens[4].type, TokenTypes.Colon);
-		//
-		// 	assert.equal(tokens[5].type, TokenTypes.Identifier);
-		// 	assert.equal(tokens[5].value, 'Int');
-		//
-		// 	assert.equal(tokens[6].type, TokenTypes.Comma);
-		//
-		// 	assert.equal(tokens[7].type, TokenTypes.Identifier);
-		// 	assert.equal(tokens[7].value, 'b');
-		//
-		// 	assert.equal(tokens[8].type, TokenTypes.Colon);
-		//
-		// 	assert.equal(tokens[9].type, TokenTypes.Identifier);
-		// 	assert.equal(tokens[9].value, 'Int');
-		//
-		// 	assert.equal(tokens[10].type, TokenTypes.RightParen);
-		//
-		// 	assert.equal(tokens[11].type, TokenTypes.Colon);
-		//
-		// 	assert.equal(tokens[12].type, TokenTypes.Identifier);
-		// 	assert.equal(tokens[12].value, 'Int');
-		//
-		// 	assert.equal(tokens[13].type, TokenTypes.Assign);
-		//
-		// 	assert.equal(tokens[14].type, TokenTypes.LeftBrace);
-		//
-		// 	assert.equal(tokens[15].type, TokenTypes.Newline);
-		//
-		// 	assert.equal(tokens[16].type, TokenTypes.Identifier);
-		// 	assert.equal(tokens[16].value, 'a');
-		//
-		// 	assert.equal(tokens[17].type, TokenTypes.Plus);
-		//
-		// 	assert.equal(tokens[18].type, TokenTypes.Identifier);
-		// 	assert.equal(tokens[18].value, 'b');
-		//
-		// 	assert.equal(tokens[19].type, TokenTypes.Newline);
-		//
-		// 	assert.equal(tokens[20].type, TokenTypes.RightBrace);
-		// });
+			const tokens = lexer.tokenize();
 
-		// TODO Fix me
-		// it('should assign the correct line and column numbers', () => {
-		// 	const lexer = new Lexer('func equals(a: Int, b: Int): Boolean = {\n'
-        //         + '   a == b\n'
-        //         + '}');
-		//
-		// 	const tokens = lexer.tokenize();
-		//
-		// 	console.log('tokens ', tokens);
-		//
-		// 	assert.equal(1, tokens[0].line);
-		// 	assert.equal(1, tokens[0].column);
-		//
-		// 	assert.equal(1, tokens[1].line);
-		// 	assert.equal(6, tokens[1].column);
-		//
-		// 	assert.equal(1, tokens[2].line);
-		// 	assert.equal(12, tokens[2].column);
-		//
-		// 	assert.equal(1, tokens[3].line);
-		// 	assert.equal(13, tokens[3].column);
-		//
-		// 	assert.equal(1, tokens[4].line);
-		// 	assert.equal(14, tokens[4].column);
-		//
-		// 	assert.equal(1, tokens[5].line);
-		// 	assert.equal(16, tokens[5].column);
-		//
-		// 	assert.equal(1, tokens[6].line);
-		// 	assert.equal(19, tokens[6].column);
-		//
-		// 	assert.equal(1, tokens[7].line);
-		// 	assert.equal(21, tokens[7].column);
-		//
-		// 	assert.equal(1, tokens[8].line);
-		// 	assert.equal(22, tokens[8].column);
-		//
-		// 	assert.equal(1, tokens[9].line);
-		// 	assert.equal(24, tokens[9].column);
-		//
-		// 	assert.equal(1, tokens[10].line);
-		// 	assert.equal(27, tokens[10].column);
-		//
-		// 	assert.equal(1, tokens[11].line);
-		// 	assert.equal(28, tokens[11].column);
-		//
-		// 	assert.equal(1, tokens[12].line);
-		// 	assert.equal(30, tokens[12].column);
-		//
-		// 	assert.equal(1, tokens[13].line);
-		// 	assert.equal(38, tokens[13].column);
-		//
-		// 	assert.equal(1, tokens[14].line);
-		// 	assert.equal(40, tokens[14].column);
-		//
-		// 	assert.equal(1, tokens[15].line);
-		// 	assert.equal(41, tokens[15].column);
-		//
-		// 	assert.equal(2, tokens[16].line);
-		// 	assert.equal(4, tokens[16].column);
-		//
-		// 	assert.equal(2, tokens[17].line);
-		// 	assert.equal(6, tokens[17].column);
-		//
-		// 	assert.equal(2, tokens[18].line);
-		// 	assert.equal(9, tokens[18].column);
-		//
-		// 	assert.equal(2, tokens[19].line);
-		// 	assert.equal(10, tokens[19].column);
-		//
-		// 	assert.equal(3, tokens[20].line);
-		// 	assert.equal(1, tokens[20].column);
-		// });
+			assert.equal(14, tokens.length);
+
+			assert.equal(tokens[0].type, TokenTypes.Identifier);
+			assert.equal(tokens[0].value, 'foo');
+
+			assert.equal(tokens[1].type, TokenTypes.Delimiter);
+			assert.equal(tokens[1].value, TokenValues.LeftParen);
+
+			assert.equal(tokens[2].type, TokenTypes.Identifier);
+			assert.equal(tokens[2].value, 'a');
+
+			assert.equal(tokens[3].type, TokenTypes.Delimiter);
+			assert.equal(tokens[3].value, TokenValues.Comma);
+
+			assert.equal(tokens[4].type, TokenTypes.Identifier);
+			assert.equal(tokens[4].value, 'b');
+
+			assert.equal(tokens[5].type, TokenTypes.Delimiter);
+			assert.equal(tokens[5].value, TokenValues.RightParen);
+
+			assert.equal(tokens[6].type, TokenTypes.Assignment);
+			assert.equal(tokens[6].value, TokenValues.Assignment);
+
+			assert.equal(tokens[7].type, TokenTypes.Delimiter);
+			assert.equal(tokens[7].value, TokenValues.LeftBrace);
+
+			assert.equal(tokens[8].type, TokenTypes.Delimiter);
+			assert.equal(tokens[8].value, TokenValues.Newline);
+
+			assert.equal(tokens[9].type, TokenTypes.Identifier);
+			assert.equal(tokens[9].value, 'a');
+
+			assert.equal(tokens[10].type, TokenTypes.Arithmetic);
+			assert.equal(tokens[10].value, TokenValues.Plus);
+
+			assert.equal(tokens[11].type, TokenTypes.Identifier);
+			assert.equal(tokens[11].value, 'b');
+
+			assert.equal(tokens[12].type, TokenTypes.Delimiter);
+			assert.equal(tokens[12].value, TokenValues.Newline);
+
+			assert.equal(tokens[13].type, TokenTypes.Delimiter);
+			assert.equal(tokens[13].value, TokenValues.RightBrace);
+
+		});
+
+		it('should assign the correct line numbers', () => {
+			const lexer = new Lexer('foo(a,b) = {\n'
+				+ 'a + b\n'
+				+ ' }');
+
+			const tokens = lexer.tokenize();
+
+			assert.equal(1, tokens[0].line);
+			assert.equal(1, tokens[1].line);
+			assert.equal(1, tokens[2].line);
+			assert.equal(1, tokens[3].line);
+			assert.equal(1, tokens[4].line);
+			assert.equal(1, tokens[5].line);
+			assert.equal(1, tokens[6].line);
+			assert.equal(1, tokens[7].line);
+			assert.equal(1, tokens[8].line);
+
+			assert.equal(2, tokens[9].line);
+			assert.equal(2, tokens[10].line);
+			assert.equal(2, tokens[11].line);
+			assert.equal(2, tokens[12].line);
+
+			assert.equal(3, tokens[13].line);
+		});
 
 		it('should tokenize a simple arithmetic expression with +', () => {
 			const lexer = new Lexer('42 + 21');

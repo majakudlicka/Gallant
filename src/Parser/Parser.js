@@ -421,9 +421,6 @@ export class Parser {
 // TODO sync parser to lexer and compiler
 // TODO Figure out why row & column are not working
 // TODO Add 'hi' and 'hello' as keywords to introduce new vars
-// TODO Add support for objects
-// TODO Add support for arrays
-// TODO Add support for functions
 // TODO Add more info to errors (error logging method incl currentToken, line, col
 // TODO Use destructuring in Nodes constructors
 // TODO Rename Function assignment to function definition and function to function call (or something like that)
@@ -433,4 +430,4 @@ export class Parser {
 // TODO Console.log some mirror related phrasem (mirror, mirror, on the wall...)
 // TODO introduce ; and sort out strange issues with new lines
 // TODO Replace hardcoded tokens with .tokentype
-// TODO Lines should start at 1
+// TODO Do we use keyword func or this
