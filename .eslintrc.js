@@ -11,6 +11,7 @@ module.exports = {
 		"new-cap": [2, { "capIsNewExceptions": ["Router", "ObjectId"] }],
 		"no-tabs": 0,
 		"prefer-destructuring": 1,
+		"prefer-object-spread": 0,
 		"max-len": [1, 120], // extended
 		"no-plusplus": 0, // disabled,
 		"no-eval": 0,

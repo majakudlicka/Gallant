@@ -1,20 +1,17 @@
 import * as assert from 'assert';
-import { TokenTypes, TokenValues } from '../../Lexer/tokenTypes';
-// import { TokenValues } from '../../Lexer/tokenValues';
+import { TokenTypes, TokenValues } from '../../Lexer/tokenStructure';
 import { Lexer } from '../../Lexer/lexer';
 
-describe('Lexer', () => {
+describe.only('Lexer', () => {
 
 	describe('#nextToken', () => {
 
-		it.only('should recognize a newline character as a single token', () => {
+		it('should recognize a newline character as a single token', () => {
 			const lexer = new Lexer('\n');
 			const token = lexer.nextToken();
 
-			console.log('TokenValues ', TokenValues);
-
-			// assert.equal(token.type, TokenTypes.Delimiter);
-			// assert.equal(token.value, TokenValues.Newline);
+			assert.equal(token.type, TokenTypes.Delimiter);
+			assert.equal(token.value, TokenValues.Newline);
 		});
 
 		it('should recognize number 0', () => {

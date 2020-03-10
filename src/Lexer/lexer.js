@@ -1,6 +1,5 @@
 import { Token } from './token';
-import { TokenTypes } from './tokenTypes';
-import { TokenValues } from './tokenValues';
+import { TokenTypes, TokenValues } from './tokenStructure';
 import { CharUtils } from './charUtils';
 import { FSM } from './FSM';
 
