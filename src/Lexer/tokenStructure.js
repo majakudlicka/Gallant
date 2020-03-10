@@ -1,4 +1,4 @@
-const tokens = {
+export const TokenStructure = {
 	// Keywords
 	Keyword: {
 		name: 'keyword',
@@ -85,11 +85,11 @@ const tokens = {
 	EndOfInput: { name: 'EndOfInput' }
 };
 
-export const TokenTypes = Object.assign({}, ...Object.entries(tokens).map(([k, v]) => ({ [k]: v.name })));
+export const TokenTypes = Object.assign({}, ...Object.entries(TokenStructure).map(([k, v]) => ({ [k]: v.name })));
 export const TokenValues = Object.assign({},
-	tokens.Keyword.values, tokens.Accessor.values,
-	tokens.Assignment.values, tokens.Arithmetic.values,
-	tokens.Comparison.values,
-	tokens.Logical.values,
-	tokens.Delimiter.values,
-	tokens.Greeting.values);
+	TokenStructure.Keyword.values, TokenStructure.Accessor.values,
+	TokenStructure.Assignment.values, TokenStructure.Arithmetic.values,
+	TokenStructure.Comparison.values,
+	TokenStructure.Logical.values,
+	TokenStructure.Delimiter.values,
+	TokenStructure.Greeting.values);

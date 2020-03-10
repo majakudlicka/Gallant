@@ -1,12 +1,11 @@
 export class Token {
-	constructor(type, value, line, column) {
+	constructor(type, value, line) {
 		this.type = type;
 		this.value = value;
 		this.line = line;
-		this.column = column;
 	}
 
 	toString() {
-		return `<${this.type}, ${this.value}, ${this.line}:${this.column}>`;
+		return `<${this.type}, ${this.value}, ${this.line}>`;
 	}
 }

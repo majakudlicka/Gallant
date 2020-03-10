@@ -1,5 +1,5 @@
 import { Token } from './token';
-import { TokenTypes, TokenValues } from './tokenStructure';
+import { TokenTypes, TokenValues, TokenStructure } from './tokenStructure';
 import { CharUtils } from './charUtils';
 import { FSM } from './FSM';
 
@@ -8,19 +8,13 @@ export class Lexer {
 		this.input = input;
 		this.position = 0;
 		this.line = 1;
-		this.column = 1;
 	}
 
 	recognizeDelimiter() {
-		const { position } = this;
-		const { line } = this;
-		const { column } = this;
+		const { position, line } = this;
 		const character = this.input.charAt(position);
-
 		this.position += 1;
-		this.column += 1;
-
-		return new Token(TokenTypes.Delimiter, character, line, column);
+		return new Token(TokenTypes.Delimiter, character, line);
 	}
 
 	// / Recognizes and returns an operator token.
@@ -42,7 +36,7 @@ export class Lexer {
 	}
 
 	recognizeComparisonOperator() {
-		const { position, line, column } = this;
+		const { position, line } = this;
 		const character = this.input.charAt(position);
 
 		// 'lookahead' is the next character in the input
@@ -53,38 +47,32 @@ export class Lexer {
 		const isLookaheadEqualSymbol = lookahead !== null && lookahead === '=';
 
 		this.position += 1;
-		this.column += 1;
 
 		if (isLookaheadEqualSymbol) {
 			this.position += 1;
-			this.column += 1;
 		}
 
-		// TODO Give me some love
+		let tokenType = TokenTypes.Comparison;
+		let tokenValue;
 		switch (character) {
 			case '>':
-				return isLookaheadEqualSymbol
-					? new Token(TokenTypes.Comparison, TokenValues.GreaterOrEqual, line, column)
-					: new Token(TokenTypes.Comparison, TokenValues.Greater, line, column);
-
+				tokenValue = isLookaheadEqualSymbol ? TokenValues.GreaterOrEqual : TokenValues.Greater;
+				break;
 			case '<':
-				return isLookaheadEqualSymbol
-					? new Token(TokenTypes.Comparison, TokenValues.LessOrEqual, line, column)
-					: new Token(TokenTypes.Comparison, TokenValues.Less, line, column);
-
+				tokenValue = isLookaheadEqualSymbol ? TokenValues.LessOrEqual : TokenValues.Less;
+				break;
 			case '=':
-				return isLookaheadEqualSymbol
-					? new Token(TokenTypes.Comparison, TokenValues.Equal, line, column)
-					: new Token(TokenTypes.Assignment, TokenValues.Assignment, line, column);
-
+				tokenValue = isLookaheadEqualSymbol ? TokenValues.Equal : TokenValues.Assignment;
+				tokenType = isLookaheadEqualSymbol ? TokenTypes.Comparison : TokenTypes.Assignment;
+				break;
 			default:
 				break;
 		}
-
+		return new Token(tokenType, tokenValue, line);
 	}
 
 	recognizeBooleanOperator() {
-		const { position, line, column } = this;
+		const { position, line } = this;
 		const character = this.input.charAt(position);
 
 		// 'lookahead' is the next character in the input
@@ -95,28 +83,26 @@ export class Lexer {
 		const isLookaheadEqualSymbol = lookahead !== null;
 
 		this.position += 1;
-		this.column += 1;
 
 		if (isLookaheadEqualSymbol) {
 			this.position += 1;
-			this.column += 1;
 		}
 
 		switch (character) {
 			case '!':
 				return isLookaheadEqualSymbol && lookahead === '='
-					? new Token(TokenTypes.Logical, TokenValues.NotEqual, line, column)
-					: new Token(TokenTypes.Not, '!', line, column);
+					? new Token(TokenTypes.Logical, TokenValues.NotEqual, line)
+					: new Token(TokenTypes.Not, '!', line);
 
 			case '&':
 				return isLookaheadEqualSymbol && lookahead === '&'
-					? new Token(TokenTypes.Logical, TokenValues.And, line, column)
-					: new Error(`Unrecognized character ${character} at line ${this.line} and column ${this.column}.`);
+					? new Token(TokenTypes.Logical, TokenValues.And, line)
+					: new Error(`Unrecognized character ${character} at line ${this.line}.`);
 
 			case '|':
 				return isLookaheadEqualSymbol
-					? new Token(TokenTypes.Logical, TokenValues.Or, line, column)
-					: new Error(`Unrecognized character ${character} at line ${this.line} and column ${this.column}.`);
+					? new Token(TokenTypes.Logical, TokenValues.Or, line)
+					: new Error(`Unrecognized character ${character} at line ${this.line}.`);
 
 
 			default:
@@ -126,40 +112,29 @@ export class Lexer {
 	}
 
 	recognizeArithmeticOperator() {
-		const { position } = this;
-		const { line } = this;
-		const { column } = this;
+		const { position, line } = this;
 		const character = this.input.charAt(position);
-
 		this.position += 1;
-		this.column += 1;
-
-		return new Token(TokenTypes.Arithmetic, character, line, column);
+		return new Token(TokenTypes.Arithmetic, character, line);
 	}
 
 	recognizeNewLine() {
-		const { line, column } = this;
-
+		const { line } = this;
 		this.position += 1;
-		this.column = 1;
 		this.line += 1;
-		return new Token(TokenTypes.Delimiter, TokenValues.Newline, line, column);
+		return new Token(TokenTypes.Delimiter, TokenValues.Newline, line);
 	}
 
 	recognizeDot() {
 		const { line } = this;
-		const { column } = this;
-
 		this.position += 1;
-		this.column += 1;
-		return new Token(TokenTypes.Accessor, '.', line, column);
+		return new Token(TokenTypes.Accessor, '.', line);
 	}
 
 	// / Recognizes and returns an identifier token.
 	recognizeIdentifier() {
 		let identifier = '';
 		const { line } = this;
-		const { column } = this;
 		let { position } = this;
 
 		while (position < this.input.length) {
@@ -174,39 +149,20 @@ export class Lexer {
 		}
 
 		this.position += identifier.length;
-		this.column += identifier.length;
 
-		// TODO Clean this up!
-		const keywords = [
-			'if',
-			'else',
-			'true',
-			'false',
-			'func',
-			'null',
-			'this',
-			'while'
-		];
-
-		const greetings = [	'hi',
-			'hello',
-			'hola',
-			'aloha'];
-
-		if (keywords.includes(identifier)) {
-			return new Token(TokenTypes.Keyword, identifier, line, column);
-		} else if (greetings.includes(identifier)) {
-			return new Token(TokenTypes.Greeting, identifier, line, column);
+		if (Object.values(TokenStructure.Keyword.values).includes(identifier)) {
+			return new Token(TokenTypes.Keyword, identifier, line);
+		} else if (Object.values(TokenStructure.Greeting.values).includes(identifier)) {
+			return new Token(TokenTypes.Greeting, identifier, line);
 		}
 
-		return new Token(TokenTypes.Identifier, identifier, line, column);
+		return new Token(TokenTypes.Identifier, identifier, line);
 	}
 
 	// / Recognizes and returns a number token.
 	// Decimal number can start with a dot...
 	recognizeNumberOrDot() {
 		const { line } = this;
-		const { column } = this;
 
 		// We delegate the building of the FSM to a helper method.
 		const fsm = this.buildNumberRecognizer();
@@ -223,14 +179,13 @@ export class Lexer {
 
 		if (isNumberRecognized) {
 			this.position += number.length;
-			this.column += number.length;
 			let tokenType;
 			if (state === 2) {
 				tokenType = TokenTypes.Integer;
 			} else if (state === 4) {
 				tokenType = TokenTypes.Decimal;
 			}
-			return new Token(tokenType, number, line, column);
+			return new Token(tokenType, number, line);
 		} if (number === '.' && state === 3) {
         	return this.recognizeDot();
 		}
@@ -239,7 +194,6 @@ export class Lexer {
 	recognizeString() {
 		let string = '"';
 		const { line } = this;
-		const { column } = this;
 		let position = this.position + 1;
 
 		while (position < this.input.length) {
@@ -255,9 +209,8 @@ export class Lexer {
 		}
 
 		this.position += string.length;
-		this.column += string.length;
 
-		return new Token(TokenTypes.String, string, line, column);
+		return new Token(TokenTypes.String, string, line);
 	}
 
 	buildNumberRecognizer() {
@@ -267,8 +220,11 @@ export class Lexer {
 			Integer: 2,
 			BeginNumberWithFractionalPart: 3,
 			NumberWithFractionalPart: 4,
+			// TODO remove me
 			BeginNumberWithExponent: 5,
+			// TODO remove me
 			BeginNumberWithSignedExponent: 6,
+			// TODO remove me
 			NumberWithExponent: 7,
 			NoNextState: -1
 		};
@@ -356,7 +312,7 @@ export class Lexer {
 	// / Returns the next recognized 'Token' in the input.
 	nextToken() {
 		if (this.position >= this.input.length) {
-			return new Token(TokenTypes.EndOfInput, TokenValues.EndOfInput, this.line, this.column);
+			return new Token(TokenTypes.EndOfInput, TokenValues.EndOfInput, this.line);
 		}
 
 		// We skip all the whitespaces and new lines in the input.
@@ -390,13 +346,12 @@ export class Lexer {
 
 		// Throw an error if the current character does not match
 		// any production rule of the lexical grammar.
-		throw new Error(`Unrecognized character ${character} at line ${this.line} and column ${this.column}.`);
+		throw new Error(`Unrecognized character ${character} at line ${this.line}.`);
 	}
 
 	skipWhitespaces() {
 		while (this.position < this.input.length && CharUtils.isWhitespace(this.input.charAt(this.position))) {
 			this.position += 1;
-           	this.column += 1;
 		}
 	}
 
