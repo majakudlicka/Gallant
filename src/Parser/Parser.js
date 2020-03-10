@@ -1,4 +1,4 @@
-import { Token } from '../Lexer/token';
+import { TokenTypes, TokenValues, TokenStructure } from "../Lexer/tokenStructure";
 import { Lexer } from '../Lexer/lexer';
 import { ConstantNode } from './astNodes/ConstantNode';
 import { OperatorNode } from './astNodes/OperatorNode';
@@ -10,7 +10,6 @@ import { BlockNode } from './astNodes/BlockNode';
 import { ParenthesisNode } from './astNodes/ParenthesisNode';
 import { FunctionCallNode } from './astNodes/FunctionCallNode';
 import { FunctionAssignmentNode } from './astNodes/FunctionAssignmentNode';
-import { RelationalNode } from './astNodes/RelationalNode';
 import { ArrayNode } from './astNodes/ArrayNode';
 import { AccessorNode } from './astNodes/AccessorNode';
 import { MapNode } from './astNodes/MapNode';
@@ -22,23 +21,24 @@ export class Parser {
 	}
 
 	isAdditiveOperator() {
-		return this.currentToken.type === '-' || this.currentToken.type === '+';
+		return this.currentToken.value === TokenValues.Minus || this.currentToken.type === TokenValues.Plus;
 	}
 
 	isMultiplyDivisionOrModuloOperator() {
-		return this.currentToken.type === '*' || this.currentToken.type === '/' || this.currentToken.type === '%';
+		return !this.isAdditiveOperator() && this.currentToken.type === TokenTypes.Arithmetic;
 	}
 
 	isNumber() {
-		return this.currentToken.type === 'decimal' || this.currentToken.type === 'integer';
+		return this.currentToken.type === TokenTypes.Decimal || this.currentToken.type === TokenTypes.Integer;
 	}
 
 	isConstant() {
-		return ['null', 'true', 'false'].includes(this.currentToken.type);
+		// TODO Rethink, do these need to be in a special categpry? Why?
+		return ['null', 'true', 'false'].includes(this.currentToken.value);
 	}
 
 	discardNewlines() {
-		while (this.currentToken.value === '\n') {
+		while (this.currentToken.value === TokenValues.Newline) {
 			this.next();
 		}
 	}
@@ -57,12 +57,14 @@ export class Parser {
 		let node;
 		const blocks = [];
 
-		if (this.currentToken.value !== '' && this.currentToken.value !== '\n' && this.currentToken.value !== ';') {
+		if (this.currentToken.value !== ''
+			&& this.currentToken.value !== TokenValues.Newline
+			&& this.currentToken.value !== ';') {
 			node = this.parseAssignment();
 		}
 
 		// TODO: simplify this loop
-		while (this.currentToken.value === '\n' || this.currentToken.value === ';') {
+		while (this.currentToken.value === TokenValues.Newline || this.currentToken.value === ';') {
 			if (blocks.length === 0 && node) {
 				blocks.push(node);
 			}
@@ -85,18 +87,8 @@ export class Parser {
 		const params = [this.parseAddSubtract()];
 		const conditionals = [];
 
-		// TODO DIfferent data structure ?
-		const operators = {
-			'==': 'equal',
-			'!=': 'unequal',
-			'<': 'smaller',
-			'>': 'larger',
-			'<=': 'smallerEq',
-			'>=': 'largerEq'
-		};
-
-		while (operators[this.currentToken.value]) {
-			const cond = { name: this.currentToken.value, fn: this.currentToken.value };
+		while (this.currentToken.type === TokenTypes.Comparison) {
+			const cond = { fn: this.currentToken.value };
 			conditionals.push(cond);
 			this.next();
 			params.push(this.parseAddSubtract());
@@ -105,22 +97,20 @@ export class Parser {
 		if (params.length === 1) {
 			return params[0];
 		} if (params.length === 2) {
-			return new OperatorNode(conditionals[0].name, conditionals[0].fn, params[0], params[1], line);
+			return new OperatorNode(conditionals[0].fn, params[0], params[1], line);
 		}
-		return new RelationalNode(conditionals.map(c => c.fn), params, line);
-
+		throw new Error(`Error parsing code at line ${line}`);
 	}
 
 	parseAssignment() {
 		let greeted = false;
-		// TODO rmeove magic strings
-		if (['hello', 'hi', 'hola', 'aloha'].includes(this.currentToken.value)) {
+		if (this.currentToken.type === TokenTypes.Greeting) {
 			greeted = true;
 			this.next();
 		}
 		const node = this.parseWhileLoop();
 
-		if (this.currentToken.value === '=') {
+		if (this.currentToken.value === TokenValues.Assignment) {
 			if (node.isSymbolNode()) {
 				// parse a variable assignment
 				const { name } = node;
@@ -144,9 +134,9 @@ export class Parser {
 
 				if (valid) {
 					this.next();
-					this.expect('{');
+					this.expect(TokenValues.LeftBrace);
 					const value = this.parseBlock();
-					this.expect('}');
+					this.expect(TokenValues.RightBrace);
 					const { line } = this.currentToken;
 					return new FunctionAssignmentNode(name, args, value, greeted, line);
 				}
@@ -166,14 +156,14 @@ export class Parser {
 	parseWhileLoop() {
 		let node = this.parseConditional();
 
-		while (this.currentToken.type === 'while') {
+		while (this.currentToken.value === TokenValues.While) {
 			this.next();
-			this.expect('(');
+			this.expect(TokenValues.LeftParen);
 			const condition = this.parseAssignment();
-			this.expect(')');
-			this.expect('{');
+			this.expect(TokenValues.RightParen);
+			this.expect(TokenValues.LeftBrace);
 			const body = this.parseBlock();
-			this.expect('}');
+			this.expect(TokenValues.RightBrace);
 			const { line } = this.currentToken;
 			node = new WhileLoopNode(condition, body, line);
 		}
@@ -185,14 +175,14 @@ export class Parser {
 		let node = this.parseRelational();
 
 		const { line } = this.currentToken;
-		while (this.currentToken.value === 'if') {
+		while (this.currentToken.value === TokenValues.If) {
 			this.next();
-			this.expect('(');
+			this.expect(TokenValues.LeftParen);
 			const condition = this.parseRelational();
-			this.expect(')');
+			this.expect(TokenValues.RightParen);
 			const trueExpr = this.parseRelational();
 			let falseExpr = null;
-			if (this.currentToken.value === 'else') {
+			if (this.currentToken.value === TokenValues.Else) {
 				this.next();
 				falseExpr = this.parseRelational();
 			}
@@ -203,24 +193,10 @@ export class Parser {
 	}
 
 	expect(tokenValue) {
-		// this.next();
 		if (this.currentToken.value !== tokenValue) {
 			throw new Error(`Expected '${tokenValue}' but found '${this.currentToken.value}'.`);
 		}
 		this.next();
-		// if (tokenType !== '/n') {
-		// 	this.discardNewlines();
-		// }
-		//
-		// let token = new Token(this.currentToken.type, this.currentToken.value, this.currentToken.line, this.currentToken.column);
-		//
-		// if (tokenType !== TokenType.EndOfInput && token.type === TokenType.EndOfInput) {
-		// 	throw new Error(Report.error(token.line, token.column, `Expected '${tokenType}' but reached end of input.`));
-		// }
-		//
-		// if (token.type !== tokenType) {
-		// 	throw new Error(Report.error(token.line, token.column, `Expected '${tokenType}' but found '${token.value}'.`));
-		// }
 	}
 
 	parseMultiplyDivide() {
@@ -228,12 +204,11 @@ export class Parser {
 		const { line } = this.currentToken;
 
 		while (this.isMultiplyDivisionOrModuloOperator()) {
-			const name = this.currentToken.value;
-			const operator = this.currentToken.type;
+			const operator = this.currentToken.value;
 			this.next();
 			const left = node;
 			const right = this.parseSymbolOrConstant();
-			node = new OperatorNode(name, operator, left, right, line);
+			node = new OperatorNode(operator, left, right, line);
 		}
 
 		return node;
@@ -244,13 +219,12 @@ export class Parser {
 		const { line } = this.currentToken;
 
 		while (this.isAdditiveOperator()) {
-			const name = this.currentToken.value;
-			const operator = this.currentToken.type;
+			const operator = this.currentToken.value;
 
 			this.next();
 			const left = node;
 			const right = this.parseMultiplyDivide();
-			node = new OperatorNode(name, operator, left, right, line);
+			node = new OperatorNode(operator, left, right, line);
 		}
 
 		return node;
@@ -272,13 +246,13 @@ export class Parser {
 		let node;
 
 		// check if it is a parenthesized expression
-		if (this.currentToken.value === '(') {
+		if (this.currentToken.value === TokenValues.LeftParen) {
 			this.next();
 
 			node = this.parseAssignment();
 			const { line } = this.currentToken;
 
-			if (this.currentToken.value !== ')') {
+			if (this.currentToken.value !== TokenValues.RightParen) {
 				throw new Error('Parenthesis ) expected');
 			}
 			this.next();

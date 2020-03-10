@@ -44,10 +44,6 @@ export class AstNode {
 		return false;
 	}
 
-	isRelationalNode() {
-		return false;
-	}
-
 	isArrayNode() {
 		return false;
 	}

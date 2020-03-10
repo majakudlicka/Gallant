@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { Parser } from '../../Parser/Parser';
+import { TokenValues, TokenTypes } from "../../Lexer/tokenStructure";
 
 describe('Parser', () => {
 
@@ -41,7 +42,7 @@ describe('Parser', () => {
 		const node = parser.parse();
 		assert.equal(true, node.isConstantNode());
 		assert.equal('89', node.value);
-		assert.equal('integer', node.type);
+		assert.equal(TokenTypes.Integer, node.type);
 	});
 
 	it('should parse a simple decimal literal', () => {
@@ -50,7 +51,7 @@ describe('Parser', () => {
 
 		assert.equal(true, node.isConstantNode());
 		assert.equal('5.26', node.value);
-		assert.equal('decimal', node.type);
+		assert.equal(TokenTypes.Decimal, node.type);
 	});
 
 	it('should parse a simple string literal', () => {
@@ -60,7 +61,7 @@ describe('Parser', () => {
 
 		assert.equal(true, node.isConstantNode());
 		assert.equal('"Hello, World!"', node.value);
-		assert.equal('string', node.type);
+		assert.equal(TokenTypes.String, node.type);
 	});
 
 	it('should parse a null literal', () => {
@@ -69,8 +70,8 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isConstantNode());
-		assert.equal('null', node.value);
-		assert.equal('null', node.type);
+		assert.equal(TokenValues.Null, node.value);
+		assert.equal(TokenTypes.Keyword, node.type);
 	});
 
 	it('should parse the boolean literal "true"', () => {
@@ -79,8 +80,8 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isConstantNode());
-		assert.equal('true', node.value);
-		assert.equal('true', node.type);
+		assert.equal(TokenValues.True, node.value);
+		assert.equal(TokenValues.Keyword, node.type);
 	});
 
 	it('should parse the boolean literal "false"', () => {
@@ -89,8 +90,8 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isConstantNode());
-		assert.equal('false', node.value);
-		assert.equal('false', node.type);
+		assert.equal(TokenValues.False, node.value);
+		assert.equal(TokenValues.Keyword, node.type);
 	});
 
 	it('should parse a simple addition', () => {
@@ -99,7 +100,7 @@ describe('Parser', () => {
 		const node = parser.parse();
 		assert.equal(true, node.isOperatorNode());
 
-		assert.equal('+', node.operator);
+		assert.equal(TokenValues.Plus, node.operator);
 
 		assert.equal(true, node.left.isConstantNode());
 		assert.equal('1', node.left.value);
@@ -115,9 +116,8 @@ describe('Parser', () => {
 
 		assert.equal(true, node.isOperatorNode());
 
-		assert.equal('+', node.operator);
-
-		assert.equal('-', node.left.operator);
+		assert.equal(TokenValues.Plus, node.operator);
+		assert.equal(TokenValues.Minus, node.left.operator);
 
 		assert.equal(true, node.left.left.isConstantNode());
 		assert.equal('7', node.left.left.value);
@@ -135,19 +135,19 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isOperatorNode());
-		assert.equal('-', node.operator);
+		assert.equal(TokenValues.Minus, node.operator);
 
 		const { left } = node;
 
 		assert.equal(true, left.isOperatorNode());
-		assert.equal('+', left.operator);
+		assert.equal(TokenValues.Plus, left.operator);
 		assert.equal(true, left.left.isConstantNode());
 		assert.equal('1', left.left.value);
 
 		const multiplication = left.right;
 
 		assert.equal(true, multiplication.isOperatorNode());
-		assert.equal('*', multiplication.operator);
+		assert.equal(TokenValues.Times, multiplication.operator);
 		assert.equal(true, multiplication.left.isConstantNode());
 		assert.equal('3', multiplication.left.value);
 		assert.equal(true, multiplication.right.isConstantNode());
@@ -161,14 +161,15 @@ describe('Parser', () => {
 	it('should parse relational expressions', () => {
 		const parser = new Parser('a > b');
 		const node = parser.parse();
+
 		assert.equal(true, node.isOperatorNode());
-		assert.equal('>', node.name);
+		assert.equal(TokenValues.Greater, node.operator);
 		assert.equal(true, node.left.isSymbolNode());
 		assert.equal('a', node.left.name);
 		assert.equal('b', node.right.name);
 	});
 
-	// Need more tests for if - else ?
+	// TODO Need more tests for if - else ?
 	it('should parse an if/else node', () => {
 		const parser = new Parser('if (true) 1 else 2');
 
@@ -176,7 +177,7 @@ describe('Parser', () => {
 
 		assert.equal(true, node.isConditionalNode());
 
-		assert.equal('true', node.condition.value);
+		assert.equal(TokenValues.True, node.condition.value);
 
 		assert.equal(true, node.trueExpr.isConstantNode());
 		assert.equal('1', node.trueExpr.value);
@@ -197,7 +198,7 @@ describe('Parser', () => {
 
 		const { body, condition } = node;
 		assert.equal(true, condition.isOperatorNode());
-		assert.equal('>', condition.operator);
+		assert.equal(TokenValues.Greater, condition.operator);
 
 		assert.equal(true, body.isBlockNode());
 		assert.equal(2, body.blocks.length);
@@ -228,7 +229,7 @@ describe('Parser', () => {
 		assert.equal(true, symbol.isSymbolNode());
 		assert.equal(true, value.isOperatorNode());
 		assert.equal('i', symbol.name);
-		assert.equal('+', value.operator);
+		assert.equal(TokenValues.Plus, value.operator);
 		assert.equal(false, node.greeted);
 	});
 
