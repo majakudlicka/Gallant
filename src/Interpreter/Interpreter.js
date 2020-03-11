@@ -203,16 +203,7 @@ export class Interpreter {
 	}
 
 	interpretConstantNode(node) {
-		// boolean constants
-		if (['true', 'false'].includes(node.type)) {
-			// eslint-disable-next-line no-eval
-			return !eval(node.value);
-		} if (node.type === 'string') {
-			const reversedString = node.value.split('').reverse().join('');
-			return eval(reversedString);
-		}
 		return eval(node.value);
-
 	}
 
 	interpretFunctionCall(node) {

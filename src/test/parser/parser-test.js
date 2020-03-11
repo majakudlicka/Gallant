@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { Parser } from '../../Parser/Parser';
-import { TokenValues, TokenTypes } from "../../Lexer/tokenStructure";
+import { TokenValues, TokenTypes } from '../../Lexer/tokenStructure';
 
 describe('Parser', () => {
 
@@ -81,7 +81,7 @@ describe('Parser', () => {
 
 		assert.equal(true, node.isConstantNode());
 		assert.equal(TokenValues.True, node.value);
-		assert.equal(TokenValues.Keyword, node.type);
+		assert.equal(TokenTypes.Keyword, node.type);
 	});
 
 	it('should parse the boolean literal "false"', () => {
@@ -91,7 +91,7 @@ describe('Parser', () => {
 
 		assert.equal(true, node.isConstantNode());
 		assert.equal(TokenValues.False, node.value);
-		assert.equal(TokenValues.Keyword, node.type);
+		assert.equal(TokenTypes.Keyword, node.type);
 	});
 
 	it('should parse a simple addition', () => {
@@ -262,7 +262,7 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isOperatorNode());
-		assert.equal('-', node.operator);
+		assert.equal(TokenValues.Minus, node.operator);
 
 		assert.equal(true, node.right.isConstantNode());
 		assert.equal('42', node.right.value);
@@ -274,7 +274,7 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isOperatorNode());
-		assert.equal('+', node.operator);
+		assert.equal(TokenValues.Plus, node.operator);
 
 		const { left } = node;
 
@@ -285,7 +285,7 @@ describe('Parser', () => {
 
 		assert.equal(true, right.isParenthesisNode());
 		assert.equal(true, right.content.isOperatorNode());
-		assert.equal('-', right.content.operator);
+		assert.equal(TokenValues.Minus, right.content.operator);
 		assert.equal(true, right.content.left.isConstantNode());
 		assert.equal('2', right.content.left.value);
 		assert.equal(true, right.content.right.isConstantNode());
@@ -348,6 +348,7 @@ describe('Parser', () => {
 		assert.equal('foo', node.name);
 		const { params, body } = node;
 		assert.equal(2, params.length);
+		// TODO Shouldn't params be symbol nodes
 		assert.equal('a', params[0]);
 		assert.equal('b', params[1]);
 		assert.equal(true, body.isConditionalNode());

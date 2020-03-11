@@ -21,7 +21,7 @@ export class Parser {
 	}
 
 	isAdditiveOperator() {
-		return this.currentToken.value === TokenValues.Minus || this.currentToken.type === TokenValues.Plus;
+		return this.currentToken.value === TokenValues.Minus || this.currentToken.value === TokenValues.Plus;
 	}
 
 	isMultiplyDivisionOrModuloOperator() {
@@ -267,25 +267,23 @@ export class Parser {
 
 	parseAccessors(node) {
 		let params;
-
-		while (this.currentToken.value === '(' || this.currentToken.value === '@' || this.currentToken.value === '.') {
+		while ([TokenValues.LeftParen, TokenValues.At, TokenValues.Dot].includes(this.currentToken.value)) {
 			params = [];
 
-			if (this.currentToken.value === '(') {
-				// function invocation like fn(2, 3) or obj.fn(2, 3)
+			if (this.currentToken.value === TokenValues.LeftParen) {
 				this.next();
 
-				if (this.currentToken.value !== ')') {
+				if (this.currentToken.value !== TokenValues.RightParen) {
 					params.push(this.parseAssignment());
 
 					// parse a list with parameters
-					while (this.currentToken.value === ',') {
+					while (this.currentToken.value === TokenValues.Comma) {
 						this.next();
 						params.push(this.parseAssignment());
 					}
 				}
 
-				if (this.currentToken.value !== ')') {
+				if (this.currentToken.value !== TokenValues.RightParen) {
 					throw new Error('Parenthesis ) expected');
 				}
 				this.next();
@@ -294,7 +292,7 @@ export class Parser {
 				// eslint-disable-next-line no-param-reassign
 				node = new FunctionCallNode(node, params, line);
 				// TODO
-			} else if (this.currentToken.value === '@') {
+			} else if (this.currentToken.value === TokenValues.At) {
 				this.next();
 				const { line } = this.currentToken;
 				// eslint-disable-next-line no-param-reassign
@@ -315,7 +313,7 @@ export class Parser {
 	}
 
 	parseString() {
-		if (this.currentToken.type === 'string') {
+		if (this.currentToken.type === TokenTypes.String) {
 			const { line } = this.currentToken;
 			const node = new ConstantNode(this.currentToken.value, this.currentToken.type, line);
 			this.next();
@@ -325,19 +323,19 @@ export class Parser {
 	}
 
 	parseArray() {
-		if (this.currentToken.value === '[') {
+		if (this.currentToken.value === TokenValues.LeftBracket) {
 			const { line } = this.currentToken;
 			this.next();
 			const content = [];
-			if (this.currentToken.value !== ']') {
+			if (this.currentToken.value !== TokenValues.RightBracket) {
 				content.push(this.parseAssignment());
 
-				while (this.currentToken.value === ',') {
+				while (this.currentToken.value === TokenValues.Comma) {
 					this.next();
 					content.push(this.parseAssignment());
 				}
 			}
-			this.expect(']');
+			this.expect(TokenValues.RightBracket);
 			return new ArrayNode(content, line);
 		}
 
@@ -345,17 +343,17 @@ export class Parser {
 	}
 
 	parseMap() {
-		if (this.currentToken.value === '{') {
+		if (this.currentToken.value === TokenValues.LeftBrace) {
 			const { line } = this.currentToken;
 			this.next();
 			const keyValuePairs = [];
-			if (this.currentToken.value !== '}') {
+			if (this.currentToken.value !== TokenValues.RightBrace) {
 				const { symbol, value } = this.parseAssignment();
 				if (!symbol || !value) {
 					throw new Error('Syntax error parsing map');
 				}
 				keyValuePairs.push([symbol, value]);
-				while (this.currentToken.value === ',') {
+				while (this.currentToken.value === TokenValues.Comma) {
 					this.next();
 					// TODO: refactor to avoid duplicating code
 					const { symbol, value } = this.parseAssignment();
@@ -365,7 +363,7 @@ export class Parser {
 					keyValuePairs.push([symbol, value]);
 				}
 			}
-			this.expect('}');
+			this.expect(TokenValues.RightBrace);
 			return new MapNode(keyValuePairs, line);
 		}
 

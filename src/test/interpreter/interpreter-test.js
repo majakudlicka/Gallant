@@ -6,7 +6,7 @@ describe('Interpreter', () => {
 		const source = 'false';
 		const i = new Interpreter(source);
 		const output = i.interpret();
-		assert.equal(true, output);
+		assert.equal(false, output);
 	});
 
 	it('Should interpret a standalone integer', () => {
@@ -24,7 +24,7 @@ describe('Interpreter', () => {
 	});
 
 	it('Should interpret a standalone string', () => {
-		const source = '"?gniod uoy woh ,olleH"';
+		const source = '"Hello, how you doing?"';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal('Hello, how you doing?', output);
@@ -90,72 +90,70 @@ describe('Interpreter', () => {
 	});
 
 	it('Should interpret an if-else statement and execute if branch', () => {
-		// false evaluates to true
-		const source = ' if (false) 1 else 2';
+		const source = ' if (true) 1 else 2';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(1, output);
 	});
 
 	it('Should interpret an if-else statement and execute else branch', () => {
-		// true evaluates to false
-		const source = ' if (true) 1 else 2';
+		const source = ' if (false) 1 else 2';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(2, output);
 	});
 
 	it('Should interpret a simple addition', () => {
-		const source = ' 10 + 5';
+		const source = '10 + 5';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(15, output);
 	});
 
 	it('Should interpret a simple subtraction', () => {
-		const source = ' 10 - 5';
+		const source = '10 - 5';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(5, output);
 	});
 
 	it('Should interpret a simple multiplication', () => {
-		const source = ' 10 * 5';
+		const source = '10 * 5';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(50, output);
 	});
 
 	it('Should interpret a simple division', () => {
-		const source = ' 10 / 5';
+		const source = '10 / 5';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(2, output);
 	});
 
 	it('Should interpret modulo calculation', () => {
-		const source = ' 10 % 4';
+		const source = '10 % 4';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(2, output);
 	});
 
 	it('Should respect operator precedence', () => {
-		const source = ' 10 + 5 * 4';
+		const source = '10 + 5 * 4';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(30, output);
 	});
 
 	it('Should interpret an expression involving parenthesis', () => {
-		const source = ' (10 + 5) * 4';
+		const source = '(10 + 5) * 4';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(60, output);
 	});
 
 	it('Should interpret simple relational expression', () => {
-		const source = ' 10 > 5';
+		const source = '10 > 5';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(true, output);
