@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { TokenTypes, TokenValues } from '../../Lexer/tokenStructure';
-import { Lexer } from '../../Lexer/lexer';
+import { Lexer } from '../../Lexer/Lexer';
 
 describe('Lexer', () => {
 
@@ -156,15 +156,6 @@ describe('Lexer', () => {
 			assert.equal(token.value, 'identifier1');
 		});
 
-		it('should recognize the func keyword', () => {
-			const lexer = new Lexer('func');
-
-			const token = lexer.nextToken();
-
-			assert.equal(token.type, TokenTypes.Keyword);
-			assert.equal(token.value, TokenValues.Func);
-		});
-
 		it('should recognize the else keyword', () => {
 			const lexer = new Lexer('else');
 
@@ -227,16 +218,6 @@ describe('Lexer', () => {
 
 			assert.equal(token.type, TokenTypes.Keyword);
 			assert.equal(token.value, TokenValues.Null);
-		});
-
-
-		it('should recognize the this keyword', () => {
-			const lexer = new Lexer('this');
-
-			const token = lexer.nextToken();
-
-			assert.equal(token.type, TokenTypes.Keyword);
-			assert.equal(token.value, TokenValues.This);
 		});
 
 

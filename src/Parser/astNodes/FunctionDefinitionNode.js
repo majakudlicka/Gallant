@@ -1,6 +1,6 @@
 import { AstNode } from './AstNode';
 
-export class FunctionAssignmentNode extends AstNode {
+export class FunctionDefinitionNode extends AstNode {
 	constructor(name, params, body, greeted = false, line) {
 		super(line);
 		this.name = name;
@@ -9,7 +9,7 @@ export class FunctionAssignmentNode extends AstNode {
 		this.greeted = greeted;
 	}
 
-	isFunctionAssignmentNode() {
+	isFunctionDefinitionNode() {
 		return true;
 	}
 }

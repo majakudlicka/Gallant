@@ -5,10 +5,8 @@ export const TokenStructure = {
 		values: {
 			Else: 'else',
 			False: 'false',
-			Func: 'func',
 			If: 'if',
 			Null: 'null',
-			This: 'this',
 			True: 'true',
 			While: 'while'
 		}

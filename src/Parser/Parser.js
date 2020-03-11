@@ -1,5 +1,5 @@
 import { TokenTypes, TokenValues, TokenStructure } from "../Lexer/tokenStructure";
-import { Lexer } from '../Lexer/lexer';
+import { Lexer } from '../Lexer/Lexer';
 import { ConstantNode } from './astNodes/ConstantNode';
 import { OperatorNode } from './astNodes/OperatorNode';
 import { ConditionalNode } from './astNodes/ConditionalNode';
@@ -9,7 +9,7 @@ import { SymbolNode } from './astNodes/SymbolNode';
 import { BlockNode } from './astNodes/BlockNode';
 import { ParenthesisNode } from './astNodes/ParenthesisNode';
 import { FunctionCallNode } from './astNodes/FunctionCallNode';
-import { FunctionAssignmentNode } from './astNodes/FunctionAssignmentNode';
+import { FunctionDefinitionNode } from './astNodes/FunctionDefinitionNode';
 import { ArrayNode } from './astNodes/ArrayNode';
 import { AccessorNode } from './astNodes/AccessorNode';
 import { MapNode } from './astNodes/MapNode';
@@ -138,7 +138,7 @@ export class Parser {
 					const value = this.parseBlock();
 					this.expect(TokenValues.RightBrace);
 					const { line } = this.currentToken;
-					return new FunctionAssignmentNode(name, args, value, greeted, line);
+					return new FunctionDefinitionNode(name, args, value, greeted, line);
 				}
 			} if (node.isAccessorNode()) {
 				this.next();
@@ -388,18 +388,16 @@ export class Parser {
 	}
 }
 
-// TODO use TokenType mappings
+
 // TODO eslint errors
 // TODO sync parser to lexer and compiler
-// TODO Figure out why row & column are not working
 // TODO Add 'hi' and 'hello' as keywords to introduce new vars
 // TODO Add more info to errors (error logging method incl currentToken, line, col
-// TODO Use destructuring in Nodes constructors
-// TODO Rename Function assignment to function definition and function to function call (or something like that)
 // TODO Change order of functions to make some logical sense
-// TODO Do we need RelationalNode type ?
-// TODO Change strings to use $
-// TODO Console.log some mirror related phrasem (mirror, mirror, on the wall...)
+// TODO Change strings to use $ ?
 // TODO introduce ; and sort out strange issues with new lines
-// TODO Replace hardcoded tokens with .tokentype
-// TODO Do we use keyword func or this
+// TODO Cosistent Error handling use line --- use try - catch ?
+// TODO keyword please to execute functions
+// TODO Think of some other cool ascpects of a polite language
+// TODO Comments
+// TODO Consistent capitalisation of files

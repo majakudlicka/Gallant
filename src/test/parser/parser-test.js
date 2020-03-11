@@ -344,7 +344,7 @@ describe('Parser', () => {
 				+ ' }');
 
 		const node = parser.parse();
-		assert.equal(true, node.isFunctionAssignmentNode());
+		assert.equal(true, node.isFunctionDefinitionNode());
 		assert.equal('foo', node.name);
 		const { params, body } = node;
 		assert.equal(2, params.length);
@@ -372,7 +372,7 @@ describe('Parser', () => {
 		assert.equal(4, blocks.length);
 		assert.equal(true, blocks[0].isAssignmentNode());
 		assert.equal(true, blocks[1].isAssignmentNode());
-		assert.equal(true, blocks[2].isFunctionAssignmentNode());
+		assert.equal(true, blocks[2].isFunctionDefinitionNode());
 		assert.equal(true, blocks[3].isFunctionCallNode());
 	});
 

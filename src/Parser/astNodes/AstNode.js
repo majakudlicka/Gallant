@@ -28,7 +28,7 @@ export class AstNode {
 		return false;
 	}
 
-	isFunctionAssignmentNode() {
+	isFunctionDefinitionNode() {
 		return false;
 	}
 

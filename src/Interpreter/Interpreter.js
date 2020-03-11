@@ -22,8 +22,8 @@ export class Interpreter {
 		if (node.isAssignmentNode()) {
 			return this.interpretAssignmentNode(node);
 		}
-		if (node.isFunctionAssignmentNode()) {
-			return this.interpretFunctionAssignmentNode(node);
+		if (node.isFunctionDefinitionNode()) {
+			return this.interpretFunctionDefinitionNode(node);
 		}
 		if (node.isConditionalNode()) {
 			return this.interpretConditionalNode(node);
@@ -158,7 +158,7 @@ export class Interpreter {
 
 	}
 
-	interpretFunctionAssignmentNode(node) {
+	interpretFunctionDefinitionNode(node) {
 		const isReassignment = this.symbolTable.hasSymbol(node.name);
 		if (!isReassignment && !node.greeted) {
 			throw new Error('Functions must be greeted before they can used');

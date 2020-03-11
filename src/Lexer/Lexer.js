@@ -10,6 +10,10 @@ export class Lexer {
 		this.line = 1;
 	}
 
+	throwLexerError(char, line) {
+		throw new Error(`[LEXER]: Unrecognized character ${char} at line ${line}.`);
+	}
+
 	recognizeDelimiter() {
 		const { position, line } = this;
 		const character = this.input.charAt(position);
@@ -17,7 +21,7 @@ export class Lexer {
 		return new Token(TokenTypes.Delimiter, character, line);
 	}
 
-	// / Recognizes and returns an operator token.
+
 	recognizeOperator() {
 		const character = this.input.charAt(this.position);
 
@@ -30,20 +34,17 @@ export class Lexer {
 		}
 
 		if (CharUtils.isBooleanOperator(character)) {
-        	return this.recognizeBooleanOperator();
+			return this.recognizeBooleanOperator();
 		}
+
+		this.throwLexerError(character, this.line);
 
 	}
 
 	recognizeComparisonOperator() {
 		const { position, line } = this;
 		const character = this.input.charAt(position);
-
-		// 'lookahead' is the next character in the input
-		// or 'null' if 'character' was the last character.
 		const lookahead = position + 1 < this.input.length ? this.input.charAt(position + 1) : null;
-
-		// Whether the 'lookahead' character is the equal symbol '='.
 		const isLookaheadEqualSymbol = lookahead !== null && lookahead === '=';
 
 		this.position += 1;
@@ -66,7 +67,7 @@ export class Lexer {
 				tokenType = isLookaheadEqualSymbol ? TokenTypes.Comparison : TokenTypes.Assignment;
 				break;
 			default:
-				break;
+				this.throwLexerError(character, this.line);
 		}
 		return new Token(tokenType, tokenValue, line);
 	}
@@ -74,12 +75,7 @@ export class Lexer {
 	recognizeBooleanOperator() {
 		const { position, line } = this;
 		const character = this.input.charAt(position);
-
-		// 'lookahead' is the next character in the input
-		// or 'null' if 'character' was the last character.
 		const lookahead = position + 1 < this.input.length ? this.input.charAt(position + 1) : null;
-
-		// Whether the 'lookahead' character exists'.
 		const isLookaheadEqualSymbol = lookahead !== null;
 
 		this.position += 1;
@@ -106,7 +102,7 @@ export class Lexer {
 
 
 			default:
-				break;
+				this.throwLexerError(character, this.line);
 		}
 
 	}
@@ -131,7 +127,6 @@ export class Lexer {
 		return new Token(TokenTypes.Accessor, '.', line);
 	}
 
-	// / Recognizes and returns an identifier token.
 	recognizeIdentifier() {
 		let identifier = '';
 		const { line } = this;
@@ -152,29 +147,17 @@ export class Lexer {
 
 		if (Object.values(TokenStructure.Keyword.values).includes(identifier)) {
 			return new Token(TokenTypes.Keyword, identifier, line);
-		} else if (Object.values(TokenStructure.Greeting.values).includes(identifier)) {
+		} if (Object.values(TokenStructure.Greeting.values).includes(identifier)) {
 			return new Token(TokenTypes.Greeting, identifier, line);
 		}
 
 		return new Token(TokenTypes.Identifier, identifier, line);
 	}
 
-	// / Recognizes and returns a number token.
-	// Decimal number can start with a dot...
 	recognizeNumberOrDot() {
 		const { line } = this;
-
-		// We delegate the building of the FSM to a helper method.
 		const fsm = this.buildNumberRecognizer();
-
-		// The input to the FSM will be all the characters from
-		// the current position to the rest of the lexer's input.
 		const fsmInput = this.input.substring(this.position);
-
-		// Here, in addition of the FSM returning whether a number
-		// has been recognized or not, it also returns the number
-		// recognized in the 'number' variable. If no number has
-		// been recognized, 'number' will be 'null'.
 		const { isNumberRecognized, number, state } = fsm.run(fsmInput);
 
 		if (isNumberRecognized) {
@@ -186,9 +169,10 @@ export class Lexer {
 				tokenType = TokenTypes.Decimal;
 			}
 			return new Token(tokenType, number, line);
-		} if (number === '.' && state === 3) {
+		} if (number === TokenValues.Dot && state === 3) {
         	return this.recognizeDot();
 		}
+		this.throwLexerError(number, this.line);
 	}
 
 	recognizeString() {
