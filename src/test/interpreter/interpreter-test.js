@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { Interpreter } from '../../Interpreter/Interpreter';
 
-describe('Interpreter', () => {
+describe.only('Interpreter', () => {
 	it('Should interpret boolean expression', () => {
 		const source = 'false';
 		const i = new Interpreter(source);
@@ -48,15 +48,17 @@ describe('Interpreter', () => {
 	});
 
 	it('Should error if variable has not been greeted before declaring', () => {
-			const source = 'a = 10';
-			const i = new Interpreter(source);
+		const source = 'a = 10';
+		const i = new Interpreter(source);
+		let error;
 		try {
 			i.interpret();
 		} catch (err) {
-			assert.equal(true, err instanceof Error);
-			assert.equal('Variables must be greeted before they can used', err.message);
-			assert.equal(false, i.symbolTable.hasSymbol('a'));
+			error = err;
 		}
+		assert.equal(true, error instanceof Error);
+		assert.equal('[INTERPRETER]: Variables must be greeted before they can used around line 1', error.message);
+		assert.equal(false, i.symbolTable.hasSymbol('a'));
 
 	});
 

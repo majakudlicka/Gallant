@@ -1,4 +1,4 @@
-import { TokenTypes, TokenValues, TokenStructure } from "../Lexer/tokenStructure";
+import { TokenTypes, TokenValues, TokenStructure } from '../Lexer/tokenStructure';
 import { Lexer } from '../Lexer/Lexer';
 import { ConstantNode } from './astNodes/ConstantNode';
 import { OperatorNode } from './astNodes/OperatorNode';
@@ -17,6 +17,18 @@ import { MapNode } from './astNodes/MapNode';
 export class Parser {
 	constructor(input) {
 		this.lexer = new Lexer(input);
+		this.next();
+	}
+
+	throwParserError(message = 'Error parsing code') {
+		throw new Error(`[PARSER]: ${message} at line ${this.currentToken.line}`);
+	}
+
+	expect(tokenValue) {
+		if (this.currentToken.value !== tokenValue) {
+			throw new Error(`[PARSER]: Expected '${tokenValue}' but found '${this.currentToken.value} 
+			at line ${this.currentToken.line}'`);
+		}
 		this.next();
 	}
 
@@ -44,33 +56,36 @@ export class Parser {
 	}
 
 	parse() {
-		console.log('currentToken ', this.currentToken);
-		const node = this.parseBlock();
-		return node;
+		return this.parseBlock();
 	}
 
 	next() {
 		this.currentToken = this.lexer.nextToken();
 	}
 
+	isSameBlock() {
+		return this.currentToken.value !== TokenValues.Newline && this.currentToken.value !== ';';
+	}
+
+	isEndOfBlock() {
+		return this.currentToken.value === TokenValues.Newline || this.currentToken.value === ';';
+	}
+
 	parseBlock() {
 		let node;
 		const blocks = [];
 
-		if (this.currentToken.value !== ''
-			&& this.currentToken.value !== TokenValues.Newline
-			&& this.currentToken.value !== ';') {
+		if (this.isSameBlock()) {
 			node = this.parseAssignment();
 		}
-
-		// TODO: simplify this loop
-		while (this.currentToken.value === TokenValues.Newline || this.currentToken.value === ';') {
+		// If there is more than one block, start to populate blocks array
+		while (this.isEndOfBlock()) {
 			if (blocks.length === 0 && node) {
 				blocks.push(node);
 			}
 			this.next();
 			if (this.currentToken.type === 'EndOfInput') break;
-			if (this.currentToken.value !== '' && this.currentToken.value !== '\n' && this.currentToken.value !== ';') {
+			if (this.isSameBlock()) {
 				node = this.parseAssignment();
 				if (node) blocks.push(node);
 			}
@@ -80,6 +95,7 @@ export class Parser {
 			const { line } = this.currentToken;
 			return new BlockNode(blocks, line);
 		}
+		// If there was only one block, just return the current node
 		return node;
 	}
 
@@ -99,7 +115,7 @@ export class Parser {
 		} if (params.length === 2) {
 			return new OperatorNode(conditionals[0].fn, params[0], params[1], line);
 		}
-		throw new Error(`Error parsing code at line ${line}`);
+		return this.throwParserError();
 	}
 
 	parseAssignment() {
@@ -140,14 +156,15 @@ export class Parser {
 					const { line } = this.currentToken;
 					return new FunctionDefinitionNode(name, args, value, greeted, line);
 				}
+				return this.throwParserError();
+
 			} if (node.isAccessorNode()) {
 				this.next();
 				const value = this.parseAssignment();
 				const { line } = this.currentToken;
 				return new AssignmentNode(node, value, greeted, line);
 			}
-
-			throw new Error('Invalid left hand side of assignment operator =');
+			return this.throwParserError();
 		}
 
 		return node;
@@ -192,13 +209,6 @@ export class Parser {
 		return node;
 	}
 
-	expect(tokenValue) {
-		if (this.currentToken.value !== tokenValue) {
-			throw new Error(`Expected '${tokenValue}' but found '${this.currentToken.value}'.`);
-		}
-		this.next();
-	}
-
 	parseMultiplyDivide() {
 		let node = this.parseSymbolOrConstant();
 		const { line } = this.currentToken;
@@ -220,7 +230,6 @@ export class Parser {
 
 		while (this.isAdditiveOperator()) {
 			const operator = this.currentToken.value;
-
 			this.next();
 			const left = node;
 			const right = this.parseMultiplyDivide();
@@ -232,9 +241,7 @@ export class Parser {
 
 	parseNumber() {
 		if (this.isNumber()) {
-			const {
-				value, type, line
-			} = this.currentToken;
+			const { value, type, line } = this.currentToken;
 			const node = new ConstantNode(value, type, line);
 			this.next();
 			return node;
@@ -251,22 +258,20 @@ export class Parser {
 
 			node = this.parseAssignment();
 			const { line } = this.currentToken;
-
-			if (this.currentToken.value !== TokenValues.RightParen) {
-				throw new Error('Parenthesis ) expected');
-			}
-			this.next();
+			this.expect(')');
 
 			node = new ParenthesisNode(node, line);
 			node = this.parseAccessors(node);
 			return node;
 		}
 
+		// TODO: parseEnd ?
 		// return this.parseEnd();
 	}
 
 	parseAccessors(node) {
 		let params;
+		let newNode;
 		while ([TokenValues.LeftParen, TokenValues.At, TokenValues.Dot].includes(this.currentToken.value)) {
 			params = [];
 
@@ -283,34 +288,31 @@ export class Parser {
 					}
 				}
 
-				if (this.currentToken.value !== TokenValues.RightParen) {
-					throw new Error('Parenthesis ) expected');
-				}
-				this.next();
+				this.expect(')');
 				const { line } = this.currentToken;
 
 				// eslint-disable-next-line no-param-reassign
-				node = new FunctionCallNode(node, params, line);
+				newNode = new FunctionCallNode(node, params, line);
 				// TODO
 			} else if (this.currentToken.value === TokenValues.At) {
 				this.next();
 				const { line } = this.currentToken;
 				// eslint-disable-next-line no-param-reassign
-				node = new AccessorNode(node, this.parseSymbolOrConstant(), line);
+				newNode = new AccessorNode(node, this.parseSymbolOrConstant(), line);
 			}
 		}
 
-		return node;
+		return newNode || node;
 	}
 
-	parseEnd() {
-		if (this.currentToken.value === '') {
-			// syntax error or unexpected end of expression
-			throw new Error('Unexpected end of expression');
-		} else {
-			throw new Error('Value expected');
-		}
-	}
+	// parseEnd() {
+	// 	if (this.currentToken.value === '') {
+	// 		// syntax error or unexpected end of expression
+	// 		throw new Error('Unexpected end of expression');
+	// 	} else {
+	// 		throw new Error('Value expected');
+	// 	}
+	// }
 
 	parseString() {
 		if (this.currentToken.type === TokenTypes.String) {
@@ -347,20 +349,18 @@ export class Parser {
 			const { line } = this.currentToken;
 			this.next();
 			const keyValuePairs = [];
-			if (this.currentToken.value !== TokenValues.RightBrace) {
+			const parseKeyValuePair = () => {
 				const { symbol, value } = this.parseAssignment();
 				if (!symbol || !value) {
-					throw new Error('Syntax error parsing map');
+					this.throwParserError('Syntax error parsing map');
 				}
 				keyValuePairs.push([symbol, value]);
+			};
+			if (this.currentToken.value !== TokenValues.RightBrace) {
+				parseKeyValuePair();
 				while (this.currentToken.value === TokenValues.Comma) {
 					this.next();
-					// TODO: refactor to avoid duplicating code
-					const { symbol, value } = this.parseAssignment();
-					if (!symbol || !value) {
-						throw new Error('Syntax error parsing map');
-					}
-					keyValuePairs.push([symbol, value]);
+					parseKeyValuePair();
 				}
 			}
 			this.expect(TokenValues.RightBrace);
@@ -391,12 +391,9 @@ export class Parser {
 
 // TODO eslint errors
 // TODO sync parser to lexer and compiler
-// TODO Add 'hi' and 'hello' as keywords to introduce new vars
-// TODO Add more info to errors (error logging method incl currentToken, line, col
 // TODO Change order of functions to make some logical sense
 // TODO Change strings to use $ ?
 // TODO introduce ; and sort out strange issues with new lines
-// TODO Cosistent Error handling use line --- use try - catch ?
 // TODO keyword please to execute functions
 // TODO Think of some other cool ascpects of a polite language
 // TODO Comments

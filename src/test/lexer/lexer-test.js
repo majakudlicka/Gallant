@@ -6,6 +6,18 @@ describe('Lexer', () => {
 
 	describe('#nextToken', () => {
 
+		it('should throw an error if given character does not belong to language grammar', () => {
+			let error;
+			try {
+				const lexer = new Lexer('§');
+				lexer.nextToken();
+			} catch (err) {
+				error = err;
+			}
+			assert.equal(true, error instanceof Error);
+			assert.equal('[LEXER]: Unrecognized character § at line 1', error.message);
+		});
+
 		it('should recognize a newline character as a single token', () => {
 			const lexer = new Lexer('\n');
 			const token = lexer.nextToken();

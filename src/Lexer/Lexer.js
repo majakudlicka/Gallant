@@ -10,8 +10,64 @@ export class Lexer {
 		this.line = 1;
 	}
 
-	throwLexerError(char, line) {
-		throw new Error(`[LEXER]: Unrecognized character ${char} at line ${line}.`);
+	// / Returns the next recognized 'Token' in the input.
+	nextToken() {
+		if (this.position >= this.input.length) {
+			return new Token(TokenTypes.EndOfInput, TokenValues.EndOfInput, this.line);
+		}
+
+		// We skip all the whitespaces and new lines in the input.
+		this.skipWhitespaces();
+
+		const character = this.input.charAt(this.position);
+
+		if (CharUtils.isNewLine(character)) {
+			return this.recognizeNewLine();
+		}
+
+		if (CharUtils.isLetterOrUnderscore(character)) {
+			return this.recognizeIdentifier();
+		}
+
+		if (CharUtils.isValidPartOfNumber(character)) {
+			return this.recognizeNumberOrDot();
+		}
+
+		if (CharUtils.isOperator(character)) {
+			return this.recognizeOperator();
+		}
+
+		if (CharUtils.isDelimiter(character)) {
+			return this.recognizeDelimiter();
+		}
+
+		if (character === '"') {
+			return this.recognizeString();
+		}
+
+		this.throwLexerError(character);
+	}
+
+	tokenize() {
+		let token = this.nextToken();
+		const tokens = [];
+
+		while (token.type !== TokenTypes.EndOfInput) {
+			tokens.push(token);
+			token = this.nextToken();
+		}
+
+		return tokens;
+	}
+
+	throwLexerError(char) {
+		throw new Error(`[LEXER]: Unrecognized character ${char} at line ${this.line}`);
+	}
+
+	skipWhitespaces() {
+		while (this.position < this.input.length && CharUtils.isWhitespace(this.input.charAt(this.position))) {
+			this.position += 1;
+		}
 	}
 
 	recognizeDelimiter() {
@@ -37,7 +93,7 @@ export class Lexer {
 			return this.recognizeBooleanOperator();
 		}
 
-		this.throwLexerError(character, this.line);
+		this.throwLexerError(character);
 
 	}
 
@@ -67,7 +123,7 @@ export class Lexer {
 				tokenType = isLookaheadEqualSymbol ? TokenTypes.Comparison : TokenTypes.Assignment;
 				break;
 			default:
-				this.throwLexerError(character, this.line);
+				this.throwLexerError(character);
 		}
 		return new Token(tokenType, tokenValue, line);
 	}
@@ -102,7 +158,7 @@ export class Lexer {
 
 
 			default:
-				this.throwLexerError(character, this.line);
+				this.throwLexerError(character);
 		}
 
 	}
@@ -124,7 +180,7 @@ export class Lexer {
 	recognizeDot() {
 		const { line } = this;
 		this.position += 1;
-		return new Token(TokenTypes.Accessor, '.', line);
+		return new Token(TokenTypes.Accessor, TokenValues.Dot, line);
 	}
 
 	recognizeIdentifier() {
@@ -172,7 +228,7 @@ export class Lexer {
 		} if (number === TokenValues.Dot && state === 3) {
         	return this.recognizeDot();
 		}
-		this.throwLexerError(number, this.line);
+		this.throwLexerError(number);
 	}
 
 	recognizeString() {
@@ -262,61 +318,5 @@ export class Lexer {
 		return fsm;
 	}
 
-	// / Returns the next recognized 'Token' in the input.
-	nextToken() {
-		if (this.position >= this.input.length) {
-			return new Token(TokenTypes.EndOfInput, TokenValues.EndOfInput, this.line);
-		}
 
-		// We skip all the whitespaces and new lines in the input.
-		this.skipWhitespaces();
-
-		const character = this.input.charAt(this.position);
-
-		if (CharUtils.isNewLine(character)) {
-			return this.recognizeNewLine();
-		}
-
-		if (CharUtils.isLetterOrUnderscore(character)) {
-			return this.recognizeIdentifier();
-		}
-
-		if (CharUtils.isValidPartOfNumber(character)) {
-			return this.recognizeNumberOrDot();
-		}
-
-		if (CharUtils.isOperator(character)) {
-			return this.recognizeOperator();
-		}
-
-		if (CharUtils.isDelimiter(character)) {
-			return this.recognizeDelimiter();
-		}
-
-		if (character === '"') {
-			return this.recognizeString();
-		}
-
-		// Throw an error if the current character does not match
-		// any production rule of the lexical grammar.
-		throw new Error(`Unrecognized character ${character} at line ${this.line}.`);
-	}
-
-	skipWhitespaces() {
-		while (this.position < this.input.length && CharUtils.isWhitespace(this.input.charAt(this.position))) {
-			this.position += 1;
-		}
-	}
-
-	tokenize() {
-		let token = this.nextToken();
-		const tokens = [];
-
-		while (token.type !== TokenTypes.EndOfInput) {
-			tokens.push(token);
-			token = this.nextToken();
-		}
-
-		return tokens;
-	}
 }
