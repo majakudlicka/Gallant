@@ -25,7 +25,7 @@ export class CharUtils {
 	}
 
 	static isNewLine(char) {
-		return /[\n]/.test(char);
+		return /[\n;]/.test(char);
 	}
 
 	static isBooleanOperator(char) {

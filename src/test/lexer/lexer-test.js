@@ -18,12 +18,20 @@ describe('Lexer', () => {
 			assert.equal('[LEXER]: Unrecognized character § at line 1', error.message);
 		});
 
-		it('should recognize a newline character as a single token', () => {
+		it('should recognize a newline character', () => {
 			const lexer = new Lexer('\n');
 			const token = lexer.nextToken();
 
 			assert.equal(token.type, TokenTypes.Delimiter);
 			assert.equal(token.value, TokenValues.Newline);
+		});
+
+		it('should recognize a semicolon', () => {
+			const lexer = new Lexer(';');
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Delimiter);
+			assert.equal(token.value, TokenValues.SemiColon);
 		});
 
 		it('should recognize number 0', () => {
@@ -87,14 +95,6 @@ describe('Lexer', () => {
 			assert.equal(token.value, '"a string with a \\\\ backslash"');
 		});
 
-		it('should recognize a string containing escape sequences', () => {
-			const lexer = new Lexer('"a string containing \\t\\b\\r\\f\\v\\0 escape sequences"');
-
-			const token = lexer.nextToken();
-
-			assert.equal(token.type, TokenTypes.String);
-			assert.equal(token.value, '"a string containing \\t\\b\\r\\f\\v\\0 escape sequences"');
-		});
 
 		it('should recognize the boolean true literal', () => {
 			const lexer = new Lexer('true');
@@ -166,6 +166,24 @@ describe('Lexer', () => {
 
 			assert.equal(token.type, TokenTypes.Identifier);
 			assert.equal(token.value, 'identifier1');
+		});
+
+		it('should recognize the please keyword', () => {
+			const lexer = new Lexer('please');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Keyword);
+			assert.equal(token.value, TokenValues.Please);
+		});
+
+		it('should recognize the and keyword', () => {
+			const lexer = new Lexer('and');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Keyword);
+			assert.equal(token.value, TokenValues.KeywordAnd);
 		});
 
 		it('should recognize the else keyword', () => {

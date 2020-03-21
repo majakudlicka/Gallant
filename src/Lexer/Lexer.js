@@ -171,10 +171,11 @@ export class Lexer {
 	}
 
 	recognizeNewLine() {
-		const { line } = this;
+		const { line, position } = this;
+		const character = this.input.charAt(position);
 		this.position += 1;
 		this.line += 1;
-		return new Token(TokenTypes.Delimiter, TokenValues.Newline, line);
+		return new Token(TokenTypes.Delimiter, character, line);
 	}
 
 	recognizeDot() {

@@ -233,10 +233,56 @@ describe('Parser', () => {
 		assert.equal(false, node.greeted);
 	});
 
-	it('should parse a block of nodes', () => {
+	it('should parse a block of nodes delimited with newline character', () => {
 		const parser = new Parser('"hello"\n'
 				+ '42\n'
 				+ 'true\n');
+
+		const node = parser.parse();
+
+		assert.equal(true, node.isBlockNode());
+
+		const { blocks } = node;
+
+		assert.equal(3, blocks.length);
+
+		assert.equal(true, blocks[0].isConstantNode());
+		assert.equal('"hello"', blocks[0].value);
+
+		assert.equal(true, blocks[1].isConstantNode());
+		assert.equal('42', blocks[1].value);
+
+		assert.equal(true, blocks[2].isConstantNode());
+		assert.equal('true', blocks[2].value);
+	});
+
+	it('should parse a block of nodes delimited with semicolon', () => {
+		const parser = new Parser('"hello";'
+			+ '42;'
+			+ 'true;');
+
+		const node = parser.parse();
+
+		assert.equal(true, node.isBlockNode());
+
+		const { blocks } = node;
+
+		assert.equal(3, blocks.length);
+
+		assert.equal(true, blocks[0].isConstantNode());
+		assert.equal('"hello"', blocks[0].value);
+
+		assert.equal(true, blocks[1].isConstantNode());
+		assert.equal('42', blocks[1].value);
+
+		assert.equal(true, blocks[2].isConstantNode());
+		assert.equal('true', blocks[2].value);
+	});
+
+	it('should parse a block of nodes delimited with mixture of newline and semicolon characters', () => {
+		const parser = new Parser('"hello";'
+			+ '42\n'
+			+ 'true;');
 
 		const node = parser.parse();
 
@@ -293,7 +339,7 @@ describe('Parser', () => {
 	});
 
 	it('should parse a function call with no arguments', () => {
-		const parser = new Parser('baz()');
+		const parser = new Parser('please doSomething');
 
 		const node = parser.parse();
 
@@ -301,49 +347,50 @@ describe('Parser', () => {
 
 		const { identifier } = node;
 		assert.equal(true, identifier.isSymbolNode());
-		assert.equal('baz', identifier.name);
+		assert.equal('doSomething', identifier.name);
 
 		assert.equal(0, node.args.length);
 	});
 
 	it('should parse a function call with one argument', () => {
-		const parser = new Parser('foo(2)');
+		const parser = new Parser('please print 2');
 
 		const node = parser.parse();
 
 		assert.equal(true, node.isFunctionCallNode());
 
-		const { identifier } = node;
+		const { identifier, args } = node;
 		assert.equal(true, identifier.isSymbolNode());
-		assert.equal('foo', identifier.name);
+		assert.equal('print', identifier.name);
 
-		assert.equal(1, node.args.length);
-		assert.equal(true, node.args[0].isConstantNode());
-		assert.equal('2', node.args[0].value);
+		assert.equal(1, args.length);
+		assert.equal(true, args[0].isConstantNode());
+		assert.equal('2', args[0].value);
 	});
 
 	it('should parse a function call with more than one argument', () => {
-		const parser = new Parser('bar(2,3)');
+		const parser = new Parser('please add 2 and 3');
 
 		const node = parser.parse();
 
 		assert.equal(true, node.isFunctionCallNode());
 
-		const { identifier } = node;
+		const { identifier, args } = node;
 		assert.equal(true, identifier.isSymbolNode());
-		assert.equal('bar', identifier.name);
+		assert.equal('add', identifier.name);
 
-		assert.equal(2, node.args.length);
-		assert.equal('2', node.args[0].value);
-		assert.equal('3', node.args[1].value);
+		assert.equal(2, args.length);
+		assert.equal('2', args[0].value);
+		assert.equal('3', args[1].value);
 	});
 
-	it('should parse a function definition', () => {
+	it.only('should parse a function definition', () => {
 		const parser = new Parser('foo(a,b) = {'
 				+ ' if (a > b) a else b'
 				+ ' }');
 
 		const node = parser.parse();
+		console.log('node is ', node);
 		assert.equal(true, node.isFunctionDefinitionNode());
 		assert.equal('foo', node.name);
 		const { params, body } = node;
@@ -356,14 +403,14 @@ describe('Parser', () => {
 
 	it('should parse a simple program', () => {
 		const parser = new Parser(
-			'x = 6\n'
-				+ 'y = 7\n'
+			'x = 6;'
+				+ 'y = 7;'
 				+ ''
-				+ 'foo(a,b) = {'
+				+ 'calculateMax(a,b) = {'
 					+ ' if (a > b) a else b'
 					+ ' }\n'
 				+ ''
-				+ 'foo(x,y)'
+				+ 'please calculateMax x and y'
 		);
 
 		const node = parser.parse();

@@ -8,7 +8,10 @@ export const TokenStructure = {
 			If: 'if',
 			Null: 'null',
 			True: 'true',
-			While: 'while'
+			While: 'while',
+			Please: 'please',
+			// TODO Replace with &
+			KeywordAnd: 'and'
 		}
 	},
 	// Accessor operators

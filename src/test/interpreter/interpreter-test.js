@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { Interpreter } from '../../Interpreter/Interpreter';
 
-describe.only('Interpreter', () => {
+describe('Interpreter', () => {
 	it('Should interpret boolean expression', () => {
 		const source = 'false';
 		const i = new Interpreter(source);
@@ -172,24 +172,24 @@ describe.only('Interpreter', () => {
 	});
 
 	it('Should interpret a function call referencing earlier defined variables', () => {
-		const source = 'hello x = 4\n'
-			+ 'hello y = 5\n'
-			+ 'hi foo(a,b) = {'
-			+ ' if (a > b) a else b'
+		const source = 'hello x = 4;'
+			+ 'hello y = 5;'
+			+ 'hi foo(a,b) = {\n'
+			+ ' if (a > b) a else b;'
 			+ ' }\n'
-			+ 'foo(x,y)';
+			+ 'foo(x,y);';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(5, output);
 	});
 
 	it('Should interpret a while loop', () => {
-		const source = 'hi x = 5\n'
-			+ 'hi y = 0\n'
+		const source = 'hi x = 5;'
+			+ 'hi y = 0;'
 			+ 'while (x > 0) {\n'
-			+ 'y = y + 4\n'
-			+ 'x = x - 1\n'
-			+ '}';
+			+ 'y = y + 4;'
+			+ 'x = x - 1;'
+			+ '}\n';
 		const i = new Interpreter(source);
 		i.interpret();
 		assert.equal(0, i.symbolTable.findSymbol('x'));

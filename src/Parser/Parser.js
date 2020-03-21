@@ -124,7 +124,7 @@ export class Parser {
 			greeted = true;
 			this.next();
 		}
-		const node = this.parseWhileLoop();
+		const node = this.parseFunctionCall();
 
 		if (this.currentToken.value === TokenValues.Assignment) {
 			if (node.isSymbolNode()) {
@@ -134,29 +134,9 @@ export class Parser {
 				const value = this.parseAssignment();
 				const { line } = this.currentToken;
 				return new AssignmentNode(new SymbolNode(name, line), value, greeted, line);
+				// TODO problem here - is FunctionDelcaration ?
 			} if (node.isFunctionCallNode() && node.identifier.isSymbolNode()) {
-				// parse function assignment
-				let valid = true;
-				const args = [];
-
-				const { name } = node.identifier;
-				node.args.forEach((arg, index) => {
-					if (arg.isSymbolNode()) {
-						args[index] = arg.name;
-					} else {
-						valid = false;
-					}
-				});
-
-				if (valid) {
-					this.next();
-					this.expect(TokenValues.LeftBrace);
-					const value = this.parseBlock();
-					this.expect(TokenValues.RightBrace);
-					const { line } = this.currentToken;
-					return new FunctionDefinitionNode(name, args, value, greeted, line);
-				}
-				return this.throwParserError();
+				return this.parseFunctionDefinition(node, greeted);
 
 			} if (node.isAccessorNode()) {
 				this.next();
@@ -168,6 +148,31 @@ export class Parser {
 		}
 
 		return node;
+	}
+
+	parseFunctionDefinition(node, greeted) {
+		// parse function assignment
+		let valid = true;
+		const args = [];
+
+		const { name } = node.identifier;
+		node.args.forEach((arg, index) => {
+			if (arg.isSymbolNode()) {
+				args[index] = arg.name;
+			} else {
+				valid = false;
+			}
+		});
+
+		if (valid) {
+			this.next();
+			this.expect(TokenValues.LeftBrace);
+			const value = this.parseBlock();
+			this.expect(TokenValues.RightBrace);
+			const { line } = this.currentToken;
+			return new FunctionDefinitionNode(name, args, value, greeted, line);
+		}
+		return this.throwParserError();
 	}
 
 	parseWhileLoop() {
@@ -269,10 +274,11 @@ export class Parser {
 		// return this.parseEnd();
 	}
 
+	// TODO why are we passing node here
 	parseAccessors(node) {
 		let params;
 		let newNode;
-		while ([TokenValues.LeftParen, TokenValues.At, TokenValues.Dot].includes(this.currentToken.value)) {
+		while ([TokenValues.LeftParen, TokenValues.At].includes(this.currentToken.value)) {
 			params = [];
 
 			if (this.currentToken.value === TokenValues.LeftParen) {
@@ -303,6 +309,25 @@ export class Parser {
 		}
 
 		return newNode || node;
+	}
+
+	parseFunctionCall() {
+		const { value, line } = this.currentToken;
+		if (value === TokenValues.Please) {
+			this.next();
+			const node = this.parseAssignment();
+			const params = [];
+			if (![TokenTypes.Delimiter, TokenTypes.EndOfInput].includes(this.currentToken.type)) {
+				params.push(this.parseAssignment());
+			}
+			// parse a list with parameters
+			while (this.currentToken.value === TokenValues.KeywordAnd) {
+				this.next();
+				params.push(this.parseAssignment());
+			}
+			return new FunctionCallNode(node, params, line);
+		}
+		return this.parseWhileLoop();
 	}
 
 	// parseEnd() {
@@ -390,11 +415,13 @@ export class Parser {
 
 
 // TODO eslint errors
-// TODO sync parser to lexer and compiler
 // TODO Change order of functions to make some logical sense
 // TODO Change strings to use $ ?
-// TODO introduce ; and sort out strange issues with new lines
+// TODO Test newlines and semicolons in real life && make use of them more consistent in tests
 // TODO keyword please to execute functions
-// TODO Think of some other cool ascpects of a polite language
+// TODO Think of some other cool aspects of a polite language
 // TODO Comments
 // TODO Consistent capitalisation of files
+// TODO Go through all files 2-3 last times and polish them
+// TODO Make readME
+// TODO Introduce some sort of repl
