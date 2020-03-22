@@ -480,13 +480,13 @@ describe('Lexer', () => {
 
 	describe('#tokenize', () => {
 		it('should properly tokenize a full function definition', () => {
-			const lexer = new Lexer('foo(a,b) = {\n'
-				+ 'a + b\n'
+			const lexer = new Lexer('foo(a,b) {\n'
+				+ 'a + b;'
 				+ ' }');
 
 			const tokens = lexer.tokenize();
 
-			assert.equal(14, tokens.length);
+			assert.equal(13, tokens.length);
 
 			assert.equal(tokens[0].type, TokenTypes.Identifier);
 			assert.equal(tokens[0].value, 'foo');
@@ -506,34 +506,31 @@ describe('Lexer', () => {
 			assert.equal(tokens[5].type, TokenTypes.Delimiter);
 			assert.equal(tokens[5].value, TokenValues.RightParen);
 
-			assert.equal(tokens[6].type, TokenTypes.Assignment);
-			assert.equal(tokens[6].value, TokenValues.Assignment);
+			assert.equal(tokens[6].type, TokenTypes.Delimiter);
+			assert.equal(tokens[6].value, TokenValues.LeftBrace);
 
 			assert.equal(tokens[7].type, TokenTypes.Delimiter);
-			assert.equal(tokens[7].value, TokenValues.LeftBrace);
+			assert.equal(tokens[7].value, TokenValues.Newline);
 
-			assert.equal(tokens[8].type, TokenTypes.Delimiter);
-			assert.equal(tokens[8].value, TokenValues.Newline);
+			assert.equal(tokens[8].type, TokenTypes.Identifier);
+			assert.equal(tokens[8].value, 'a');
 
-			assert.equal(tokens[9].type, TokenTypes.Identifier);
-			assert.equal(tokens[9].value, 'a');
+			assert.equal(tokens[9].type, TokenTypes.Arithmetic);
+			assert.equal(tokens[9].value, TokenValues.Plus);
 
-			assert.equal(tokens[10].type, TokenTypes.Arithmetic);
-			assert.equal(tokens[10].value, TokenValues.Plus);
+			assert.equal(tokens[10].type, TokenTypes.Identifier);
+			assert.equal(tokens[10].value, 'b');
 
-			assert.equal(tokens[11].type, TokenTypes.Identifier);
-			assert.equal(tokens[11].value, 'b');
+			assert.equal(tokens[11].type, TokenTypes.Delimiter);
+			assert.equal(tokens[11].value, TokenValues.SemiColon);
 
 			assert.equal(tokens[12].type, TokenTypes.Delimiter);
-			assert.equal(tokens[12].value, TokenValues.Newline);
-
-			assert.equal(tokens[13].type, TokenTypes.Delimiter);
-			assert.equal(tokens[13].value, TokenValues.RightBrace);
+			assert.equal(tokens[12].value, TokenValues.RightBrace);
 
 		});
 
 		it('should assign the correct line numbers', () => {
-			const lexer = new Lexer('foo(a,b) = {\n'
+			const lexer = new Lexer('foo(a,b) {\n'
 				+ 'a + b\n'
 				+ ' }');
 
@@ -547,14 +544,13 @@ describe('Lexer', () => {
 			assert.equal(1, tokens[5].line);
 			assert.equal(1, tokens[6].line);
 			assert.equal(1, tokens[7].line);
-			assert.equal(1, tokens[8].line);
 
+			assert.equal(2, tokens[8].line);
 			assert.equal(2, tokens[9].line);
 			assert.equal(2, tokens[10].line);
 			assert.equal(2, tokens[11].line);
-			assert.equal(2, tokens[12].line);
 
-			assert.equal(3, tokens[13].line);
+			assert.equal(3, tokens[12].line);
 		});
 
 		it('should tokenize a simple arithmetic expression with +', () => {

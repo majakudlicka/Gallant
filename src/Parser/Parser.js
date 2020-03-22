@@ -74,7 +74,6 @@ export class Parser {
 	parseBlock() {
 		let node;
 		const blocks = [];
-
 		if (this.isSameBlock()) {
 			node = this.parseAssignment();
 		}
@@ -119,12 +118,15 @@ export class Parser {
 	}
 
 	parseAssignment() {
+		// "Greeting" is essentially an equivalent of declaring variables in other languages
+		// All variables need to be "greeted" (declared)
 		let greeted = false;
 		if (this.currentToken.type === TokenTypes.Greeting) {
 			greeted = true;
 			this.next();
 		}
-		const node = this.parseFunctionCall();
+
+		const node = this.parseFunctionDefinition();
 
 		if (this.currentToken.value === TokenValues.Assignment) {
 			if (node.isSymbolNode()) {
@@ -134,10 +136,6 @@ export class Parser {
 				const value = this.parseAssignment();
 				const { line } = this.currentToken;
 				return new AssignmentNode(new SymbolNode(name, line), value, greeted, line);
-				// TODO problem here - is FunctionDelcaration ?
-			} if (node.isFunctionCallNode() && node.identifier.isSymbolNode()) {
-				return this.parseFunctionDefinition(node, greeted);
-
 			} if (node.isAccessorNode()) {
 				this.next();
 				const value = this.parseAssignment();
@@ -150,34 +148,32 @@ export class Parser {
 		return node;
 	}
 
-	parseFunctionDefinition(node, greeted) {
-		// parse function assignment
-		let valid = true;
-		const args = [];
-
-		const { name } = node.identifier;
-		node.args.forEach((arg, index) => {
-			if (arg.isSymbolNode()) {
-				args[index] = arg.name;
-			} else {
-				valid = false;
-			}
-		});
-
-		if (valid) {
+	parseFunctionDefinition() {
+		const node = this.parseFunctionCall();
+		if (node && node.isSymbolNode() && this.currentToken.value === TokenValues.LeftParen) {
+			const params = [];
+			const { line } = this.currentToken;
 			this.next();
+			if (this.currentToken.value !== TokenValues.RightParen) {
+				params.push(this.parseAssignment());
+
+				// parse a list with parameters
+				while (this.currentToken.value === TokenValues.Comma) {
+					this.next();
+					params.push(this.parseAssignment());
+				}
+			}
+			this.expect(TokenValues.RightParen);
 			this.expect(TokenValues.LeftBrace);
 			const value = this.parseBlock();
 			this.expect(TokenValues.RightBrace);
-			const { line } = this.currentToken;
-			return new FunctionDefinitionNode(name, args, value, greeted, line);
+			return new FunctionDefinitionNode(node.name, params, value, line);
 		}
-		return this.throwParserError();
+		return node;
 	}
 
 	parseWhileLoop() {
 		let node = this.parseConditional();
-
 		while (this.currentToken.value === TokenValues.While) {
 			this.next();
 			this.expect(TokenValues.LeftParen);
@@ -276,39 +272,40 @@ export class Parser {
 
 	// TODO why are we passing node here
 	parseAccessors(node) {
-		let params;
-		let newNode;
-		while ([TokenValues.LeftParen, TokenValues.At].includes(this.currentToken.value)) {
-			params = [];
-
-			if (this.currentToken.value === TokenValues.LeftParen) {
-				this.next();
-
-				if (this.currentToken.value !== TokenValues.RightParen) {
-					params.push(this.parseAssignment());
-
-					// parse a list with parameters
-					while (this.currentToken.value === TokenValues.Comma) {
-						this.next();
-						params.push(this.parseAssignment());
-					}
-				}
-
-				this.expect(')');
-				const { line } = this.currentToken;
-
-				// eslint-disable-next-line no-param-reassign
-				newNode = new FunctionCallNode(node, params, line);
-				// TODO
-			} else if (this.currentToken.value === TokenValues.At) {
-				this.next();
-				const { line } = this.currentToken;
-				// eslint-disable-next-line no-param-reassign
-				newNode = new AccessorNode(node, this.parseSymbolOrConstant(), line);
-			}
+		// let params;
+		// let newNode;
+		// while ([TokenValues.LeftParen, TokenValues.At].includes(this.currentToken.value)) {
+		// 	params = [];
+		//
+		// 	if (this.currentToken.value === TokenValues.LeftParen) {
+		// 		this.next();
+		//
+		// 		if (this.currentToken.value !== TokenValues.RightParen) {
+		// 			params.push(this.parseAssignment());
+		//
+		// 			// parse a list with parameters
+		// 			while (this.currentToken.value === TokenValues.Comma) {
+		// 				this.next();
+		// 				params.push(this.parseAssignment());
+		// 			}
+		// 		}
+		//
+		// 		this.expect(')');
+		// 		const { line } = this.currentToken;
+		//
+		// 		// eslint-disable-next-line no-param-reassign
+		// 		newNode = new FunctionCallNode(node, params, line);
+		// 		// TODO
+		// 	} else
+		if (this.currentToken.value === TokenValues.At) {
+			this.next();
+			const { line } = this.currentToken;
+			// eslint-disable-next-line no-param-reassign
+			return new AccessorNode(node, this.parseSymbolOrConstant(), line);
 		}
+		// }
 
-		return newNode || node;
+		return node;
 	}
 
 	parseFunctionCall() {
@@ -425,3 +422,4 @@ export class Parser {
 // TODO Go through all files 2-3 last times and polish them
 // TODO Make readME
 // TODO Introduce some sort of repl
+// TODO Can if-else hanlde curly braces? Add more test cases to parser / interpreter

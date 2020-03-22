@@ -143,10 +143,6 @@ export class Interpreter {
 	}
 
 	interpretFunctionDefinitionNode(node) {
-		const isReassignment = this.symbolTable.hasSymbol(node.name);
-		if (!isReassignment && !node.greeted) {
-			return this.throwIntrepreterError(node.line, 'Functions must be greeted before they can used');
-		}
 		return this.symbolTable.addSymbol(node.name, node);
 	}
 
@@ -202,7 +198,7 @@ export class Interpreter {
 			this.symbolTable.enterNewScope();
 			const parsedArgs = node.args.map(a => this.interpretNode(a));
 			functionDef.params.forEach((param, index) => {
-				this.symbolTable.addSymbol(param, parsedArgs[index]);
+				this.symbolTable.addSymbol(param.name, parsedArgs[index]);
 			});
 			const res = this.interpretNode(functionDef.body);
 			this.symbolTable.exitScope();

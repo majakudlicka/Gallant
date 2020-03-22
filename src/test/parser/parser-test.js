@@ -384,29 +384,29 @@ describe('Parser', () => {
 		assert.equal('3', args[1].value);
 	});
 
-	it.only('should parse a function definition', () => {
-		const parser = new Parser('foo(a,b) = {'
+	it('should parse a function definition', () => {
+		const parser = new Parser('foo(a,b) {'
 				+ ' if (a > b) a else b'
 				+ ' }');
 
 		const node = parser.parse();
-		console.log('node is ', node);
 		assert.equal(true, node.isFunctionDefinitionNode());
 		assert.equal('foo', node.name);
 		const { params, body } = node;
 		assert.equal(2, params.length);
-		// TODO Shouldn't params be symbol nodes
-		assert.equal('a', params[0]);
-		assert.equal('b', params[1]);
+		assert.equal(true, params[0].isSymbolNode());
+		assert.equal('a', params[0].name);
+		assert.equal(true, params[1].isSymbolNode());
+		assert.equal('b', params[1].name);
 		assert.equal(true, body.isConditionalNode());
 	});
 
 	it('should parse a simple program', () => {
 		const parser = new Parser(
-			'x = 6;'
-				+ 'y = 7;'
+			'hi x = 6;'
+				+ 'hi y = 7;'
 				+ ''
-				+ 'calculateMax(a,b) = {'
+				+ 'calculateMax(a,b) {'
 					+ ' if (a > b) a else b'
 					+ ' }\n'
 				+ ''
