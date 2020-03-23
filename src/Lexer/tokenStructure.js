@@ -10,7 +10,6 @@ export const TokenStructure = {
 			True: 'true',
 			While: 'while',
 			Please: 'please',
-			// TODO Replace with &
 			KeywordAnd: 'and'
 		}
 	},
@@ -80,7 +79,8 @@ export const TokenStructure = {
 			Hola: 'hola',
 			Hello: 'hello',
 			Hi: 'hi',
-			Aloha: 'aloha'
+			Aloha: 'aloha',
+			Wave: ':wave::skin-tone-2:'
 		}
 	},
 	EndOfInput: { name: 'EndOfInput' }

@@ -423,6 +423,9 @@ export class Parser {
 // TODO Change order of functions to make some logical sense
 // TODO Test newlines and semicolons in real life && make use of them more consistent in tests
 // TODO Think of some other cool aspects of a polite language
+		// Program need to end in 'thank you' if bigger then x lines?
+		// Say goodbye to variables ?
+		// Can make use of emojis ?
 // TODO Comments
 // TODO Consistent capitalisation of files
 // TODO Go through all files 2-3 last times and polish them
