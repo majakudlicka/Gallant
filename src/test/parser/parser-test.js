@@ -169,8 +169,8 @@ describe('Parser', () => {
 		assert.equal('b', node.right.name);
 	});
 
-	// TODO Need more tests for if - else ?
-	it('should parse an if/else node', () => {
+
+	it('should parse a single line if/else statement', () => {
 		const parser = new Parser('if (true) 1 else 2');
 
 		const node = parser.parse();
@@ -184,6 +184,28 @@ describe('Parser', () => {
 
 		assert.equal(true, node.falseExpr.isConstantNode());
 		assert.equal('2', node.falseExpr.value);
+	});
+
+	it('should parse a multiline if-else statement', () => {
+		const parser = new Parser('if (x > 0) {\n'
+			+ 'x = x + 1;'
+			+ '} else {\n'
+			+ 'x = x - 1;'
+			+ 'y = y * 5;'
+			+ '}');
+
+		const node = parser.parse();
+
+		assert.equal(true, node.isConditionalNode());
+
+		const { condition, trueExpr, falseExpr } = node;
+		assert.equal(true, condition.isOperatorNode());
+
+		assert.equal(true, trueExpr.isBlockNode());
+		assert.equal(1, trueExpr.blocks.length);
+
+		assert.equal(true, falseExpr.isBlockNode());
+		assert.equal(2, falseExpr.blocks.length);
 	});
 
 	it('should parse a while node', () => {

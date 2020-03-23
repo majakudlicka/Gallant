@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { Interpreter } from '../../Interpreter/Interpreter';
+import { Parser } from '../../Parser/Parser';
 
 describe('Interpreter', () => {
 	it('Should interpret boolean expression', () => {
@@ -64,7 +65,7 @@ describe('Interpreter', () => {
 
 	it('Should interpret a function definition and add it to current scope', () => {
 		const source = 'foo(a,b) {\n'
-			+ ' if (a > b) a else b\n'
+			+ ' if (a > b) a else b;'
 			+ ' }';
 		const i = new Interpreter(source);
 		i.interpret();
@@ -94,6 +95,38 @@ describe('Interpreter', () => {
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(2, output);
+	});
+
+	it('Should parse a multiline if-else statement and execute if branch', () => {
+		const source = 'hi x = 8;'
+			+ 'hi y = 8;'
+			+ 'if (x > 0) {\n'
+			+ 'x = x + 1;'
+			+ '} else {\n'
+			+ 'x = x - 1;'
+			+ 'y = y * 5;'
+			+ '}';
+
+		const i = new Interpreter(source);
+		i.interpret();
+		assert.equal(9, i.symbolTable.findSymbol('x'));
+		assert.equal(8, i.symbolTable.findSymbol('y'));
+	});
+
+	it('Should parse a multiline if-else statement and execute else branch', () => {
+		const source = 'hi x = 0;'
+			+ 'hi y = 8;'
+			+ 'if (x > 0) {\n'
+			+ 'x = x + 1;'
+			+ '} else {\n'
+			+ 'x = x - 1;'
+			+ 'y = y * 5;'
+			+ '}';
+
+		const i = new Interpreter(source);
+		i.interpret();
+		assert.equal(-1, i.symbolTable.findSymbol('x'));
+		assert.equal(40, i.symbolTable.findSymbol('y'));
 	});
 
 	it('Should interpret a simple addition', () => {

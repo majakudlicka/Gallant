@@ -195,14 +195,22 @@ export class Parser {
 		const { line } = this.currentToken;
 		while (this.currentToken.value === TokenValues.If) {
 			this.next();
+			let multiline = false;
 			this.expect(TokenValues.LeftParen);
 			const condition = this.parseRelational();
 			this.expect(TokenValues.RightParen);
-			const trueExpr = this.parseRelational();
+			if (this.currentToken.value === TokenValues.LeftBrace) {
+				multiline = true;
+				this.next();
+			}
+			const trueExpr = this.parseBlock();
+			if (multiline) this.expect(TokenValues.RightBrace);
 			let falseExpr = null;
 			if (this.currentToken.value === TokenValues.Else) {
 				this.next();
-				falseExpr = this.parseRelational();
+				if (multiline) this.expect(TokenValues.LeftBrace);
+				falseExpr = this.parseBlock();
+				if (multiline) this.expect(TokenValues.RightBrace);
 			}
 			node = new ConditionalNode(condition, trueExpr, falseExpr, line);
 		}
@@ -413,9 +421,7 @@ export class Parser {
 
 // TODO eslint errors
 // TODO Change order of functions to make some logical sense
-// TODO Change strings to use $ ?
 // TODO Test newlines and semicolons in real life && make use of them more consistent in tests
-// TODO keyword please to execute functions
 // TODO Think of some other cool aspects of a polite language
 // TODO Comments
 // TODO Consistent capitalisation of files
