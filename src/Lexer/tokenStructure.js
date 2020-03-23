@@ -71,7 +71,7 @@ export const TokenStructure = {
 			Colon: ':'
 		}
 	},
-	// Greetings (variables and func declaration)
+	// Greetings (keywords for variables declaration)
 	Greeting: {
 		name: 'greeting',
 		values: {
@@ -80,7 +80,7 @@ export const TokenStructure = {
 			Hello: 'hello',
 			Hi: 'hi',
 			Aloha: 'aloha',
-			Wave: ':wave::skin-tone-2:'
+			Wave: '👋'
 		}
 	},
 	EndOfInput: { name: 'EndOfInput' }

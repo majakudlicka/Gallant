@@ -20,6 +20,8 @@ export class Lexer {
 		this.skipWhitespaces();
 
 		const character = this.input.charAt(this.position);
+		console.log('character is ', character);
+
 
 		if (CharUtils.isNewLine(character)) {
 			return this.recognizeNewLine();
@@ -45,7 +47,14 @@ export class Lexer {
 			return this.recognizeString();
 		}
 
+		if (CharUtils.isNonASCII(character)) {
+			console.log('--->>>recognizing emoji');
+			return this.recognizeEmoji(character);
+		}
+
 		this.throwLexerError(character);
+
+
 	}
 
 	tokenize() {
@@ -252,6 +261,38 @@ export class Lexer {
 		this.position += string.length;
 
 		return new Token(TokenTypes.String, string, line);
+	}
+
+	recognizeEmoji() {
+		const { line } = this;
+		let { position } = this;
+		const char = this.input.charAt(position);
+		let emoji = `${char}`;
+
+		position = this.position + 1;
+
+		while (position < this.input.length) {
+			const character = this.input.charAt(position);
+
+			if (CharUtils.isWhitespace(character)) {
+				break;
+			}
+
+			emoji += character;
+			position += 1;
+		}
+
+		this.position += emoji.length;
+		if (CharUtils.isWaveHandEmoji(emoji)) {
+			console.log('emoji at the end ', emoji);
+			return new Token(TokenTypes.Greeting, TokenValues.Wave, line);
+		} else if (CharUtils.isThankYouEmoji(emoji)) {
+			// TODO
+		} else {
+			// Allow other emojis but don't do anything ?
+		}
+
+		this.throwLexerError(character);
 	}
 
 	// Use Finite State Machine to recognize different types of numbers

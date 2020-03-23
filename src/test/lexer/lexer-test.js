@@ -214,6 +214,15 @@ describe('Lexer', () => {
 			assert.equal(token.value, TokenValues.Hello);
 		});
 
+		it.only('should recognize the waving hand emoji', () => {
+			const lexer = new Lexer('👋');
+
+			const token = lexer.nextToken();
+
+			// assert.equal(token.type, TokenTypes.Greeting);
+			// assert.equal(token.value, TokenValues.Wave);
+		});
+
 		it('should recognize the if keyword', () => {
 			const lexer = new Lexer('if');
 

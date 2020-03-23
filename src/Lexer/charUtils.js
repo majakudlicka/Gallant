@@ -43,4 +43,17 @@ export class CharUtils {
 	static isDelimiter(char) {
 		return /[:,@{[()\]}]/.test(char);
 	}
+
+	static isNonASCII(char) {
+		// eslint-disable-next-line no-control-regex
+		return /[^\u0000-\u007F]+/.test(char);
+	}
+
+	static isWaveHandEmoji(char) {
+		return /[👋]/u.test(char);
+	}
+
+	static isThankYouEmoji(char) {
+		return /[🙏]/u.test(char);
+	}
 }
