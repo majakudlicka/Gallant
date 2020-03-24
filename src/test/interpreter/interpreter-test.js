@@ -1,6 +1,5 @@
 import * as assert from 'assert';
 import { Interpreter } from '../../Interpreter/Interpreter';
-import { Parser } from '../../Parser/Parser';
 
 describe('Interpreter', () => {
 	it('Should interpret boolean expression', () => {
@@ -31,8 +30,20 @@ describe('Interpreter', () => {
 		assert.equal('Hello, how you doing?', output);
 	});
 
+	it.only('Should not error when encountering a random emoji', () => {
+		const source = '🍇';
+		const i = new Interpreter(source);
+		let error = null;
+		try {
+			i.interpret();
+		} catch (err) {
+			error = err;
+		}
+		assert.equal(null, error);
+	});
+
 	it('Should interpret a variable assignment and add variable to current scope', () => {
-		const source = 'hi a = 10';
+		const source = '👋 a = 10';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(10, output);
@@ -40,7 +51,7 @@ describe('Interpreter', () => {
 	});
 
 	it('Should interpret a reassignment and change value in current scope', () => {
-		const source = 'hi a = 10\n'
+		const source = '👋 a = 10\n'
 		+ 'a = 7';
 		const i = new Interpreter(source);
 		const output = i.interpret();
@@ -58,7 +69,7 @@ describe('Interpreter', () => {
 			error = err;
 		}
 		assert.equal(true, error instanceof Error);
-		assert.equal('[INTERPRETER]: Variables must be greeted before they can used around line 1', error.message);
+		assert.equal('[INTERPRETER]: Syntax error around line 1: Variables must be greeted before they can used', error.message);
 		assert.equal(false, i.symbolTable.hasSymbol('a'));
 
 	});
@@ -72,6 +83,7 @@ describe('Interpreter', () => {
 		assert.equal(true, i.symbolTable.hasSymbol('foo'));
 	});
 
+	// TODO Why doesn't it error ?
 	it('Should NOT add variables declared within functions to global scope', () => {
 		const source = 'foo() {\n'
 			+ 'x = 4;'
@@ -98,8 +110,8 @@ describe('Interpreter', () => {
 	});
 
 	it('Should parse a multiline if-else statement and execute if branch', () => {
-		const source = 'hi x = 8;'
-			+ 'hi y = 8;'
+		const source = '👋 x = 8;'
+			+ '👋 y = 8;'
 			+ 'if (x > 0) {\n'
 			+ 'x = x + 1;'
 			+ '} else {\n'
@@ -114,8 +126,8 @@ describe('Interpreter', () => {
 	});
 
 	it('Should parse a multiline if-else statement and execute else branch', () => {
-		const source = 'hi x = 0;'
-			+ 'hi y = 8;'
+		const source = 'aloha x = 0;'
+			+ 'aloha y = 8;'
 			+ 'if (x > 0) {\n'
 			+ 'x = x + 1;'
 			+ '} else {\n'
@@ -189,7 +201,7 @@ describe('Interpreter', () => {
 		const source = ' giveMax(a,b) {\n'
 			+ ' if (a > b) a else b;'
 			+ ' }\n'
-			+ 'please giveMax 4 and 3';
+			+ '🙏 giveMax 4 and 3';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(4, output);
@@ -208,8 +220,8 @@ describe('Interpreter', () => {
 	});
 
 	it('Should interpret a while loop', () => {
-		const source = 'hi x = 5;'
-			+ 'hi y = 0;'
+		const source = 'hola x = 5;'
+			+ 'hola y = 0;'
 			+ 'while (x > 0) {\n'
 			+ 'y = y + 4;'
 			+ 'x = x - 1;'
@@ -228,14 +240,14 @@ describe('Interpreter', () => {
 	});
 
 	it('Should interpret an assignment with array on the right hand side', () => {
-		const source = 'hola arr = [1, 2, 3]';
+		const source = '👋 arr = [1, 2, 3]';
 		const i = new Interpreter(source);
 		i.interpret();
 		assert.deepEqual([1, 2, 3], i.symbolTable.findSymbol('arr'));
 	});
 
 	it('Should access array element by index', () => {
-		const source = 'aloha arr = [1, 2, 3]\n'
+		const source = '👋 arr = [1, 2, 3]\n'
 			+ 'arr@0';
 		const i = new Interpreter(source);
 		const output = i.interpret();
@@ -243,8 +255,8 @@ describe('Interpreter', () => {
 	});
 
 	it('Should interpret program that loops through array and multiplies each element by 3', () => {
-		const source = 'hola arr = [1, 2, 3];'
-			+ 'hi i = 0;'
+		const source = '👋 arr = [1, 2, 3];'
+			+ '👋 i = 0;'
 			+ 'while (i < arr@size) {\n'
 			+ 'arr@i = arr@i * 3;'
 			+ 'i = i + 1;'
@@ -264,14 +276,14 @@ describe('Interpreter', () => {
 	});
 
 	it('Should interpret an assignment to map', () => {
-		const source = 'hi myMap = {a = 1, b = 2};';
+		const source = '👋 myMap = {a = 1, b = 2};';
 		const i = new Interpreter(source);
 		i.interpret();
 		assert.deepEqual(new Map([['a', 1], ['b', 2]]), i.symbolTable.findSymbol('myMap'));
 	});
 
 	it('Should access map by key name', () => {
-		const source = 'hi myMap = {a = 1, b = 2};'
+		const source = '👋 myMap = {a = 1, b = 2};'
 		+ 'myMap@a;';
 		const i = new Interpreter(source);
 		const output = i.interpret();
@@ -279,7 +291,7 @@ describe('Interpreter', () => {
 	});
 
 	it('Should modify map', () => {
-		const source = 'hi myMap = {a = 1, b = 2};'
+		const source = '👋 myMap = {a = 1, b = 2};'
 			+ 'myMap@a = 5;'
 			+ 'myMap@a;';
 		const i = new Interpreter(source);
@@ -288,7 +300,7 @@ describe('Interpreter', () => {
 	});
 
 	it('Should return size of the map', () => {
-		const source = 'hi myMap = {a = 1, b = 2};'
+		const source = '👋 myMap = {a = 1, b = 2};'
 			+ 'myMap@size';
 
 		const i = new Interpreter(source);

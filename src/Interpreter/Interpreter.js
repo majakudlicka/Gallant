@@ -1,5 +1,6 @@
 import { Parser } from '../Parser/Parser';
 import { SymbolTable } from '../Parser/semanticAnalysis/symbolTable';
+import { TokenTypes } from '../Lexer/tokenStructure';
 
 export class Interpreter {
 	constructor(input) {
@@ -13,7 +14,7 @@ export class Interpreter {
 	}
 
 	throwIntrepreterError(line, message = 'Unknown error') {
-		throw new Error(`[INTERPRETER]: ${message} around line ${line}`);
+		throw new Error(`[INTERPRETER]: Syntax error around line ${line}: ${message}`);
 	}
 
 	interpretNode(node) {
@@ -159,7 +160,7 @@ export class Interpreter {
 				value = this.interpretMapNode(node.value);
 			}
 			if (node.symbol.isAccessorNode()) {
-				const {ref, key} = node.symbol;
+				const { ref, key } = node.symbol;
 				// Obj could be array or map
 				const obj = this.interpretNode(ref);
 				if (Array.isArray(obj)) {
@@ -186,7 +187,11 @@ export class Interpreter {
 	}
 
 	interpretConstantNode(node) {
-		return eval(node.value);
+		if (node.type === TokenTypes.CommonEmoji) {
+			console.log(node.value);
+		} else {
+			return eval(node.value);
+		}
 	}
 
 	interpretFunctionCall(node) {

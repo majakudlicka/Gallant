@@ -15,6 +15,17 @@ describe('Parser', () => {
 		assert.equal(true, node.greeted);
 	});
 
+	it('should parse a new variable declaration using waving hand emoji', () => {
+		const parser = new Parser('👋 a = 5');
+		const node = parser.parse();
+		assert.equal(true, node.isAssignmentNode());
+		assert.equal(true, node.symbol.isSymbolNode());
+		assert.equal(true, node.value.isConstantNode());
+		assert.equal('a', node.symbol.name);
+		assert.equal(5, node.value.value);
+		assert.equal(true, node.greeted);
+	});
+
 	it('should parse a new variable declaration using keyword hola', () => {
 		const parser = new Parser('hola someVar = 6');
 		const node = parser.parse();
@@ -37,6 +48,33 @@ describe('Parser', () => {
 		assert.equal(true, node.greeted);
 	});
 
+	it('should parse a variable declaration without any keyword', () => {
+		const parser = new Parser('a = 5');
+
+		const node = parser.parse();
+
+		assert.equal(true, node.isAssignmentNode());
+		assert.equal(true, node.symbol.isSymbolNode());
+		assert.equal(true, node.value.isConstantNode());
+		assert.equal('a', node.symbol.name);
+		assert.equal(5, node.value.value);
+		assert.equal(false, node.greeted);
+	});
+
+	it('should parse an assignment to an expression', () => {
+		const parser = new Parser('i = i + 1');
+
+		const node = parser.parse();
+
+		assert.equal(true, node.isAssignmentNode());
+		const { symbol, value } = node;
+		assert.equal(true, symbol.isSymbolNode());
+		assert.equal(true, value.isOperatorNode());
+		assert.equal('i', symbol.name);
+		assert.equal(TokenValues.Plus, value.operator);
+		assert.equal(false, node.greeted);
+	});
+
 	it('should parse a simple integer literal', () => {
 		const parser = new Parser('89');
 		const node = parser.parse();
@@ -52,6 +90,15 @@ describe('Parser', () => {
 		assert.equal(true, node.isConstantNode());
 		assert.equal('5.26', node.value);
 		assert.equal(TokenTypes.Decimal, node.type);
+	});
+
+	it('should parse a common emoji', () => {
+		const parser = new Parser('🍇');
+		const node = parser.parse();
+
+		assert.equal(true, node.isConstantNode());
+		assert.equal('🍇', node.value);
+		assert.equal(TokenTypes.CommonEmoji, node.type);
 	});
 
 	it('should parse a simple string literal', () => {
@@ -228,32 +275,6 @@ describe('Parser', () => {
 		assert.equal(true, body.blocks[1].isAssignmentNode());
 	});
 
-	it('should parse an assignment to a constant', () => {
-		const parser = new Parser('a = 5');
-
-		const node = parser.parse();
-
-		assert.equal(true, node.isAssignmentNode());
-		assert.equal(true, node.symbol.isSymbolNode());
-		assert.equal(true, node.value.isConstantNode());
-		assert.equal('a', node.symbol.name);
-		assert.equal(5, node.value.value);
-		assert.equal(false, node.greeted);
-	});
-
-	it('should parse an assignment to an expression', () => {
-		const parser = new Parser('i = i + 1');
-
-		const node = parser.parse();
-
-		assert.equal(true, node.isAssignmentNode());
-		const { symbol, value } = node;
-		assert.equal(true, symbol.isSymbolNode());
-		assert.equal(true, value.isOperatorNode());
-		assert.equal('i', symbol.name);
-		assert.equal(TokenValues.Plus, value.operator);
-		assert.equal(false, node.greeted);
-	});
 
 	it('should parse a block of nodes delimited with newline character', () => {
 		const parser = new Parser('"hello"\n'
@@ -374,6 +395,20 @@ describe('Parser', () => {
 		assert.equal(0, node.args.length);
 	});
 
+	it('should parse a function call with no arguments using please emoji', () => {
+		const parser = new Parser('🙏 doSomething');
+
+		const node = parser.parse();
+
+		assert.equal(true, node.isFunctionCallNode());
+
+		const { identifier } = node;
+		assert.equal(true, identifier.isSymbolNode());
+		assert.equal('doSomething', identifier.name);
+
+		assert.equal(0, node.args.length);
+	});
+
 	it('should parse a function call with one argument', () => {
 		const parser = new Parser('please print 2');
 
@@ -391,7 +426,7 @@ describe('Parser', () => {
 	});
 
 	it('should parse a function call with more than one argument', () => {
-		const parser = new Parser('please add 2 and 3');
+		const parser = new Parser('🙏 add 2 and 3');
 
 		const node = parser.parse();
 
@@ -425,14 +460,14 @@ describe('Parser', () => {
 
 	it('should parse a simple program', () => {
 		const parser = new Parser(
-			'hi x = 6;'
-				+ 'hi y = 7;'
+			'👋 x = 6;'
+				+ '👋 y = 7;'
 				+ ''
 				+ 'calculateMax(a,b) {'
 					+ ' if (a > b) a else b'
 					+ ' }\n'
 				+ ''
-				+ 'please calculateMax x and y'
+				+ '🙏 calculateMax x and y'
 		);
 
 		const node = parser.parse();

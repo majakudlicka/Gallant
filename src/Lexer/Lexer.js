@@ -20,7 +20,6 @@ export class Lexer {
 		this.skipWhitespaces();
 
 		const character = this.input.charAt(this.position);
-		console.log('character is ', character);
 
 
 		if (CharUtils.isNewLine(character)) {
@@ -48,7 +47,6 @@ export class Lexer {
 		}
 
 		if (CharUtils.isNonASCII(character)) {
-			console.log('--->>>recognizing emoji');
 			return this.recognizeEmoji(character);
 		}
 
@@ -201,7 +199,7 @@ export class Lexer {
 		while (position < this.input.length) {
 			const character = this.input.charAt(position);
 
-			if (!(CharUtils.isLetter(character) || CharUtils.isDigit(character) || ['_', '-', '$'].includes(character))) {
+			if (!CharUtils.isIdentifier(character)) {
 				break;
 			}
 
@@ -215,6 +213,8 @@ export class Lexer {
 			return new Token(TokenTypes.Keyword, identifier, line);
 		} if (Object.values(TokenStructure.Greeting.values).includes(identifier)) {
 			return new Token(TokenTypes.Greeting, identifier, line);
+		} if (Object.values(TokenStructure.FunctionInvocation.values).includes(identifier)) {
+			return new Token(TokenTypes.FunctionInvocation, identifier, line);
 		}
 
 		return new Token(TokenTypes.Identifier, identifier, line);
@@ -284,15 +284,14 @@ export class Lexer {
 
 		this.position += emoji.length;
 		if (CharUtils.isWaveHandEmoji(emoji)) {
-			console.log('emoji at the end ', emoji);
-			return new Token(TokenTypes.Greeting, TokenValues.Wave, line);
-		} else if (CharUtils.isThankYouEmoji(emoji)) {
-			// TODO
-		} else {
-			// Allow other emojis but don't do anything ?
+			return new Token(TokenTypes.Greeting, TokenValues.WaveEmoji, line);
+		} if (CharUtils.isPleaseEmoji(emoji)) {
+			return new Token(TokenTypes.FunctionInvocation, TokenValues.PleaseEmoji, line);
 		}
+		return new Token(TokenTypes.CommonEmoji, emoji, line);
 
-		this.throwLexerError(character);
+		//
+		// this.throwLexerError(character);
 	}
 
 	// Use Finite State Machine to recognize different types of numbers

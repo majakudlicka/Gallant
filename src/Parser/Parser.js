@@ -317,8 +317,8 @@ export class Parser {
 	}
 
 	parseFunctionCall() {
-		const { value, line } = this.currentToken;
-		if (value === TokenValues.Please) {
+		const {  line, type } = this.currentToken;
+		if (type === TokenTypes.FunctionInvocation) {
 			this.next();
 			const node = this.parseAssignment();
 			const params = [];
@@ -404,11 +404,11 @@ export class Parser {
 		const {
 			value, type, line
 		} = this.currentToken;
-		if (this.isConstant()) {
+		if (this.isConstant() || type === TokenTypes.CommonEmoji) {
 			const node = new ConstantNode(value, type, line);
 			this.next();
 			return node;
-		} if (this.currentToken.type === 'identifier') {
+		} if (this.currentToken.type === TokenTypes.Identifier) {
 			let node = new SymbolNode(value, line);
 			this.next();
 			node = this.parseAccessors(node);
@@ -430,5 +430,5 @@ export class Parser {
 // TODO Consistent capitalisation of files
 // TODO Go through all files 2-3 last times and polish them
 // TODO Make readME
-// TODO Introduce some sort of repl
+// TODO Introduce some sort of repl - with easy emoji selector ?
 // TODO Can if-else hanlde curly braces? Add more test cases to parser / interpreter

@@ -20,6 +20,10 @@ export class CharUtils {
 		return /[a-zA-Z]/.test(char);
 	}
 
+	static isIdentifier(char) {
+		return this.isLetter(char) || this.isDigit(char) || ['_', '-', '$'].includes(char);
+	}
+
 	static isLetterOrUnderscore(char) {
 		return this.isLetter(char) || char === '_';
 	}
@@ -44,6 +48,7 @@ export class CharUtils {
 		return /[:,@{[()\]}]/.test(char);
 	}
 
+	// TODO Fix that regex to be more strict
 	static isNonASCII(char) {
 		// eslint-disable-next-line no-control-regex
 		return /[^\u0000-\u007F]+/.test(char);
@@ -53,7 +58,7 @@ export class CharUtils {
 		return /[👋]/u.test(char);
 	}
 
-	static isThankYouEmoji(char) {
+	static isPleaseEmoji(char) {
 		return /[🙏]/u.test(char);
 	}
 }

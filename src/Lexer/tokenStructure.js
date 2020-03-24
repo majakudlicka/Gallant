@@ -9,8 +9,14 @@ export const TokenStructure = {
 			Null: 'null',
 			True: 'true',
 			While: 'while',
-			Please: 'please',
 			KeywordAnd: 'and'
+		}
+	},
+	FunctionInvocation: {
+		name: 'functionInvocation',
+		values: {
+			Please: 'please',
+			PleaseEmoji: '🙏'
 		}
 	},
 	// Accessor operators
@@ -80,17 +86,16 @@ export const TokenStructure = {
 			Hello: 'hello',
 			Hi: 'hi',
 			Aloha: 'aloha',
-			Wave: '👋'
+			WaveEmoji: '👋'
 		}
 	},
-	EndOfInput: { name: 'EndOfInput' }
+	EndOfInput: { name: 'EndOfInput' },
+	// Emoji without any special meaning / function in language
+	CommonEmoji: { name: 'commonEmoji' }
 };
 
 export const TokenTypes = Object.assign({}, ...Object.entries(TokenStructure).map(([k, v]) => ({ [k]: v.name })));
 export const TokenValues = Object.assign({},
-	TokenStructure.Keyword.values, TokenStructure.Accessor.values,
-	TokenStructure.Assignment.values, TokenStructure.Arithmetic.values,
-	TokenStructure.Comparison.values,
-	TokenStructure.Logical.values,
-	TokenStructure.Delimiter.values,
-	TokenStructure.Greeting.values);
+	TokenStructure.Keyword.values, TokenStructure.Accessor.values, TokenStructure.Assignment.values,
+	TokenStructure.Arithmetic.values, TokenStructure.FunctionInvocation.values, TokenStructure.Comparison.values,
+	TokenStructure.Logical.values, TokenStructure.Delimiter.values, TokenStructure.Greeting.values);
