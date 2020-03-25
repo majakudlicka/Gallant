@@ -74,6 +74,7 @@ export class Parser {
 	parseBlock() {
 		let node;
 		const blocks = [];
+		let terminatedPolitely = false;
 		if (this.isSameBlock()) {
 			node = this.parseAssignment();
 		}
@@ -83,7 +84,12 @@ export class Parser {
 				blocks.push(node);
 			}
 			this.next();
-			if (this.currentToken.type === 'EndOfInput') break;
+			// Convention is to add this token at the end but if preferred can be added earlier in the block
+			if (this.currentToken.type === TokenTypes.Gratitude) {
+				terminatedPolitely = true;
+				this.next();
+			}
+			if (this.currentToken.type === TokenTypes.EndOfInput) break;
 			if (this.isSameBlock()) {
 				node = this.parseAssignment();
 				if (node) blocks.push(node);
@@ -92,7 +98,7 @@ export class Parser {
 
 		if (blocks.length > 0) {
 			const { line } = this.currentToken;
-			return new BlockNode(blocks, line);
+			return new BlockNode(blocks, line, terminatedPolitely);
 		}
 		// If there was only one block, just return the current node
 		return node;
@@ -317,7 +323,7 @@ export class Parser {
 	}
 
 	parseFunctionCall() {
-		const {  line, type } = this.currentToken;
+		const { line, type } = this.currentToken;
 		if (type === TokenTypes.FunctionInvocation) {
 			this.next();
 			const node = this.parseAssignment();
@@ -423,9 +429,9 @@ export class Parser {
 // TODO Change order of functions to make some logical sense
 // TODO Test newlines and semicolons in real life && make use of them more consistent in tests
 // TODO Think of some other cool aspects of a polite language
-		// Program need to end in 'thank you' if bigger then x lines?
-		// Say goodbye to variables ?
-		// Can make use of emojis ?
+// Program need to end in 'thank you' if bigger then x lines?
+// Say goodbye to variables ?
+// Can make use of emojis ?
 // TODO Comments
 // TODO Consistent capitalisation of files
 // TODO Go through all files 2-3 last times and polish them

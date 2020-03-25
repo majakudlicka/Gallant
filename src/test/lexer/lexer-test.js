@@ -224,7 +224,7 @@ describe('Lexer', () => {
 			assert.equal(token.value, TokenValues.WaveEmoji);
 		});
 
-		it('should recognize the please emoji as a keywork', () => {
+		it('should recognize the please emoji as function invocation', () => {
 			const lexer = new Lexer('🙏');
 
 			const token = lexer.nextToken();
@@ -233,7 +233,97 @@ describe('Lexer', () => {
 			assert.equal(token.value, TokenValues.PleaseEmoji);
 		});
 
-		it('should recognize other emoji as token type emoji', () => {
+		it('should recognize "thanks" keyword as token type gratitude', () => {
+			const lexer = new Lexer('thanks');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Gratitude);
+			assert.equal(token.value, TokenValues.Thanks);
+		});
+
+		it('should recognize "cheers" keyword as token type gratitude', () => {
+			const lexer = new Lexer('cheers');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Gratitude);
+			assert.equal(token.value, TokenValues.Cheers);
+		});
+
+		it('should recognize heart emoji as token type gratitude', () => {
+			const lexer = new Lexer('❤');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Gratitude);
+			assert.equal(token.value, TokenValues.HeartEmoji);
+		});
+
+		it('should recognize hug emoji as token type gratitude', () => {
+			const lexer = new Lexer('🤗');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Gratitude);
+			assert.equal(token.value, TokenValues.HugEmoji);
+		});
+
+		it('should recognize heart face emoji as token type gratitude', () => {
+			const lexer = new Lexer('🥰');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Gratitude);
+			assert.equal(token.value, TokenValues.HeartFaceEmoji);
+		});
+
+		it('should recognize "goodbye" keyword as token type farewell', () => {
+			const lexer = new Lexer('goodbye');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Farewell);
+			assert.equal(token.value, TokenValues.Goodbye);
+		});
+
+		it('should recognize "bye" keyword as token type farewell', () => {
+			const lexer = new Lexer('bye');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Farewell);
+			assert.equal(token.value, TokenValues.Bye);
+		});
+
+		it('should recognize "ciao" keyword as token type farewell', () => {
+			const lexer = new Lexer('ciao');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Farewell);
+			assert.equal(token.value, TokenValues.Ciao);
+		});
+
+		it('should recognize bye emoji as token type farewell', () => {
+			const lexer = new Lexer('✋');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Farewell);
+			assert.equal(token.value, TokenValues.ByeEmoji);
+		});
+
+		it('should recognize kiss emoji as token type farewell', () => {
+			const lexer = new Lexer('😘');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Farewell);
+			assert.equal(token.value, TokenValues.KissEmoji);
+		});
+
+		it('should recognize common (bearing no special meaning) emoji as token type emoji', () => {
 			const lexer = new Lexer('🍇');
 
 			const token = lexer.nextToken();

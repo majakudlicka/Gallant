@@ -233,6 +233,62 @@ describe('Parser', () => {
 		assert.equal('2', node.falseExpr.value);
 	});
 
+	it('should parse a block of nodes delimited with newline character', () => {
+		const parser = new Parser('"hello"\n'
+			+ '42\n'
+			+ 'true\n');
+
+		const node = parser.parse();
+
+		assert.equal(true, node.isBlockNode());
+
+		const { blocks, terminatedPolitely } = node;
+
+		assert.equal(3, blocks.length);
+		assert.equal(false, terminatedPolitely);
+
+		assert.equal(true, blocks[0].isConstantNode());
+		assert.equal('"hello"', blocks[0].value);
+
+		assert.equal(true, blocks[1].isConstantNode());
+		assert.equal('42', blocks[1].value);
+
+		assert.equal(true, blocks[2].isConstantNode());
+		assert.equal('true', blocks[2].value);
+	});
+
+	it('should set "terminatedPolitely" prop to true if block node ended with a token type gratitude (word)', () => {
+		const parser = new Parser('"hello"\n'
+			+ '42\n'
+			+ 'true\n'
+			+ 'thanks\n');
+
+		const node = parser.parse();
+
+		assert.equal(true, node.isBlockNode());
+
+		const { blocks, terminatedPolitely } = node;
+
+		assert.equal(3, blocks.length);
+		assert.equal(true, terminatedPolitely);
+	});
+
+	it('should set "terminatedPolitely" prop to true if block node ended with a token type gratitude (emoji)', () => {
+		const parser = new Parser('"hello"\n'
+			+ '42\n'
+			+ 'true\n'
+			+ '❤\n');
+
+		const node = parser.parse();
+
+		assert.equal(true, node.isBlockNode());
+
+		const { blocks, terminatedPolitely } = node;
+
+		assert.equal(3, blocks.length);
+		assert.equal(true, terminatedPolitely);
+	});
+
 	it('should parse a multiline if-else statement', () => {
 		const parser = new Parser('if (x > 0) {\n'
 			+ 'x = x + 1;'
@@ -275,29 +331,6 @@ describe('Parser', () => {
 		assert.equal(true, body.blocks[1].isAssignmentNode());
 	});
 
-
-	it('should parse a block of nodes delimited with newline character', () => {
-		const parser = new Parser('"hello"\n'
-				+ '42\n'
-				+ 'true\n');
-
-		const node = parser.parse();
-
-		assert.equal(true, node.isBlockNode());
-
-		const { blocks } = node;
-
-		assert.equal(3, blocks.length);
-
-		assert.equal(true, blocks[0].isConstantNode());
-		assert.equal('"hello"', blocks[0].value);
-
-		assert.equal(true, blocks[1].isConstantNode());
-		assert.equal('42', blocks[1].value);
-
-		assert.equal(true, blocks[2].isConstantNode());
-		assert.equal('true', blocks[2].value);
-	});
 
 	it('should parse a block of nodes delimited with semicolon', () => {
 		const parser = new Parser('"hello";'

@@ -209,12 +209,17 @@ export class Lexer {
 
 		this.position += identifier.length;
 
+		// TODO Ugh, ugly!
 		if (Object.values(TokenStructure.Keyword.values).includes(identifier)) {
 			return new Token(TokenTypes.Keyword, identifier, line);
 		} if (Object.values(TokenStructure.Greeting.values).includes(identifier)) {
 			return new Token(TokenTypes.Greeting, identifier, line);
 		} if (Object.values(TokenStructure.FunctionInvocation.values).includes(identifier)) {
 			return new Token(TokenTypes.FunctionInvocation, identifier, line);
+		} if (Object.values(TokenStructure.Gratitude.values).includes(identifier)) {
+			return new Token(TokenTypes.Gratitude, identifier, line);
+		} if (Object.values(TokenStructure.Farewell.values).includes(identifier)) {
+			return new Token(TokenTypes.Farewell, identifier, line);
 		}
 
 		return new Token(TokenTypes.Identifier, identifier, line);
@@ -287,6 +292,16 @@ export class Lexer {
 			return new Token(TokenTypes.Greeting, TokenValues.WaveEmoji, line);
 		} if (CharUtils.isPleaseEmoji(emoji)) {
 			return new Token(TokenTypes.FunctionInvocation, TokenValues.PleaseEmoji, line);
+		} if (CharUtils.isHeartFaceEmoji(emoji)) {
+			return new Token(TokenTypes.Gratitude, TokenValues.HeartFaceEmoji, line);
+		} if (CharUtils.isHeartEmoji(emoji)) {
+			return new Token(TokenTypes.Gratitude, TokenValues.HeartEmoji, line);
+		} if (CharUtils.isHugEmoji(emoji)) {
+			return new Token(TokenTypes.Gratitude, TokenValues.HugEmoji, line);
+		} if (CharUtils.isByeEmoji(emoji)) {
+			return new Token(TokenTypes.Farewell, TokenValues.ByeEmoji, line);
+		} if (CharUtils.isKissEmoji(emoji)) {
+			return new Token(TokenTypes.Farewell, TokenValues.KissEmoji, line);
 		}
 		return new Token(TokenTypes.CommonEmoji, emoji, line);
 

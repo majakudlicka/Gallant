@@ -12,13 +12,6 @@ export const TokenStructure = {
 			KeywordAnd: 'and'
 		}
 	},
-	FunctionInvocation: {
-		name: 'functionInvocation',
-		values: {
-			Please: 'please',
-			PleaseEmoji: '🙏'
-		}
-	},
 	// Accessor operators
 	Accessor: { name: 'accessor', values: { At: '@', Dot: '.' } },
 	// Assignment operators
@@ -89,13 +82,46 @@ export const TokenStructure = {
 			WaveEmoji: '👋'
 		}
 	},
+	Gratitude: {
+		name: 'gratitude',
+		values: {
+			// TODO needs look-forward
+			// ThankYou: 'thank you',
+			Thanks: 'thanks',
+			Cheers: 'cheers',
+			HugEmoji: '🤗',
+			HeartEmoji: '❤️',
+			HeartFaceEmoji: '🥰'
+		}
+	},
+	Farewell: {
+		name: 'farewell',
+		values: {
+			Goodbye: 'goodbye',
+			Bye: 'bye',
+			Ciao: 'ciao',
+			ByeEmoji: '✋',
+			KissEmoji: '😘'
+		}
+	},
+	// TODO Rename as plead ?
+	FunctionInvocation: {
+		name: 'functionInvocation',
+		values: {
+			Please: 'please',
+			PleaseEmoji: '🙏',
+			PleadEmoji: '🥺'
+		}
+	},
 	EndOfInput: { name: 'EndOfInput' },
 	// Emoji without any special meaning / function in language
 	CommonEmoji: { name: 'commonEmoji' }
 };
 
 export const TokenTypes = Object.assign({}, ...Object.entries(TokenStructure).map(([k, v]) => ({ [k]: v.name })));
+// TODO Can this be done better ?
 export const TokenValues = Object.assign({},
 	TokenStructure.Keyword.values, TokenStructure.Accessor.values, TokenStructure.Assignment.values,
 	TokenStructure.Arithmetic.values, TokenStructure.FunctionInvocation.values, TokenStructure.Comparison.values,
-	TokenStructure.Logical.values, TokenStructure.Delimiter.values, TokenStructure.Greeting.values);
+	TokenStructure.Logical.values, TokenStructure.Delimiter.values, TokenStructure.Greeting.values, TokenStructure.Gratitude.values,
+	TokenStructure.Farewell.values);

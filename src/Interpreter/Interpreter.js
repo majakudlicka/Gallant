@@ -188,7 +188,8 @@ export class Interpreter {
 
 	interpretConstantNode(node) {
 		if (node.type === TokenTypes.CommonEmoji) {
-			console.log(node.value);
+			// TODO This should be a random message
+			console.log(`That is how I felt writing this code... ${node.value}`);
 		} else {
 			return eval(node.value);
 		}

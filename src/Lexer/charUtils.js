@@ -61,4 +61,24 @@ export class CharUtils {
 	static isPleaseEmoji(char) {
 		return /[🙏]/u.test(char);
 	}
+
+	static isHeartFaceEmoji(char) {
+		return /[🥰]/u.test(char);
+	}
+
+	static isHeartEmoji(char) {
+		return /[❤️️]/u.test(char);
+	}
+
+	static isHugEmoji(char) {
+		return /[🤗]/u.test(char);
+	}
+
+	static isByeEmoji(char) {
+		return /[✋]/u.test(char);
+	}
+
+	static isKissEmoji(char) {
+		return /[😘]/u.test(char);
+	}
 }
