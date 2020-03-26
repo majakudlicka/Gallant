@@ -10,6 +10,9 @@ export class Interpreter {
 	}
 
 	interpret() {
+		if (this.ast.isBlockNode() && !this.ast.terminatedPolitely) {
+			return this.throwIntrepreterError('last', 'Code blocks need to finish with an expression of gratitude');
+		}
 		return this.interpretNode(this.ast);
 	}
 

@@ -30,7 +30,7 @@ describe('Interpreter', () => {
 		assert.equal('Hello, how you doing?', output);
 	});
 
-	it.only('Should not error when encountering a random emoji', () => {
+	it('Should not error when encountering a random emoji', () => {
 		const source = '🍇';
 		const i = new Interpreter(source);
 		let error = null;
@@ -52,7 +52,8 @@ describe('Interpreter', () => {
 
 	it('Should interpret a reassignment and change value in current scope', () => {
 		const source = '👋 a = 10\n'
-		+ 'a = 7';
+		+ 'a = 7;'
+		+ '🥰';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(7, output);
@@ -74,6 +75,22 @@ describe('Interpreter', () => {
 
 	});
 
+	it('Should error if block node does not end with one of tokens type gratitude', () => {
+		const source = 'a = 10;'
+			+ 'b = 5;';
+		const i = new Interpreter(source);
+		let error;
+		try {
+			i.interpret();
+		} catch (err) {
+			error = err;
+		}
+		assert.equal(true, error instanceof Error);
+		assert.equal('[INTERPRETER]: Syntax error around line last: Code blocks need to finish with an expression of gratitude', error.message);
+		assert.equal(false, i.symbolTable.hasSymbol('a'));
+		assert.equal(false, i.symbolTable.hasSymbol('b'));
+	});
+
 	it('Should interpret a function definition and add it to current scope', () => {
 		const source = 'foo(a,b) {\n'
 			+ ' if (a > b) a else b;'
@@ -88,7 +105,8 @@ describe('Interpreter', () => {
 		const source = 'foo() {\n'
 			+ 'x = 4;'
 			+ 'y = 5;'
-			+ ' }\n';
+			+ ' }\n'
+			+ '🤗';
 		const i = new Interpreter(source);
 		i.interpret();
 		assert.equal(undefined, i.symbolTable.findSymbol('x'));
@@ -117,7 +135,8 @@ describe('Interpreter', () => {
 			+ '} else {\n'
 			+ 'x = x - 1;'
 			+ 'y = y * 5;'
-			+ '}';
+			+ '}\n'
+			+ 'cheers';
 
 		const i = new Interpreter(source);
 		i.interpret();
@@ -133,7 +152,8 @@ describe('Interpreter', () => {
 			+ '} else {\n'
 			+ 'x = x - 1;'
 			+ 'y = y * 5;'
-			+ '}';
+			+ '}\n'
+			+ 'thanks';
 
 		const i = new Interpreter(source);
 		i.interpret();
@@ -201,7 +221,8 @@ describe('Interpreter', () => {
 		const source = ' giveMax(a,b) {\n'
 			+ ' if (a > b) a else b;'
 			+ ' }\n'
-			+ '🙏 giveMax 4 and 3';
+			+ '🙏 giveMax 4 and 3;'
+			+ '🥰';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(4, output);
@@ -213,7 +234,8 @@ describe('Interpreter', () => {
 			+ 'giveMax(a,b) {\n'
 			+ ' if (a > b) a else b;'
 			+ ' }\n'
-			+ 'please giveMax x and y;';
+			+ 'please giveMax x and y;'
+			+ '🤗';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(5, output);
@@ -225,7 +247,8 @@ describe('Interpreter', () => {
 			+ 'while (x > 0) {\n'
 			+ 'y = y + 4;'
 			+ 'x = x - 1;'
-			+ '}\n';
+			+ '}\n'
+			+ '❤️';
 		const i = new Interpreter(source);
 		i.interpret();
 		assert.equal(0, i.symbolTable.findSymbol('x'));
@@ -248,7 +271,8 @@ describe('Interpreter', () => {
 
 	it('Should access array element by index', () => {
 		const source = '👋 arr = [1, 2, 3]\n'
-			+ 'arr@0';
+			+ 'arr@0;'
+			+ 'thanks';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(1, output);
@@ -260,14 +284,15 @@ describe('Interpreter', () => {
 			+ 'while (i < arr@size) {\n'
 			+ 'arr@i = arr@i * 3;'
 			+ 'i = i + 1;'
-			+ '}';
+			+ '}\n'
+			+ '❤️';
 		const i = new Interpreter(source);
 		i.interpret();
 		assert.deepEqual([3, 6, 9], i.symbolTable.findSymbol('arr'));
 	});
 
 	it('Should interpret a simple map', () => {
-		const source = '{a = 1, b = 2};';
+		const source = '{a = 1, b = 2}';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(2, output.size);
@@ -276,7 +301,7 @@ describe('Interpreter', () => {
 	});
 
 	it('Should interpret an assignment to map', () => {
-		const source = '👋 myMap = {a = 1, b = 2};';
+		const source = '👋 myMap = {a = 1, b = 2}';
 		const i = new Interpreter(source);
 		i.interpret();
 		assert.deepEqual(new Map([['a', 1], ['b', 2]]), i.symbolTable.findSymbol('myMap'));
@@ -284,7 +309,8 @@ describe('Interpreter', () => {
 
 	it('Should access map by key name', () => {
 		const source = '👋 myMap = {a = 1, b = 2};'
-		+ 'myMap@a;';
+		+ 'myMap@a;'
+			+ '❤️';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(output, 1);
@@ -293,7 +319,8 @@ describe('Interpreter', () => {
 	it('Should modify map', () => {
 		const source = '👋 myMap = {a = 1, b = 2};'
 			+ 'myMap@a = 5;'
-			+ 'myMap@a;';
+			+ 'myMap@a;'
+			+ '❤️';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(output, 5);
@@ -301,7 +328,8 @@ describe('Interpreter', () => {
 
 	it('Should return size of the map', () => {
 		const source = '👋 myMap = {a = 1, b = 2};'
-			+ 'myMap@size';
+			+ 'myMap@size;'
+			+ '❤️';
 
 		const i = new Interpreter(source);
 		const output = i.interpret();
