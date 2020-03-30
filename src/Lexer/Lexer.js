@@ -3,6 +3,7 @@ import { TokenTypes, TokenValues, TokenStructure } from './tokenStructure';
 import { CharUtils } from './charUtils';
 import { FSM } from './FSM';
 
+
 export class Lexer {
 	constructor(input) {
 		this.input = input;
@@ -12,6 +13,8 @@ export class Lexer {
 
 	// / Returns the next recognized 'Token' in the input.
 	nextToken() {
+		console.log('input length ', this.input.length);
+
 		if (this.position >= this.input.length) {
 			return new Token(TokenTypes.EndOfInput, TokenValues.EndOfInput, this.line);
 		}
@@ -284,7 +287,7 @@ export class Lexer {
 		while (position < this.input.length) {
 			const character = this.input.charAt(position);
 
-			if (CharUtils.isWhitespace(character)) {
+			if (CharUtils.isWhitespace(character) || CharUtils.isWhitespace(character)) {
 				break;
 			}
 
@@ -307,11 +310,11 @@ export class Lexer {
 			return new Token(TokenTypes.Farewell, TokenValues.ByeEmoji, line);
 		} if (CharUtils.isKissEmoji(emoji)) {
 			return new Token(TokenTypes.Farewell, TokenValues.KissEmoji, line);
+		} else if (CharUtils.isCommonEmoji(emoji)) {
+			return new Token(TokenTypes.CommonEmoji, emoji, line);
 		}
-		return new Token(TokenTypes.CommonEmoji, emoji, line);
 
-		//
-		// this.throwLexerError(character);
+		this.throwLexerError(char);
 	}
 
 	// Use Finite State Machine to recognize different types of numbers

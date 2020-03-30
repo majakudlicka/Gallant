@@ -1,3 +1,6 @@
+const emojiRegex = require('emoji-regex');
+const regex = emojiRegex();
+
 export class CharUtils {
 
 	static isOperator(char) {
@@ -48,37 +51,40 @@ export class CharUtils {
 		return /[:,@{[()\]}]/.test(char);
 	}
 
-	// TODO Fix that regex to be more strict
 	static isNonASCII(char) {
 		// eslint-disable-next-line no-control-regex
-		return /[^\u0000-\u007F]+/.test(char);
+		return /[^\u2600-\u26FF]+/.test(char);
 	}
 
-	static isWaveHandEmoji(char) {
-		return /[👋]/u.test(char);
+	static isWaveHandEmoji(input) {
+		return /[👋]/u.test(input);
 	}
 
-	static isPleaseEmoji(char) {
-		return /[🙏]/u.test(char);
+	static isPleaseEmoji(input) {
+		return /[🙏]/u.test(input);
 	}
 
-	static isHeartFaceEmoji(char) {
-		return /[🥰]/u.test(char);
+	static isHeartFaceEmoji(input) {
+		return /[🥰]/u.test(input);
 	}
 
-	static isHeartEmoji(char) {
-		return /[❤️️]/u.test(char);
+	static isHeartEmoji(input) {
+		return /[❤️️]/u.test(input);
 	}
 
-	static isHugEmoji(char) {
-		return /[🤗]/u.test(char);
+	static isHugEmoji(input) {
+		return /[🤗]/u.test(input);
 	}
 
-	static isByeEmoji(char) {
-		return /[✋]/u.test(char);
+	static isByeEmoji(input) {
+		return /[✋]/u.test(input);
 	}
 
-	static isKissEmoji(char) {
-		return /[😘]/u.test(char);
+	static isKissEmoji(input) {
+		return /[😘]/u.test(input);
+	}
+
+	static isCommonEmoji(input) {
+		return regex.exec(input);
 	}
 }
