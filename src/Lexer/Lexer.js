@@ -221,6 +221,11 @@ export class Lexer {
 		} if (Object.values(TokenStructure.Farewell.values).includes(identifier)) {
 			return new Token(TokenTypes.Farewell, identifier, line);
 		}
+		// Special case for special "thank you" token including space inbetween
+		const lookahead = position + 4 >= this.input.length ? this.input.substring(position + 1, position + 5) : null;
+		if (identifier === 'thank' && lookahead === 'you') {
+			return new Token(TokenTypes.Gratitude, 'thank you', line);
+		}
 
 		return new Token(TokenTypes.Identifier, identifier, line);
 	}

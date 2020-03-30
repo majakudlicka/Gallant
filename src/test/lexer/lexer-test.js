@@ -233,6 +233,15 @@ describe('Lexer', () => {
 			assert.equal(token.value, TokenValues.PleaseEmoji);
 		});
 
+		it('should recognize "thank you" keyword as token type gratitude', () => {
+			const lexer = new Lexer('thank you');
+
+			const token = lexer.nextToken();
+
+			assert.equal(token.type, TokenTypes.Gratitude);
+			assert.equal(token.value, TokenValues.ThankYou);
+		});
+
 		it('should recognize "thanks" keyword as token type gratitude', () => {
 			const lexer = new Lexer('thanks');
 
