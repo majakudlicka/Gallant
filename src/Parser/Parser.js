@@ -13,6 +13,7 @@ import { FunctionDefinitionNode } from './astNodes/FunctionDefinitionNode';
 import { ArrayNode } from './astNodes/ArrayNode';
 import { AccessorNode } from './astNodes/AccessorNode';
 import { MapNode } from './astNodes/MapNode';
+import { DeAssignmentNode } from './astNodes/DeAssignmentNode';
 
 export class Parser {
 	constructor(input) {
@@ -261,6 +262,19 @@ export class Parser {
 			this.next();
 			return node;
 		}
+		return this.parseFarewell();
+	}
+
+	parseFarewell() {
+		if (this.currentToken.type === TokenTypes.Farewell) {
+			this.next();
+			const { type, value, line } = this.currentToken;
+			if (type === TokenTypes.Identifier) {
+				return new DeAssignmentNode(value, line);
+			} else {
+				this.throwParserError('Farewell tokens can only be used with identifiers');
+			}
+		}
 		return this.parseParentheses();
 	}
 
@@ -286,38 +300,12 @@ export class Parser {
 
 	// TODO why are we passing node here
 	parseAccessors(node) {
-		// let params;
-		// let newNode;
-		// while ([TokenValues.LeftParen, TokenValues.At].includes(this.currentToken.value)) {
-		// 	params = [];
-		//
-		// 	if (this.currentToken.value === TokenValues.LeftParen) {
-		// 		this.next();
-		//
-		// 		if (this.currentToken.value !== TokenValues.RightParen) {
-		// 			params.push(this.parseAssignment());
-		//
-		// 			// parse a list with parameters
-		// 			while (this.currentToken.value === TokenValues.Comma) {
-		// 				this.next();
-		// 				params.push(this.parseAssignment());
-		// 			}
-		// 		}
-		//
-		// 		this.expect(')');
-		// 		const { line } = this.currentToken;
-		//
-		// 		// eslint-disable-next-line no-param-reassign
-		// 		newNode = new FunctionCallNode(node, params, line);
-		// 		// TODO
-		// 	} else
 		if (this.currentToken.value === TokenValues.At) {
 			this.next();
 			const { line } = this.currentToken;
 			// eslint-disable-next-line no-param-reassign
 			return new AccessorNode(node, this.parseSymbolOrConstant(), line);
 		}
-		// }
 
 		return node;
 	}
@@ -429,12 +417,11 @@ export class Parser {
 // TODO Change order of functions to make some logical sense
 // TODO Test newlines and semicolons in real life && make use of them more consistent in tests
 // TODO Think of some other cool aspects of a polite language
-// Program need to end in 'thank you' if bigger then x lines?
 // Say goodbye to variables ?
-// Can make use of emojis ?
 // TODO Comments
 // TODO Consistent capitalisation of files
 // TODO Go through all files 2-3 last times and polish them
 // TODO Make readME
 // TODO Introduce some sort of repl - with easy emoji selector ?
 // TODO Can if-else hanlde curly braces? Add more test cases to parser / interpreter
+// TODO Can remove tokenize ?

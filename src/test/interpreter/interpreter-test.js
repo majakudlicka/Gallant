@@ -42,7 +42,15 @@ describe('Interpreter', () => {
 		assert.equal(null, error);
 	});
 
-	it('Should interpret a variable assignment and add variable to current scope', () => {
+	it('Should interpret a variable assignment using greeting (word) and add variable to current scope', () => {
+		const source = 'aloha a = 10';
+		const i = new Interpreter(source);
+		const output = i.interpret();
+		assert.equal(10, output);
+		assert.equal(10, i.symbolTable.findSymbol('a'));
+	});
+
+	it('Should interpret a variable assignment using greeting (emoji) and add variable to current scope', () => {
 		const source = '👋 a = 10';
 		const i = new Interpreter(source);
 		const output = i.interpret();
@@ -50,10 +58,28 @@ describe('Interpreter', () => {
 		assert.equal(10, i.symbolTable.findSymbol('a'));
 	});
 
-	it('Should interpret a reassignment and change value in current scope', () => {
+	it('Should interpret a variable reassignment and change value in current scope', () => {
 		const source = '👋 a = 10\n'
 		+ 'a = 7;'
 		+ '🥰';
+		const i = new Interpreter(source);
+		const output = i.interpret();
+		assert.equal(7, output);
+		assert.equal(7, i.symbolTable.findSymbol('a'));
+	});
+
+	it.only('Should interpret a variable deassignment using farewell (word) and remove it from the current scope', () => {
+		const source = '👋 a = 10\n'
+			+ 'bye a;'
+			+ '🥰';
+		const i = new Interpreter(source);
+		i.interpret();
+		assert.equal(false, i.symbolTable.hasSymbol('a'));
+	});
+
+	it('Should interpret a variable deassignment using farewell (emoji) and remove it from the current scope', () => {
+		const source = '👋 a = 10\n'
+			+ 'bye a';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(7, output);

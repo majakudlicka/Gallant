@@ -10,4 +10,8 @@ export class ConstantNode extends AstNode {
 	isConstantNode() {
 		return true;
 	}
+
+	isBlah() {
+
+	}
 }

@@ -11,6 +11,10 @@ export class SymbolTable {
 		this.currentScope.set(identifier, value);
 	}
 
+	removeSymbol(identifier) {
+		this.currentScope.delete(identifier);
+	}
+
 	hasSymbol(identifier) {
 		return this.currentScope.has(identifier);
 	}

@@ -1,5 +1,5 @@
 const emojiRegex = require('emoji-regex');
-const regex = emojiRegex();
+
 
 export class CharUtils {
 
@@ -85,6 +85,7 @@ export class CharUtils {
 	}
 
 	static isCommonEmoji(input) {
+		const regex = emojiRegex();
 		return regex.exec(input);
 	}
 }

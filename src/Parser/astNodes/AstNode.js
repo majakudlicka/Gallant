@@ -55,4 +55,8 @@ export class AstNode {
 	isMapNode() {
 		return false;
 	}
+
+	isDeAssignmentNode() {
+		return false;
+	}
 }

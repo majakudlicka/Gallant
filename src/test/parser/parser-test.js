@@ -4,7 +4,7 @@ import { TokenValues, TokenTypes } from '../../Lexer/tokenStructure';
 
 describe('Parser', () => {
 
-	it('should parse a new variable declaration using keyword hi', () => {
+	it('should parse a new variable declaration using a greeting token (word)', () => {
 		const parser = new Parser('hi a = 5');
 		const node = parser.parse();
 		assert.equal(true, node.isAssignmentNode());
@@ -15,7 +15,7 @@ describe('Parser', () => {
 		assert.equal(true, node.greeted);
 	});
 
-	it('should parse a new variable declaration using waving hand emoji', () => {
+	it('should parse a new variable declaration using a greeting token (emoji)', () => {
 		const parser = new Parser('👋 a = 5');
 		const node = parser.parse();
 		assert.equal(true, node.isAssignmentNode());
@@ -26,15 +26,18 @@ describe('Parser', () => {
 		assert.equal(true, node.greeted);
 	});
 
-	it('should parse a new variable declaration using keyword hola', () => {
-		const parser = new Parser('hola someVar = 6');
+	it('should parse a variable deassignment using a farewell token (word)', () => {
+		const parser = new Parser('bye someVar');
 		const node = parser.parse();
-		assert.equal(true, node.isAssignmentNode());
-		assert.equal(true, node.symbol.isSymbolNode());
-		assert.equal(true, node.value.isConstantNode());
-		assert.equal('someVar', node.symbol.name);
-		assert.equal(6, node.value.value);
-		assert.equal(true, node.greeted);
+		assert.equal(true, node.isDeAssignmentNode());
+		assert.equal('someVar', node.symbol);
+	});
+
+	it('should parse a variable deassignment using a farewell token (emoji)', () => {
+		const parser = new Parser('✋ someVar');
+		const node = parser.parse();
+		assert.equal(true, node.isDeAssignmentNode());
+		assert.equal('someVar', node.symbol);
 	});
 
 	it('should parse a new variable declaration using keyword aloha', () => {

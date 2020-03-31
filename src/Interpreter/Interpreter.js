@@ -60,6 +60,9 @@ export class Interpreter {
 		if (node.isMapNode()) {
 			return this.interpretMapNode(node);
 		}
+		if (node.isDeAssignmentNode()) {
+			return this.interpretDeAssignmentNode(node);
+		}
 		return this.throwIntrepreterError(node.line);
 	}
 
@@ -106,6 +109,17 @@ export class Interpreter {
 
 	interpretParenthesisNode(node) {
 		return this.interpretNode(node.content);
+	}
+
+	interpretDeAssignmentNode(node) {
+		let message;
+		if (!node.symbol) {
+			message = 'Invalid attempt to clear value from memory';
+		} else if (!this.symbolTable.hasSymbol(node.symbol)) {
+			message = `Symbol ${node.symbol} is not in memory so it cannot be cleared`;
+		}
+		if (message) return this.throwIntrepreterError(node.line, message);
+		return this.symbolTable.removeSymbol(node.symbol);
 	}
 
 	interpretWhileLoopNode(node) {

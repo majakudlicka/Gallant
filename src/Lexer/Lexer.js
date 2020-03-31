@@ -13,7 +13,6 @@ export class Lexer {
 
 	// / Returns the next recognized 'Token' in the input.
 	nextToken() {
-		console.log('input length ', this.input.length);
 
 		if (this.position >= this.input.length) {
 			return new Token(TokenTypes.EndOfInput, TokenValues.EndOfInput, this.line);
@@ -287,7 +286,7 @@ export class Lexer {
 		while (position < this.input.length) {
 			const character = this.input.charAt(position);
 
-			if (CharUtils.isWhitespace(character) || CharUtils.isWhitespace(character)) {
+			if (CharUtils.isWhitespace(character) || CharUtils.isNewLine(character)) {
 				break;
 			}
 

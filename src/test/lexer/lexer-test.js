@@ -6,7 +6,7 @@ describe('Lexer', () => {
 
 	describe('#nextToken', () => {
 
-		it.only('should throw an error if given character does not belong to language grammar', () => {
+		it('should throw an error if given character does not belong to language grammar', () => {
 			let error;
 			try {
 				const lexer = new Lexer('§');
