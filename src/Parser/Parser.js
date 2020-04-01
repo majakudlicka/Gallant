@@ -73,6 +73,7 @@ export class Parser {
 	}
 
 	parseBlock() {
+		console.log('in parseBlock');
 		let node;
 		const blocks = [];
 		let terminatedPolitely = false;
@@ -418,12 +419,11 @@ export class Parser {
 // TODO eslint errors
 // TODO Change order of functions to make some logical sense
 // TODO Test newlines and semicolons in real life && make use of them more consistent in tests
-// TODO Think of some other cool aspects of a polite language
-// Say goodbye to variables ?
 // TODO Comments
 // TODO Consistent capitalisation of files
 // TODO Go through all files 2-3 last times and polish them
 // TODO Make readME
 // TODO Introduce some sort of repl - with easy emoji selector ?
 // TODO Can if-else hanlde curly braces? Add more test cases to parser / interpreter
-// TODO Can remove tokenize ?
+// TODO Add program examples
+// TODO Load file functionality ? https://www.smashingmagazine.com/2017/03/interactive-command-line-application-node-js/

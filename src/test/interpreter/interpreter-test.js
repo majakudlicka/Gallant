@@ -244,7 +244,7 @@ describe('Interpreter', () => {
 	});
 
 	it('Should interpret a function call', () => {
-		const source = ' giveMax(a,b) {\n'
+		const source = 'giveMax(a,b) {\n'
 			+ ' if (a > b) a else b;'
 			+ ' }\n'
 			+ '🙏 giveMax 4 and 3;'
