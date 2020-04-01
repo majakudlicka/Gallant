@@ -270,7 +270,9 @@ export class Parser {
 			this.next();
 			const { type, value, line } = this.currentToken;
 			if (type === TokenTypes.Identifier) {
-				return new DeAssignmentNode(value, line);
+				const node = new DeAssignmentNode(value, line);
+				this.next();
+				return node;
 			} else {
 				this.throwParserError('Farewell tokens can only be used with identifiers');
 			}

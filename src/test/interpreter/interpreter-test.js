@@ -68,10 +68,10 @@ describe('Interpreter', () => {
 		assert.equal(7, i.symbolTable.findSymbol('a'));
 	});
 
-	it.only('Should interpret a variable deassignment using farewell (word) and remove it from the current scope', () => {
+	it('Should interpret a variable deassignment using farewell (word) and remove it from the current scope', () => {
 		const source = '👋 a = 10\n'
-			+ 'bye a;'
-			+ '🥰';
+			+ 'bye a\n'
+			+ 'thanks';
 		const i = new Interpreter(source);
 		i.interpret();
 		assert.equal(false, i.symbolTable.hasSymbol('a'));
@@ -79,11 +79,11 @@ describe('Interpreter', () => {
 
 	it('Should interpret a variable deassignment using farewell (emoji) and remove it from the current scope', () => {
 		const source = '👋 a = 10\n'
-			+ 'bye a';
+			+ 'bye a;'
+			+ '🥰';
 		const i = new Interpreter(source);
-		const output = i.interpret();
-		assert.equal(7, output);
-		assert.equal(7, i.symbolTable.findSymbol('a'));
+		i.interpret();
+		assert.equal(false, i.symbolTable.hasSymbol('a'));
 	});
 
 	it('Should error if variable has not been greeted before declaring', () => {
