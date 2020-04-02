@@ -69,6 +69,7 @@ export class Parser {
 	}
 
 	isEndOfBlock() {
+		// return [TokenValues.Newline, TokenValues.SemiColon, TokenValues.RightBrace].includes(this.currentToken.value);
 		return this.currentToken.value === TokenValues.Newline || this.currentToken.value === ';';
 	}
 
@@ -82,6 +83,7 @@ export class Parser {
 		}
 		// If there is more than one block, start to populate blocks array
 		while (this.isEndOfBlock()) {
+			// if (this.currentToken.value === TokenValues.RightBrace) return;
 			if (blocks.length === 0 && node) {
 				blocks.push(node);
 			}
@@ -174,7 +176,7 @@ export class Parser {
 			this.expect(TokenValues.RightParen);
 			this.expect(TokenValues.LeftBrace);
 			const value = this.parseBlock();
-			this.expect(TokenValues.RightBrace);
+			// this.expect(TokenValues.RightBrace);
 			return new FunctionDefinitionNode(node.name, params, value, line);
 		}
 		return node;

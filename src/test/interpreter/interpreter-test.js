@@ -42,6 +42,19 @@ describe('Interpreter', () => {
 		assert.equal(null, error);
 	});
 
+	// it('Should not error when all is given in one string', () => {
+	// 	const source = 'hello x = 4;hello y = 5;giveMax(a,b) {if (a > b) a else b;}please giveMax x and y;thanks';
+	// 	const i = new Interpreter(source);
+	// 	let error = null;
+	// 	try {
+	// 		const output = i.interpret();
+	// 		console.log('output ', output);
+	// 	} catch (err) {
+	// 		error = err;
+	// 	}
+	// 	assert.equal(null, error);
+	// });
+
 	it('Should interpret a variable assignment using greeting (word) and add variable to current scope', () => {
 		const source = 'aloha a = 10';
 		const i = new Interpreter(source);
@@ -243,7 +256,7 @@ describe('Interpreter', () => {
 		assert.equal(true, output);
 	});
 
-	it('Should interpret a function call', () => {
+	it.only('Should interpret a function call', () => {
 		const source = 'giveMax(a,b) {\n'
 			+ ' if (a > b) a else b;'
 			+ ' }\n'
@@ -260,8 +273,8 @@ describe('Interpreter', () => {
 			+ 'giveMax(a,b) {\n'
 			+ ' if (a > b) a else b;'
 			+ ' }\n'
-			+ 'please giveMax x and y;'
-			+ '🤗';
+			+ 'please giveMax x and y;thanks'
+			// + '🤗';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(5, output);

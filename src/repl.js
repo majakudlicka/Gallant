@@ -32,10 +32,13 @@ export class Repl {
 
 			try {
 				console.log('input in repl ', input);
-				const i = new Interpreter(input);
-				const output = i.interpret();
-				if (output) console.log(output);
-				input = '';
+				if (![';', '{', '}'].includes(input.charAt(input.length - 1))) {
+					console.log('last char ', input.charAt(input.length - 1));
+					const i = new Interpreter(input);
+					const output = i.interpret();
+					if (output) console.log(output);
+					input = '';
+				}
 			} catch (e) {
 				console.log(`error: ${e.message}`);
 
