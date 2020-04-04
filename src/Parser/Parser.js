@@ -73,21 +73,25 @@ export class Parser {
 		return this.currentToken.value === TokenValues.Newline || this.currentToken.value === ';';
 	}
 
+	// TODO ConditionalNode ?
+	isTerminatedWithCurlyBrace(node) {
+		return node && (node.isFunctionDefinitionNode() || node.isWhileLoopNode());
+	}
+
 	parseBlock() {
-		console.log('in parseBlock');
 		let node;
+		let lastparsedNode;
 		const blocks = [];
 		let terminatedPolitely = false;
 		if (this.isSameBlock()) {
 			node = this.parseAssignment();
 		}
 		// If there is more than one block, start to populate blocks array
-		while (this.isEndOfBlock()) {
-			// if (this.currentToken.value === TokenValues.RightBrace) return;
+		while (this.isEndOfBlock() || this.isTerminatedWithCurlyBrace(lastparsedNode)) {
 			if (blocks.length === 0 && node) {
 				blocks.push(node);
 			}
-			this.next();
+			if (this.isEndOfBlock()) this.next();
 			// Convention is to add this token at the end but if preferred can be added earlier in the block
 			if (this.currentToken.type === TokenTypes.Gratitude) {
 				terminatedPolitely = true;
@@ -97,9 +101,10 @@ export class Parser {
 			if (this.isSameBlock()) {
 				node = this.parseAssignment();
 				if (node) blocks.push(node);
+				lastparsedNode = node;
 			}
 		}
-
+		// TODO Change to 1 ?
 		if (blocks.length > 0) {
 			const { line } = this.currentToken;
 			return new BlockNode(blocks, line, terminatedPolitely);
@@ -176,7 +181,7 @@ export class Parser {
 			this.expect(TokenValues.RightParen);
 			this.expect(TokenValues.LeftBrace);
 			const value = this.parseBlock();
-			// this.expect(TokenValues.RightBrace);
+			this.expect(TokenValues.RightBrace);
 			return new FunctionDefinitionNode(node.name, params, value, line);
 		}
 		return node;
@@ -429,3 +434,4 @@ export class Parser {
 // TODO Can if-else hanlde curly braces? Add more test cases to parser / interpreter
 // TODO Add program examples
 // TODO Load file functionality ? https://www.smashingmagazine.com/2017/03/interactive-command-line-application-node-js/
+// TODO Remove newlines completely?

@@ -4,14 +4,12 @@ import { TokenTypes } from '../Lexer/tokenStructure';
 
 export class Interpreter {
 	constructor(input) {
-		console.log('input in constructor ', input);
 		this.parser = new Parser(input);
 		this.symbolTable = new SymbolTable();
 		this.ast = this.parser.parse();
 	}
 
 	interpret() {
-		console.log('ast ', this.ast);
 		if (!this.ast) return;
 		if (this.ast.isBlockNode() && !this.ast.terminatedPolitely) {
 			return this.throwIntrepreterError('last', 'Code blocks need to finish with an expression of gratitude');

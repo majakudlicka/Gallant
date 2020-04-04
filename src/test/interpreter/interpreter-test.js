@@ -256,7 +256,7 @@ describe('Interpreter', () => {
 		assert.equal(true, output);
 	});
 
-	it.only('Should interpret a function call', () => {
+	it('Should interpret a function call', () => {
 		const source = 'giveMax(a,b) {\n'
 			+ ' if (a > b) a else b;'
 			+ ' }\n'
@@ -270,23 +270,24 @@ describe('Interpreter', () => {
 	it('Should interpret a function call referencing earlier defined variables', () => {
 		const source = 'hello x = 4;'
 			+ 'hello y = 5;'
-			+ 'giveMax(a,b) {\n'
+			+ 'giveMax(a,b) {'
 			+ ' if (a > b) a else b;'
-			+ ' }\n'
-			+ 'please giveMax x and y;thanks'
-			// + '🤗';
+			+ ' }'
+			+ 'please giveMax x and y;'
+			+ '🤗';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(5, output);
 	});
 
+	// TODO Can I finish with } or ; for repl ?
 	it('Should interpret a while loop', () => {
 		const source = 'hola x = 5;'
 			+ 'hola y = 0;'
-			+ 'while (x > 0) {\n'
+			+ 'while (x > 0) {'
 			+ 'y = y + 4;'
 			+ 'x = x - 1;'
-			+ '}\n'
+			+ '}'
 			+ '❤️';
 		const i = new Interpreter(source);
 		i.interpret();

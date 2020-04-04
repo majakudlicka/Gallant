@@ -25,6 +25,13 @@ export class Repl {
 		scanner.prompt();
 
 		scanner.on('line', line => {
+			// Detectind double ENTER
+			if (line.length === 0) {
+				this.execute(input);
+				input = ''
+			}
+			console.log('line is ', line);
+			console.log('line.length ', line.length);
 			line = line.trim();
 			prev = line;
 
@@ -33,10 +40,7 @@ export class Repl {
 			try {
 				console.log('input in repl ', input);
 				if (![';', '{', '}'].includes(input.charAt(input.length - 1))) {
-					console.log('last char ', input.charAt(input.length - 1));
-					const i = new Interpreter(input);
-					const output = i.interpret();
-					if (output) console.log(output);
+					this.execute(input)
 					input = '';
 				}
 			} catch (e) {
@@ -52,6 +56,12 @@ export class Repl {
 		scanner.on('close', () => {
 			console.log('Thanks for playing around!');
 		});
+	}
+
+	execute(input) {
+		const i = new Interpreter(input);
+		const output = i.interpret();
+		if (output !== undefined || output !== null) console.log(output);
 	}
 
 }
