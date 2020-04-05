@@ -104,10 +104,12 @@ export class Parser {
 				lastparsedNode = node;
 			}
 		}
-		// TODO Change to 1 ?
-		if (blocks.length > 0) {
+
+		if (blocks.length > 1) {
 			const { line } = this.currentToken;
 			return new BlockNode(blocks, line, terminatedPolitely);
+		} else if (blocks.length === 1) {
+			return blocks[0];
 		}
 		// If there was only one block, just return the current node
 		return node;

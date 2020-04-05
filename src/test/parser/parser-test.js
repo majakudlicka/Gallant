@@ -52,7 +52,7 @@ describe('Parser', () => {
 	});
 
 	it('should parse a variable declaration without any keyword', () => {
-		const parser = new Parser('a = 5');
+		const parser = new Parser('a = 5;');
 
 		const node = parser.parse();
 
@@ -307,8 +307,8 @@ describe('Parser', () => {
 		const { condition, trueExpr, falseExpr } = node;
 		assert.equal(true, condition.isOperatorNode());
 
-		assert.equal(true, trueExpr.isBlockNode());
-		assert.equal(1, trueExpr.blocks.length);
+		assert.equal(true, trueExpr.isAssignmentNode());
+		assert.equal(true, trueExpr.value.isOperatorNode());
 
 		assert.equal(true, falseExpr.isBlockNode());
 		assert.equal(2, falseExpr.blocks.length);

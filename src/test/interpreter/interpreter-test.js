@@ -56,7 +56,7 @@ describe('Interpreter', () => {
 	// });
 
 	it('Should interpret a variable assignment using greeting (word) and add variable to current scope', () => {
-		const source = 'aloha a = 10';
+		const source = 'aloha a = 10;';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(10, output);

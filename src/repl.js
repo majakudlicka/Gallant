@@ -27,18 +27,15 @@ export class Repl {
 		scanner.on('line', line => {
 			// Detectind double ENTER
 			if (line.length === 0) {
-				this.execute(input);
-				input = ''
+				return this.execute(input);
+				input = '';
 			}
-			console.log('line is ', line);
-			console.log('line.length ', line.length);
 			line = line.trim();
 			prev = line;
 
 			input += line;
 
 			try {
-				console.log('input in repl ', input);
 				if (![';', '{', '}'].includes(input.charAt(input.length - 1))) {
 					this.execute(input)
 					input = '';
@@ -61,7 +58,7 @@ export class Repl {
 	execute(input) {
 		const i = new Interpreter(input);
 		const output = i.interpret();
-		if (output !== undefined || output !== null) console.log(output);
+		if (output !== undefined || output !== null) console.log('Executed output : ', output);
 	}
 
 }
