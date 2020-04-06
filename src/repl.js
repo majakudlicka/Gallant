@@ -1,7 +1,6 @@
-import * as fs from 'fs';
-import * as process from 'process';
+import process from 'process';
 // TODO Change to lineByLine ?
-import * as readline from 'readline';
+import readline from 'readline';
 import { Interpreter } from './Interpreter/Interpreter';
 
 export class Repl {
@@ -11,8 +10,6 @@ export class Repl {
 		console.log('Start typing your code');
 		console.log('CTRL + C to quit');
 
-		let prev = ' ';
-
 		let input = '';
 
 		const scanner = readline.createInterface({
@@ -20,34 +17,22 @@ export class Repl {
 			output: process.stdout
 		});
 
+		// TODO CourtesyScript ?
 		scanner.setPrompt('politeScript> ');
-
 		scanner.prompt();
 
-		scanner.on('line', line => {
-			// Detectind double ENTER
-			if (line.length === 0) {
-				return this.execute(input);
-				input = '';
-			}
-			line = line.trim();
-			prev = line;
-
+		scanner.on('line', l => {
+			const line = l.trim();
 			input += line;
 
-			try {
-				if (![';', '{', '}'].includes(input.charAt(input.length - 1))) {
-					this.execute(input)
-					input = '';
-				}
-			} catch (e) {
-				console.log(`error: ${e.message}`);
-
+			// Detectind double ENTER
+			if (line.length === 0) {
+				this.execute(input, scanner);
 				input = '';
-				scanner.setPrompt('politeScript> ');
+			} else if (![';', '{', '}'].includes(input.charAt(input.length - 1))) {
+				this.execute(input, scanner);
+				input = '';
 			}
-
-			scanner.prompt();
 		});
 
 		scanner.on('close', () => {
@@ -55,10 +40,16 @@ export class Repl {
 		});
 	}
 
-	execute(input) {
-		const i = new Interpreter(input);
-		const output = i.interpret();
-		if (output !== undefined || output !== null) console.log('Executed output : ', output);
+	execute(input, scanner) {
+		try {
+			const i = new Interpreter(input);
+			const output = i.interpret();
+			if (output !== undefined || output !== null) console.log('Executed output : ', output);
+		} catch (err) {
+			console.log(err);
+			scanner.setPrompt('politeScript> ');
+		}
+		scanner.prompt();
 	}
 
 }

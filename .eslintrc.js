@@ -15,6 +15,7 @@ module.exports = {
 		"max-len": [1, 120], // extended
 		"no-plusplus": 0, // disabled,
 		"no-eval": 0,
+		"no-console": 0,
 		"import/prefer-default-export": 0
 	},
 	"env": {

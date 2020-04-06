@@ -437,3 +437,4 @@ export class Parser {
 // TODO Add program examples
 // TODO Load file functionality ? https://www.smashingmagazine.com/2017/03/interactive-command-line-application-node-js/
 // TODO Remove newlines completely?
+// TODO Format errors like thia: Error: [INTERPRETER]: Syntax error around line 1: [INTERPRETER]: Syntax error around line 1: Cannot read property 'isConstantNode' of undefined

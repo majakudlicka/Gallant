@@ -42,19 +42,6 @@ describe('Interpreter', () => {
 		assert.equal(null, error);
 	});
 
-	// it('Should not error when all is given in one string', () => {
-	// 	const source = 'hello x = 4;hello y = 5;giveMax(a,b) {if (a > b) a else b;}please giveMax x and y;thanks';
-	// 	const i = new Interpreter(source);
-	// 	let error = null;
-	// 	try {
-	// 		const output = i.interpret();
-	// 		console.log('output ', output);
-	// 	} catch (err) {
-	// 		error = err;
-	// 	}
-	// 	assert.equal(null, error);
-	// });
-
 	it('Should interpret a variable assignment using greeting (word) and add variable to current scope', () => {
 		const source = 'aloha a = 10;';
 		const i = new Interpreter(source);
@@ -280,7 +267,18 @@ describe('Interpreter', () => {
 		assert.equal(5, output);
 	});
 
-	// TODO Can I finish with } or ; for repl ?
+	it('Should not error if newline chars are omitted', () => {
+		const source = 'hello x = 4;hello y = 5;giveMax(a,b) {if (a > b) a else b;}please giveMax x and y;🤗';
+		const i = new Interpreter(source);
+		let error = null;
+		try {
+			i.interpret();
+		} catch (err) {
+			error = err;
+		}
+		assert.equal(null, error);
+	});
+
 	it('Should interpret a while loop', () => {
 		const source = 'hola x = 5;'
 			+ 'hola y = 0;'

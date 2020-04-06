@@ -5,9 +5,7 @@
   "main": "build/lexer/lexer.js",
   "dependencies": {
     "babel-preset-es2015": "^6.1.18",
-    "commander": "5.0.0",
-    "emoji-regex": "8.0.0",
-    "enquirer": "2.3.4"
+    "emoji-regex": "8.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.2.0",
@@ -19,7 +17,8 @@
   "scripts": {
     "build": "babel src --source-maps --out-dir build",
     "test": "babel src --source-maps --out-dir build && mocha --recursive build/test/",
-    "repl": "babel src --source-maps --out-dir build && node build/run.js"
+    "repl": "babel src --source-maps --out-dir build && node build/run-repl.js",
+    "load": "babel src --source-maps --out-dir build && node build/load-file.js"
   },
   "repository": {
     "type": "git",
