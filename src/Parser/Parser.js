@@ -432,9 +432,8 @@ export class Parser {
 // TODO Consistent capitalisation of files
 // TODO Go through all files 2-3 last times and polish them
 // TODO Make readME
-// TODO Introduce some sort of repl - with easy emoji selector ?
+// TODO Introduce some sort of repl - with easy emoji selector ? https://thisdavej.com/add-emoji-to-your-node-projects-with-node-emoji/
 // TODO Can if-else hanlde curly braces? Add more test cases to parser / interpreter
 // TODO Add program examples
-// TODO Load file functionality ? https://www.smashingmagazine.com/2017/03/interactive-command-line-application-node-js/
 // TODO Remove newlines completely?
-// TODO Format errors like thia: Error: [INTERPRETER]: Syntax error around line 1: [INTERPRETER]: Syntax error around line 1: Cannot read property 'isConstantNode' of undefined
+// TODO Will this be fixed ? https://github.com/SBoudrias/Inquirer.js/issues/646

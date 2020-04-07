@@ -18,7 +18,11 @@ export class Interpreter {
 	}
 
 	throwIntrepreterError(line, message = 'Unknown error') {
-		throw new Error(`[INTERPRETER]: Syntax error around line ${line}: ${message}`);
+		if (message.includes('[INTERPRETER]')) throw new Error(message);
+		let msg;
+		if (line === 'last') msg = `[INTERPRETER]: Syntax error around ${line} line : ${message}`;
+		else msg = `[INTERPRETER]: Syntax error around line ${line}: ${message}`;
+		throw new Error(msg);
 	}
 
 	interpretNode(node) {
