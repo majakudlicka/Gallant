@@ -1,11 +1,19 @@
 import process from 'process';
 import readline from 'readline';
 import emoji from 'node-emoji';
+import clipboardy from 'clipboardy';
 import { Interpreter } from './Interpreter/Interpreter';
 
 const { log } = console;
 
 export class Repl {
+
+	addToClipboard(emojiText) {
+		const [emojiChar, emojiName] = emojiText.split(' ');
+		clipboardy.writeSync(emojiChar);
+		const emojiNameText = emojiName ? ` (${emojiName})` : '';
+		log(`${emojiChar}${emojiNameText} copied to clipboard`);
+	}
 
 	run() {
 		log('Welcome PoliteScript');
@@ -28,33 +36,36 @@ export class Repl {
 			input += line;
 
 
-
 			input = emoji.emojify(input);
 
 			// Detecting double ENTER
 			if (line.length === 0) {
 				this.execute(input, scanner);
 				input = '';
+				// Emoji picker
 			} else if (line.startsWith(':emoji')) {
-				const emojiSearch = input.substring(7);
-				console.log('emojiSearch ', emojiSearch);
-				const result = emoji.search(input.substring(7));
-				console.log('result ', result);
+				const emojiSearch = line.substring(7);
+				const result = emoji.search(emojiSearch);
+
 				const choices = [];
 				if (result.length > 0) {
 					result.forEach((item, index) => {
-						choices.push(`${index+1} ${item.emoji}`);
+						choices.push(`${index + 1} ${item.emoji}`);
 					});
 				}
-				console.log(`Emojis starting with "${emojiSearch}": ${choices}`);
-				scanner.question('Select the number of the emoji you want to pick (1,2,3...)', (answer => {
-					console.log('Selected: ', result[answer-1].emoji);
-				}))
-			}
-			else if (![';', '{', '}'].includes(input.charAt(input.length - 1))) {
+				log(`Emojis starting with "${emojiSearch}": ${choices.join(' ')}`);
+				scanner.question('Type the number of the emoji you want to pick: ', (answer => {
+					const selected = result[answer - 1].emoji;
+					this.addToClipboard(selected);
+					input = input.substring(0, input.length - line.length);
+					log('Copied to clipboard: ', selected);
+					scanner.prompt();
+				}));
+			} else if (![';', '{', '}'].includes(input.charAt(input.length - 1))) {
 				this.execute(input, scanner);
 				input = '';
 			}
+			scanner.prompt();
 		});
 
 		scanner.on('close', () => {
@@ -64,7 +75,7 @@ export class Repl {
 
 	execute(input, scanner) {
 		try {
-			log(`Processing input: ${input.length > 15 ? `${input.substring(0, 15)}...` : input}`);
+			log(`Processing input: ${input.length > 30 ? `${input.substring(0, 15)}...` : input}`);
 			const i = new Interpreter(input);
 			const output = i.interpret();
 			if (output !== undefined && output !== null) log('Executed output : ', output);
