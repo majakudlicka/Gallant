@@ -8,17 +8,10 @@ const { log } = console;
 
 export class Repl {
 
-	addToClipboard(emojiText) {
-		const [emojiChar, emojiName] = emojiText.split(' ');
-		clipboardy.writeSync(emojiChar);
-		const emojiNameText = emojiName ? ` (${emojiName})` : '';
-		log(`${emojiChar}${emojiNameText} copied to clipboard`);
-	}
-
 	run() {
-		log('Welcome PoliteScript');
-		log('Start typing your code');
-		log('CTRL + C to quit');
+		log('✨Welcome to Gallant✨');
+		log('Start typing your code ⌨️');
+		log('CTRL + C to quit 🛑');
 
 		let input = '';
 
@@ -27,8 +20,7 @@ export class Repl {
 			output: process.stdout
 		});
 
-		// TODO CourtesyScript ?
-		scanner.setPrompt('politeScript> ');
+		scanner.setPrompt('Gallant> ');
 		scanner.prompt();
 
 		scanner.on('line', l => {
@@ -43,6 +35,7 @@ export class Repl {
 				this.execute(input, scanner);
 				input = '';
 				// Emoji picker
+				// Ideally use inquirer module here but needs https://github.com/SBoudrias/Inquirer.js/issues/646 fixed
 			} else if (line.startsWith(':emoji')) {
 				const emojiSearch = line.substring(7);
 				const result = emoji.search(emojiSearch);
@@ -81,9 +74,16 @@ export class Repl {
 			if (output !== undefined && output !== null) log('Executed output : ', output);
 		} catch (err) {
 			log(err);
-			scanner.setPrompt('politeScript> ');
+			scanner.setPrompt('Gallant> ');
 		}
 		scanner.prompt();
+	}
+
+	addToClipboard(emojiText) {
+		const [emojiChar, emojiName] = emojiText.split(' ');
+		clipboardy.writeSync(emojiChar);
+		const emojiNameText = emojiName ? ` (${emojiName})` : '';
+		log(`${emojiChar}${emojiNameText} copied to clipboard`);
 	}
 
 }

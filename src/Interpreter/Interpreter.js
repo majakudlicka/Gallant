@@ -1,6 +1,7 @@
 import { Parser } from '../Parser/Parser';
 import { SymbolTable } from '../Parser/semanticAnalysis/symbolTable';
 import { TokenTypes } from '../Lexer/tokenStructure';
+import jokes from '../../jokes';
 
 export class Interpreter {
 	constructor(input) {
@@ -20,7 +21,7 @@ export class Interpreter {
 	throwIntrepreterError(line, message = 'Unknown error') {
 		if (message.includes('[INTERPRETER]')) throw new Error(message);
 		let msg;
-		if (line === 'last') msg = `[INTERPRETER]: Syntax error around ${line} line : ${message}`;
+		if (line === 'last') msg = `[INTERPRETER]: Syntax error around ${line} line: ${message}`;
 		else msg = `[INTERPRETER]: Syntax error around line ${line}: ${message}`;
 		throw new Error(msg);
 	}
@@ -210,8 +211,8 @@ export class Interpreter {
 
 	interpretConstantNode(node) {
 		if (node.type === TokenTypes.CommonEmoji) {
-			// TODO This should be a random message
-			console.log(`That is how I felt writing this code... ${node.value}`);
+			const randomJokeNumber = Math.floor(Math.random() * jokes.length);
+			console.log(`${jokes[randomJokeNumber]} ${node.value}`);
 		} else {
 			return eval(node.value);
 		}

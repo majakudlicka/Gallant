@@ -74,7 +74,6 @@ export const TokenStructure = {
 	Greeting: {
 		name: 'greeting',
 		values: {
-			Greeting: 'greeting',
 			Hola: 'hola',
 			Hello: 'hello',
 			Hi: 'hi',
