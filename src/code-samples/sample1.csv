@@ -1,0 +1,14 @@
+👋 arr = [1, 2, 3];
+👋 i = 0;
+aloha j = 10;
+👋 myMap = {a = 1, b = 2};
+myMap@a = 5;
+myMap@a;
+while (i < arr@size) {
+arr@i = arr@i * 3;
+i = i + 1;
+j = j + i;
+}
+😉
+j;
+❤️

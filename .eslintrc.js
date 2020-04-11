@@ -13,10 +13,11 @@ module.exports = {
 		"prefer-destructuring": 1,
 		"prefer-object-spread": 0,
 		"max-len": [1, 120], // extended
-		"no-plusplus": 0, // disabled,
+		"no-plusplus": 0,
 		"no-eval": 0,
 		"no-console": 0,
-		"import/prefer-default-export": 0
+		"import/prefer-default-export": 0,
+		"class-methods-use-this": 0
 	},
 	"env": {
 		"node": true,

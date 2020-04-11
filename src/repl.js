@@ -71,12 +71,12 @@ export class Repl {
 			log(`Processing input: ${input.length > 30 ? `${input.substring(0, 15)}...` : input}`);
 			const i = new Interpreter(input);
 			const output = i.interpret();
-			if (output !== undefined && output !== null) log('Executed output : ', output);
+			if (output !== undefined && output !== null) log('Output : ', output);
 		} catch (err) {
 			log(err);
-			scanner.setPrompt('Gallant> ');
+			if (scanner) scanner.setPrompt('Gallant> ');
 		}
-		scanner.prompt();
+		if (scanner) scanner.prompt();
 	}
 
 	addToClipboard(emojiText) {

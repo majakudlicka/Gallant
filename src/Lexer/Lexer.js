@@ -57,18 +57,6 @@ export class Lexer {
 
 	}
 
-	// tokenize() {
-	// 	let token = this.nextToken();
-	// 	const tokens = [];
-	//
-	// 	while (token.type !== TokenTypes.EndOfInput) {
-	// 		tokens.push(token);
-	// 		token = this.nextToken();
-	// 	}
-	//
-	// 	return tokens;
-	// }
-
 	throwLexerError(char) {
 		throw new Error(`[LEXER]: Unrecognized character ${char} at line ${this.line}`);
 	}

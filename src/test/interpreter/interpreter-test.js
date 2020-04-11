@@ -79,7 +79,7 @@ describe('Interpreter', () => {
 
 	it('Should interpret a variable deassignment using farewell (emoji) and remove it from the current scope', () => {
 		const source = '👋 a = 10\n'
-			+ 'bye a;'
+			+ '✋ a;'
 			+ '🥰';
 		const i = new Interpreter(source);
 		i.interpret();

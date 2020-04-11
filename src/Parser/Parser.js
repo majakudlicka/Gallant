@@ -1,4 +1,4 @@
-import { TokenTypes, TokenValues, TokenStructure } from '../Lexer/tokenStructure';
+import { TokenTypes, TokenValues } from '../Lexer/tokenStructure';
 import { Lexer } from '../Lexer/Lexer';
 import { ConstantNode } from './astNodes/ConstantNode';
 import { OperatorNode } from './astNodes/OperatorNode';
@@ -69,7 +69,6 @@ export class Parser {
 	}
 
 	isEndOfBlock() {
-		// return [TokenValues.Newline, TokenValues.SemiColon, TokenValues.RightBrace].includes(this.currentToken.value);
 		return this.currentToken.value === TokenValues.Newline || this.currentToken.value === ';';
 	}
 
@@ -306,11 +305,9 @@ export class Parser {
 			return node;
 		}
 
-		// TODO: parseEnd ?
-		// return this.parseEnd();
 	}
 
-	// TODO why are we passing node here
+	// TODO Can this be done without passing node
 	parseAccessors(node) {
 		if (this.currentToken.value === TokenValues.At) {
 			this.next();
@@ -340,15 +337,6 @@ export class Parser {
 		}
 		return this.parseWhileLoop();
 	}
-
-	// parseEnd() {
-	// 	if (this.currentToken.value === '') {
-	// 		// syntax error or unexpected end of expression
-	// 		throw new Error('Unexpected end of expression');
-	// 	} else {
-	// 		throw new Error('Value expected');
-	// 	}
-	// }
 
 	parseString() {
 		if (this.currentToken.type === TokenTypes.String) {
@@ -426,12 +414,9 @@ export class Parser {
 
 
 // TODO eslint errors
-// TODO Change order of functions to make some logical sense
-// TODO Test newlines and semicolons in real life && make use of them more consistent in tests
 // TODO Comments
 // TODO Consistent capitalisation of files
 // TODO Go through all files 2-3 last times and polish them
-// TODO Make readME
-// TODO Can if-else hanlde curly braces? Add more test cases to parser / interpreter
+// TODO Test readME
 // TODO Add program examples
 // TODO Remove newlines completely?
