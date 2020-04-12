@@ -84,7 +84,6 @@ export const TokenStructure = {
 	Gratitude: {
 		name: 'gratitude',
 		values: {
-			// TODO needs look-forward
 			ThankYou: 'thank you',
 			Thanks: 'thanks',
 			Cheers: 'cheers',

@@ -156,12 +156,12 @@ describe('Interpreter', () => {
 	it('Should parse a multiline if-else statement and execute if branch', () => {
 		const source = '👋 x = 8;'
 			+ '👋 y = 8;'
-			+ 'if (x > 0) {\n'
+			+ 'if (x > 0) {'
 			+ 'x = x + 1;'
-			+ '} else {\n'
+			+ '} else {'
 			+ 'x = x - 1;'
 			+ 'y = y * 5;'
-			+ '}\n'
+			+ '}'
 			+ 'cheers';
 
 		const i = new Interpreter(source);

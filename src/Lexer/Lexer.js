@@ -1,5 +1,5 @@
 import { Token } from './token';
-import { TokenTypes, TokenValues, TokenStructure } from './tokenStructure';
+import { TokenTypes as TT, TokenValues as TV, TokenStructure as TS } from './tokenStructure';
 import { CharUtils } from './charUtils';
 import { FSM } from './FSM';
 
@@ -15,7 +15,7 @@ export class Lexer {
 	nextToken() {
 
 		if (this.position >= this.input.length) {
-			return new Token(TokenTypes.EndOfInput, TokenValues.EndOfInput, this.line);
+			return new Token(TT.EndOfInput, TV.EndOfInput, this.line);
 		}
 
 		// We skip all the whitespaces and new lines in the input.
@@ -71,7 +71,7 @@ export class Lexer {
 		const { position, line } = this;
 		const character = this.input.charAt(position);
 		this.position += 1;
-		return new Token(TokenTypes.Delimiter, character, line);
+		return new Token(TT.Delimiter, character, line);
 	}
 
 
@@ -106,18 +106,18 @@ export class Lexer {
 			this.position += 1;
 		}
 
-		let tokenType = TokenTypes.Comparison;
+		let tokenType = TT.Comparison;
 		let tokenValue;
 		switch (character) {
 			case '>':
-				tokenValue = isLookaheadEqualSymbol ? TokenValues.GreaterOrEqual : TokenValues.Greater;
+				tokenValue = isLookaheadEqualSymbol ? TV.GreaterOrEqual : TV.Greater;
 				break;
 			case '<':
-				tokenValue = isLookaheadEqualSymbol ? TokenValues.LessOrEqual : TokenValues.Less;
+				tokenValue = isLookaheadEqualSymbol ? TV.LessOrEqual : TV.Less;
 				break;
 			case '=':
-				tokenValue = isLookaheadEqualSymbol ? TokenValues.Equal : TokenValues.Assignment;
-				tokenType = isLookaheadEqualSymbol ? TokenTypes.Comparison : TokenTypes.Assignment;
+				tokenValue = isLookaheadEqualSymbol ? TV.Equal : TV.Assignment;
+				tokenType = isLookaheadEqualSymbol ? TT.Comparison : TT.Assignment;
 				break;
 			default:
 				this.throwLexerError(character);
@@ -140,17 +140,17 @@ export class Lexer {
 		switch (character) {
 			case '!':
 				return isLookaheadEqualSymbol && lookahead === '='
-					? new Token(TokenTypes.Logical, TokenValues.NotEqual, line)
-					: new Token(TokenTypes.Not, '!', line);
+					? new Token(TT.Logical, TV.NotEqual, line)
+					: new Token(TT.Not, '!', line);
 
 			case '&':
 				return isLookaheadEqualSymbol && lookahead === '&'
-					? new Token(TokenTypes.Logical, TokenValues.And, line)
+					? new Token(TT.Logical, TV.And, line)
 					: new Error(`Unrecognized character ${character} at line ${this.line}.`);
 
 			case '|':
 				return isLookaheadEqualSymbol
-					? new Token(TokenTypes.Logical, TokenValues.Or, line)
+					? new Token(TT.Logical, TV.Or, line)
 					: new Error(`Unrecognized character ${character} at line ${this.line}.`);
 
 
@@ -164,7 +164,7 @@ export class Lexer {
 		const { position, line } = this;
 		const character = this.input.charAt(position);
 		this.position += 1;
-		return new Token(TokenTypes.Arithmetic, character, line);
+		return new Token(TT.Arithmetic, character, line);
 	}
 
 	recognizeNewLine() {
@@ -172,13 +172,13 @@ export class Lexer {
 		const character = this.input.charAt(position);
 		this.position += 1;
 		this.line += 1;
-		return new Token(TokenTypes.Delimiter, character, line);
+		return new Token(TT.Delimiter, character, line);
 	}
 
 	recognizeDot() {
 		const { line } = this;
 		this.position += 1;
-		return new Token(TokenTypes.Accessor, TokenValues.Dot, line);
+		return new Token(TT.Accessor, TV.Dot, line);
 	}
 
 	recognizeIdentifier() {
@@ -198,26 +198,29 @@ export class Lexer {
 		}
 
 		this.position += identifier.length;
+		let tokenType;
 
-		// TODO Ugh, ugly!
-		if (Object.values(TokenStructure.Keyword.values).includes(identifier)) {
-			return new Token(TokenTypes.Keyword, identifier, line);
-		} if (Object.values(TokenStructure.Greeting.values).includes(identifier)) {
-			return new Token(TokenTypes.Greeting, identifier, line);
-		} if (Object.values(TokenStructure.FunctionInvocation.values).includes(identifier)) {
-			return new Token(TokenTypes.FunctionInvocation, identifier, line);
-		} if (Object.values(TokenStructure.Gratitude.values).includes(identifier)) {
-			return new Token(TokenTypes.Gratitude, identifier, line);
-		} if (Object.values(TokenStructure.Farewell.values).includes(identifier)) {
-			return new Token(TokenTypes.Farewell, identifier, line);
+		if (Object.values(TS.Keyword.values).includes(identifier)) {
+			tokenType = TT.Keyword;
+		} if (Object.values(TS.Greeting.values).includes(identifier)) {
+			tokenType = TT.Greeting;
+		} if (Object.values(TS.FunctionInvocation.values).includes(identifier)) {
+			tokenType = TT.FunctionInvocation;
+		} if (Object.values(TS.Gratitude.values).includes(identifier)) {
+			tokenType = TT.Gratitude;
+		} if (Object.values(TS.Farewell.values).includes(identifier)) {
+			tokenType = TT.Farewell;
 		}
+
+		if (tokenType) return new Token(tokenType, identifier, line);
+
 		// Special case for special "thank you" token including space inbetween
 		const lookahead = position + 4 >= this.input.length ? this.input.substring(position + 1, position + 5) : null;
 		if (identifier === 'thank' && lookahead === 'you') {
-			return new Token(TokenTypes.Gratitude, 'thank you', line);
+			return new Token(TT.Gratitude, 'thank you', line);
 		}
 
-		return new Token(TokenTypes.Identifier, identifier, line);
+		return new Token(TT.Identifier, identifier, line);
 	}
 
 	recognizeNumberOrDot() {
@@ -230,12 +233,12 @@ export class Lexer {
 			this.position += number.length;
 			let tokenType;
 			if (state === 2) {
-				tokenType = TokenTypes.Integer;
+				tokenType = TT.Integer;
 			} else if (state === 4) {
-				tokenType = TokenTypes.Decimal;
+				tokenType = TT.Decimal;
 			}
 			return new Token(tokenType, number, line);
-		} if (number === TokenValues.Dot && state === 3) {
+		} if (number === TV.Dot && state === 3) {
         	return this.recognizeDot();
 		}
 		this.throwLexerError(number);
@@ -260,7 +263,7 @@ export class Lexer {
 
 		this.position += string.length;
 
-		return new Token(TokenTypes.String, string, line);
+		return new Token(TT.String, string, line);
 	}
 
 	recognizeEmoji() {
@@ -284,21 +287,21 @@ export class Lexer {
 
 		this.position += emoji.length;
 		if (CharUtils.isWaveHandEmoji(emoji)) {
-			return new Token(TokenTypes.Greeting, TokenValues.WaveEmoji, line);
+			return new Token(TT.Greeting, TV.WaveEmoji, line);
 		} if (CharUtils.isPleaseEmoji(emoji)) {
-			return new Token(TokenTypes.FunctionInvocation, TokenValues.PleaseEmoji, line);
+			return new Token(TT.FunctionInvocation, TV.PleaseEmoji, line);
 		} if (CharUtils.isHeartFaceEmoji(emoji)) {
-			return new Token(TokenTypes.Gratitude, TokenValues.HeartFaceEmoji, line);
+			return new Token(TT.Gratitude, TV.HeartFaceEmoji, line);
 		} if (CharUtils.isHeartEmoji(emoji)) {
-			return new Token(TokenTypes.Gratitude, TokenValues.HeartEmoji, line);
+			return new Token(TT.Gratitude, TV.HeartEmoji, line);
 		} if (CharUtils.isHugEmoji(emoji)) {
-			return new Token(TokenTypes.Gratitude, TokenValues.HugEmoji, line);
+			return new Token(TT.Gratitude, TV.HugEmoji, line);
 		} if (CharUtils.isByeEmoji(emoji)) {
-			return new Token(TokenTypes.Farewell, TokenValues.ByeEmoji, line);
+			return new Token(TT.Farewell, TV.ByeEmoji, line);
 		} if (CharUtils.isKissEmoji(emoji)) {
-			return new Token(TokenTypes.Farewell, TokenValues.KissEmoji, line);
-		} else if (CharUtils.isCommonEmoji(emoji)) {
-			return new Token(TokenTypes.CommonEmoji, emoji, line);
+			return new Token(TT.Farewell, TV.KissEmoji, line);
+		} if (CharUtils.isCommonEmoji(emoji)) {
+			return new Token(TT.CommonEmoji, emoji, line);
 		}
 
 		this.throwLexerError(char);

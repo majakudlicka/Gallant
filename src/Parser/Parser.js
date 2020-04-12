@@ -72,9 +72,10 @@ export class Parser {
 		return this.currentToken.value === TokenValues.Newline || this.currentToken.value === ';';
 	}
 
-	// TODO ConditionalNode ?
 	isTerminatedWithCurlyBrace(node) {
-		return node && (node.isFunctionDefinitionNode() || node.isWhileLoopNode());
+		return node && (node.isFunctionDefinitionNode()
+			|| node.isWhileLoopNode()
+			|| (node.isConditionalNode() && node.multiline));
 	}
 
 	parseBlock() {
@@ -107,7 +108,7 @@ export class Parser {
 		if (blocks.length > 1) {
 			const { line } = this.currentToken;
 			return new BlockNode(blocks, line, terminatedPolitely);
-		} else if (blocks.length === 1) {
+		} if (blocks.length === 1) {
 			return blocks[0];
 		}
 		// If there was only one block, just return the current node
@@ -228,7 +229,7 @@ export class Parser {
 				falseExpr = this.parseBlock();
 				if (multiline) this.expect(TokenValues.RightBrace);
 			}
-			node = new ConditionalNode(condition, trueExpr, falseExpr, line);
+			node = new ConditionalNode(condition, trueExpr, falseExpr, multiline, line);
 		}
 
 		return node;
@@ -282,9 +283,9 @@ export class Parser {
 				const node = new DeAssignmentNode(value, line);
 				this.next();
 				return node;
-			} else {
-				this.throwParserError('Farewell tokens can only be used with identifiers');
 			}
+			this.throwParserError('Farewell tokens can only be used with identifiers');
+
 		}
 		return this.parseParentheses();
 	}
@@ -417,6 +418,5 @@ export class Parser {
 // TODO Comments
 // TODO Consistent capitalisation of files
 // TODO Go through all files 2-3 last times and polish them
-// TODO Test readME
 // TODO Add program examples
 // TODO Remove newlines completely?
