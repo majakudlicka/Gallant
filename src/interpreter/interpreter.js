@@ -11,7 +11,7 @@ export class Interpreter {
 	}
 
 	interpret() {
-		if (!this.ast) return;
+		if (!this.ast) return null;
 		if (this.ast.isBlockNode() && !this.ast.terminatedPolitely) {
 			return this.throwIntrepreterError('last', 'Code blocks need to finish with an expression of gratitude');
 		}
@@ -212,10 +212,9 @@ export class Interpreter {
 	interpretConstantNode(node) {
 		if (node.type === TokenTypes.CommonEmoji) {
 			const randomJokeNumber = Math.floor(Math.random() * jokes.length);
-			console.log(`${jokes[randomJokeNumber]} ${node.value}`);
-		} else {
-			return eval(node.value);
+			return console.log(`${jokes[randomJokeNumber]} ${node.value}`);
 		}
+		return eval(node.value);
 	}
 
 	interpretFunctionCall(node) {

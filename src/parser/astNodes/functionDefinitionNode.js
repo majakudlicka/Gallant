@@ -1,4 +1,4 @@
-import { AstNode } from './AstNode';
+import { AstNode } from './astNode';
 
 export class FunctionDefinitionNode extends AstNode {
 	constructor(name, params, body, line) {

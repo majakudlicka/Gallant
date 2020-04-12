@@ -97,7 +97,10 @@ describe('Interpreter', () => {
 			error = err;
 		}
 		assert.equal(true, error instanceof Error);
-		assert.equal('[INTERPRETER]: Syntax error around line 1: Variables must be greeted before they can used', error.message);
+		assert.equal(
+			'[INTERPRETER]: Syntax error around line 1: Variables must be greeted before they can used',
+			error.message
+		);
 		assert.equal(false, i.symbolTable.hasSymbol('a'));
 
 	});
@@ -113,7 +116,10 @@ describe('Interpreter', () => {
 			error = err;
 		}
 		assert.equal(true, error instanceof Error);
-		assert.equal('[INTERPRETER]: Syntax error around last line: Code blocks need to finish with an expression of gratitude', error.message);
+		assert.equal(
+			'[INTERPRETER]: Syntax error around last line: Code blocks need to finish with an expression of gratitude',
+			error.message
+		);
 		assert.equal(false, i.symbolTable.hasSymbol('a'));
 		assert.equal(false, i.symbolTable.hasSymbol('b'));
 	});

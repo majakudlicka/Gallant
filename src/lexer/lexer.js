@@ -52,7 +52,7 @@ export class Lexer {
 			return this.recognizeEmoji(character);
 		}
 
-		this.throwLexerError(character);
+		return this.throwLexerError(character);
 
 
 	}
@@ -90,7 +90,7 @@ export class Lexer {
 			return this.recognizeBooleanOperator();
 		}
 
-		this.throwLexerError(character);
+		return this.throwLexerError(character);
 
 	}
 
@@ -120,7 +120,7 @@ export class Lexer {
 				tokenType = isLookaheadEqualSymbol ? TT.Comparison : TT.Assignment;
 				break;
 			default:
-				this.throwLexerError(character);
+				return this.throwLexerError(character);
 		}
 		return new Token(tokenType, tokenValue, line);
 	}
@@ -155,7 +155,7 @@ export class Lexer {
 
 
 			default:
-				this.throwLexerError(character);
+				return this.throwLexerError(character);
 		}
 
 	}
@@ -213,8 +213,8 @@ export class Lexer {
 			tokenType = TT.Greeting;
 		}
 
-		if (Object.values(TS.FunctionInvocation.values).includes(identifier)) {
-			tokenType = TT.FunctionInvocation;
+		if (Object.values(TS.Plead.values).includes(identifier)) {
+			tokenType = TT.Plead;
 		}
 
 		if (Object.values(TS.Gratitude.values).includes(identifier)) {
@@ -252,9 +252,9 @@ export class Lexer {
 			}
 			return new Token(tokenType, number, line);
 		} if (number === TV.Dot && state === 3) {
-        	return this.recognizeDot();
+			return this.recognizeDot();
 		}
-		this.throwLexerError(number);
+		return this.throwLexerError(number);
 	}
 
 	recognizeString() {
@@ -302,7 +302,7 @@ export class Lexer {
 		if (CharUtils.isWaveHandEmoji(emoji)) {
 			return new Token(TT.Greeting, TV.WaveEmoji, line);
 		} if (CharUtils.isPleaseEmoji(emoji)) {
-			return new Token(TT.FunctionInvocation, TV.PleaseEmoji, line);
+			return new Token(TT.Plead, TV.PleaseEmoji, line);
 		} if (CharUtils.isHeartFaceEmoji(emoji)) {
 			return new Token(TT.Gratitude, TV.HeartFaceEmoji, line);
 		} if (CharUtils.isHeartEmoji(emoji)) {
@@ -317,7 +317,7 @@ export class Lexer {
 			return new Token(TT.CommonEmoji, emoji, line);
 		}
 
-		this.throwLexerError(char);
+		return this.throwLexerError(char);
 	}
 
 	// Use Finite State Machine to recognize different types of numbers

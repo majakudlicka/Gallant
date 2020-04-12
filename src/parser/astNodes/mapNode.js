@@ -1,4 +1,4 @@
-import { AstNode } from './AstNode';
+import { AstNode } from './astNode';
 
 export class MapNode extends AstNode {
 	constructor(keyValuePairs, line) {

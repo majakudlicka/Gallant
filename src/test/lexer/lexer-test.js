@@ -172,7 +172,7 @@ describe('Lexer', () => {
 		const token = lexer.nextToken();
 		console.log('token is ', token);
 
-		assert.equal(token.type, TT.FunctionInvocation);
+		assert.equal(token.type, TT.Plead);
 		assert.equal(token.value, TV.Please);
 	});
 
@@ -227,7 +227,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TT.FunctionInvocation);
+		assert.equal(token.type, TT.Plead);
 		assert.equal(token.value, TV.PleaseEmoji);
 	});
 

@@ -302,9 +302,8 @@ export class Parser {
 
 			node = new ParenthesisNode(node, line);
 			node = this.parseAccessors(node);
-			return node;
 		}
-
+		return node;
 	}
 
 	// TODO Can this be done without passing node
@@ -321,7 +320,7 @@ export class Parser {
 
 	parseFunctionCall() {
 		const { line, type } = this.currentToken;
-		if (type === TT.FunctionInvocation) {
+		if (type === TT.Plead) {
 			this.next();
 			const node = this.parseAssignment();
 			const params = [];

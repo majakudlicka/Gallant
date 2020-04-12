@@ -2,7 +2,7 @@ import process from 'process';
 import readline from 'readline';
 import emoji from 'node-emoji';
 import clipboardy from 'clipboardy';
-import { Interpreter } from './Interpreter/Interpreter';
+import { Interpreter } from './interpreter/interpreter';
 
 const { log } = console;
 

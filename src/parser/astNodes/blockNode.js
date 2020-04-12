@@ -1,4 +1,4 @@
-import { AstNode } from './AstNode';
+import { AstNode } from './astNode';
 
 export class BlockNode extends AstNode {
 	constructor(blocks, line, terminatedPolitely = false) {

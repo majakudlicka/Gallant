@@ -45,7 +45,6 @@ export const TokenStructure = {
 		}
 	},
 	// Logical operators
-	// TODO Are they used? Do I need to add them to Parser or Interpreter
 	Logical: {
 		name: 'logical',
 		values: {
@@ -75,7 +74,7 @@ export const TokenStructure = {
 			Colon: ':'
 		}
 	},
-	// Greetings (keywords for variables declaration)
+	// Variable declaration
 	Greeting: {
 		name: 'greeting',
 		values: {
@@ -86,6 +85,7 @@ export const TokenStructure = {
 			WaveEmoji: '👋'
 		}
 	},
+	// End of block
 	Gratitude: {
 		name: 'gratitude',
 		values: {
@@ -97,6 +97,7 @@ export const TokenStructure = {
 			HeartFaceEmoji: '🥰'
 		}
 	},
+	// Variable clean-up
 	Farewell: {
 		name: 'farewell',
 		values: {
@@ -107,9 +108,9 @@ export const TokenStructure = {
 			KissEmoji: '😘'
 		}
 	},
-	// TODO Rename as plead ?
-	FunctionInvocation: {
-		name: 'functionInvocation',
+	// Function invocation
+	Plead: {
+		name: 'plead',
 		values: {
 			Please: 'please',
 			PleaseEmoji: '🙏',
@@ -120,11 +121,15 @@ export const TokenStructure = {
 	// Emoji without any special meaning / function in language
 	CommonEmoji: { name: 'commonEmoji' }
 };
+const allValues = {};
+Object.values(TokenStructure).forEach(group => {
+	Object.assign(allValues, group.values);
+});
 
-export const TokenTypes = Object.assign({}, ...Object.entries(TokenStructure).map(([k, v]) => ({ [k]: v.name })));
-// TODO Can this be done better ?
-export const TokenValues = Object.assign({},
-	TokenStructure.Keyword.values, TokenStructure.Accessor.values, TokenStructure.Assignment.values,
-	TokenStructure.Arithmetic.values, TokenStructure.FunctionInvocation.values, TokenStructure.Comparison.values,
-	TokenStructure.Logical.values, TokenStructure.Delimiter.values, TokenStructure.Greeting.values, TokenStructure.Gratitude.values,
-	TokenStructure.Farewell.values, TokenStructure.Constant.values);
+// Export TokenTypes
+export const TokenTypes = Object.assign(
+	{},
+	...Object.entries(TokenStructure).map(([k, v]) => ({ [k]: v.name }))
+);
+// Export TokenValues
+export const TokenValues = allValues;

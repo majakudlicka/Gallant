@@ -1,6 +1,6 @@
-import { AstNode } from './AstNode';
+import { AstNode } from './astNode';
 
-export class OperatorNode extends AstNode{
+export class OperatorNode extends AstNode {
 	constructor(operator, left, right, line) {
 		super(line);
 		this.operator = operator;

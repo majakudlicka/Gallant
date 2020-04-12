@@ -4,15 +4,15 @@ const emojiRegex = require('emoji-regex');
 export class CharUtils {
 
 	static isOperator(char) {
-		return /[+\-*\/\^%=<>!&|]/.test(char);
+		return /[+\-*/^%=<>!&|]/.test(char);
 	}
 
 	static isWhitespace(char) {
-			return /[ \t\r\f\v\u00A0\u2028\u2029]/.test(char);
+		return /[ \t\r\f\v\u00A0\u2028\u2029]/.test(char);
 	}
 
 	static isArithmeticOperator(char) {
-		return /[+\-*\/\^%]/.test(char);
+		return /[+\-*/^%]/.test(char);
 	}
 
 	static isDigit(char) {
@@ -69,6 +69,7 @@ export class CharUtils {
 	}
 
 	static isHeartEmoji(input) {
+		// eslint-disable-next-line no-misleading-character-class
 		return /[❤️️]/u.test(input);
 	}
 

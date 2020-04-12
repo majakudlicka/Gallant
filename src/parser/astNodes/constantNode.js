@@ -1,4 +1,4 @@
-import { AstNode } from './AstNode';
+import { AstNode } from './astNode';
 
 export class ConstantNode extends AstNode {
 	constructor(value, type, line) {

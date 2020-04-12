@@ -1,4 +1,4 @@
-import { AstNode } from './AstNode';
+import { AstNode } from './astNode';
 
 export class ConditionalNode extends AstNode {
 	constructor(condition, trueExpr, falseExpr, multiline, line) {

@@ -1,4 +1,4 @@
-import { AstNode } from './AstNode';
+import { AstNode } from './astNode';
 
 export class SymbolNode extends AstNode {
 	constructor(name, line) {
