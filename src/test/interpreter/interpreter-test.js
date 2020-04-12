@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { Interpreter } from '../../Interpreter/Interpreter';
+import { Interpreter } from '../../interpreter/interpreter';
 
 describe('Interpreter', () => {
 	it('Should interpret boolean expression', () => {
@@ -59,8 +59,9 @@ describe('Interpreter', () => {
 	});
 
 	it('Should interpret a variable reassignment and change value in current scope', () => {
+		// Newlines and semicolons are interchangeable (outside of repl)
 		const source = '👋 a = 10\n'
-		+ 'a = 7;'
+		+ 'a = 7\n'
 		+ '🥰';
 		const i = new Interpreter(source);
 		const output = i.interpret();
@@ -69,8 +70,8 @@ describe('Interpreter', () => {
 	});
 
 	it('Should interpret a variable deassignment using farewell (word) and remove it from the current scope', () => {
-		const source = '👋 a = 10\n'
-			+ 'bye a\n'
+		const source = '👋 a = 10;'
+			+ 'bye a;'
 			+ 'thanks';
 		const i = new Interpreter(source);
 		i.interpret();
@@ -78,7 +79,7 @@ describe('Interpreter', () => {
 	});
 
 	it('Should interpret a variable deassignment using farewell (emoji) and remove it from the current scope', () => {
-		const source = '👋 a = 10\n'
+		const source = '👋 a = 10;'
 			+ '✋ a;'
 			+ '🥰';
 		const i = new Interpreter(source);
@@ -126,7 +127,6 @@ describe('Interpreter', () => {
 		assert.equal(true, i.symbolTable.hasSymbol('foo'));
 	});
 
-	// TODO Why doesn't it error ?
 	it('Should NOT add variables declared within functions to global scope', () => {
 		const source = 'foo() {\n'
 			+ 'x = 4;'
@@ -156,12 +156,12 @@ describe('Interpreter', () => {
 	it('Should parse a multiline if-else statement and execute if branch', () => {
 		const source = '👋 x = 8;'
 			+ '👋 y = 8;'
-			+ 'if (x > 0) {'
+			+ 'if (x > 0) {\n'
 			+ 'x = x + 1;'
-			+ '} else {'
+			+ '} else {\n'
 			+ 'x = x - 1;'
 			+ 'y = y * 5;'
-			+ '}'
+			+ '}\n'
 			+ 'cheers';
 
 		const i = new Interpreter(source);
@@ -268,6 +268,7 @@ describe('Interpreter', () => {
 	});
 
 	it('Should not error if newline chars are omitted', () => {
+		// Newlines after curly braces are optional
 		const source = 'hello x = 4;hello y = 5;giveMax(a,b) {if (a > b) a else b;}please giveMax x and y;🤗';
 		const i = new Interpreter(source);
 		let error = null;

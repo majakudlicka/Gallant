@@ -1,7 +1,7 @@
 import { Token } from './token';
 import { TokenTypes as TT, TokenValues as TV, TokenStructure as TS } from './tokenStructure';
 import { CharUtils } from './charUtils';
-import { FSM } from './FSM';
+import { FSM } from './fsm';
 
 
 export class Lexer {
@@ -202,13 +202,26 @@ export class Lexer {
 
 		if (Object.values(TS.Keyword.values).includes(identifier)) {
 			tokenType = TT.Keyword;
-		} if (Object.values(TS.Greeting.values).includes(identifier)) {
+
+		}
+
+		if (Object.values(TS.Constant.values).includes(identifier)) {
+			tokenType = TT.Constant;
+		}
+
+		if (Object.values(TS.Greeting.values).includes(identifier)) {
 			tokenType = TT.Greeting;
-		} if (Object.values(TS.FunctionInvocation.values).includes(identifier)) {
+		}
+
+		if (Object.values(TS.FunctionInvocation.values).includes(identifier)) {
 			tokenType = TT.FunctionInvocation;
-		} if (Object.values(TS.Gratitude.values).includes(identifier)) {
+		}
+
+		if (Object.values(TS.Gratitude.values).includes(identifier)) {
 			tokenType = TT.Gratitude;
-		} if (Object.values(TS.Farewell.values).includes(identifier)) {
+		}
+
+		if (Object.values(TS.Farewell.values).includes(identifier)) {
 			tokenType = TT.Farewell;
 		}
 

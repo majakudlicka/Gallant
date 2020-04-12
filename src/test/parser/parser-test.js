@@ -1,6 +1,6 @@
 import * as assert from 'assert';
-import { Parser } from '../../Parser/Parser';
-import { TokenValues, TokenTypes } from '../../Lexer/tokenStructure';
+import { Parser } from '../../parser/parser';
+import { TokenValues as TV, TokenTypes as TT } from '../../lexer/tokenStructure';
 
 describe('Parser', () => {
 
@@ -74,7 +74,7 @@ describe('Parser', () => {
 		assert.equal(true, symbol.isSymbolNode());
 		assert.equal(true, value.isOperatorNode());
 		assert.equal('i', symbol.name);
-		assert.equal(TokenValues.Plus, value.operator);
+		assert.equal(TV.Plus, value.operator);
 		assert.equal(false, node.greeted);
 	});
 
@@ -83,7 +83,7 @@ describe('Parser', () => {
 		const node = parser.parse();
 		assert.equal(true, node.isConstantNode());
 		assert.equal('89', node.value);
-		assert.equal(TokenTypes.Integer, node.type);
+		assert.equal(TT.Integer, node.type);
 	});
 
 	it('should parse a simple decimal literal', () => {
@@ -92,7 +92,7 @@ describe('Parser', () => {
 
 		assert.equal(true, node.isConstantNode());
 		assert.equal('5.26', node.value);
-		assert.equal(TokenTypes.Decimal, node.type);
+		assert.equal(TT.Decimal, node.type);
 	});
 
 	it('should parse a common emoji', () => {
@@ -101,7 +101,7 @@ describe('Parser', () => {
 
 		assert.equal(true, node.isConstantNode());
 		assert.equal('🍇', node.value);
-		assert.equal(TokenTypes.CommonEmoji, node.type);
+		assert.equal(TT.CommonEmoji, node.type);
 	});
 
 	it('should parse a simple string literal', () => {
@@ -111,7 +111,7 @@ describe('Parser', () => {
 
 		assert.equal(true, node.isConstantNode());
 		assert.equal('"Hello, World!"', node.value);
-		assert.equal(TokenTypes.String, node.type);
+		assert.equal(TT.String, node.type);
 	});
 
 	it('should parse a null literal', () => {
@@ -120,8 +120,8 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isConstantNode());
-		assert.equal(TokenValues.Null, node.value);
-		assert.equal(TokenTypes.Keyword, node.type);
+		assert.equal(TV.Null, node.value);
+		assert.equal(TT.Constant, node.type);
 	});
 
 	it('should parse the boolean literal "true"', () => {
@@ -130,8 +130,8 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isConstantNode());
-		assert.equal(TokenValues.True, node.value);
-		assert.equal(TokenTypes.Keyword, node.type);
+		assert.equal(TV.True, node.value);
+		assert.equal(TT.Constant, node.type);
 	});
 
 	it('should parse the boolean literal "false"', () => {
@@ -140,8 +140,8 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isConstantNode());
-		assert.equal(TokenValues.False, node.value);
-		assert.equal(TokenTypes.Keyword, node.type);
+		assert.equal(TV.False, node.value);
+		assert.equal(TT.Constant, node.type);
 	});
 
 	it('should parse a simple addition', () => {
@@ -150,7 +150,7 @@ describe('Parser', () => {
 		const node = parser.parse();
 		assert.equal(true, node.isOperatorNode());
 
-		assert.equal(TokenValues.Plus, node.operator);
+		assert.equal(TV.Plus, node.operator);
 
 		assert.equal(true, node.left.isConstantNode());
 		assert.equal('1', node.left.value);
@@ -166,8 +166,8 @@ describe('Parser', () => {
 
 		assert.equal(true, node.isOperatorNode());
 
-		assert.equal(TokenValues.Plus, node.operator);
-		assert.equal(TokenValues.Minus, node.left.operator);
+		assert.equal(TV.Plus, node.operator);
+		assert.equal(TV.Minus, node.left.operator);
 
 		assert.equal(true, node.left.left.isConstantNode());
 		assert.equal('7', node.left.left.value);
@@ -185,19 +185,19 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isOperatorNode());
-		assert.equal(TokenValues.Minus, node.operator);
+		assert.equal(TV.Minus, node.operator);
 
 		const { left } = node;
 
 		assert.equal(true, left.isOperatorNode());
-		assert.equal(TokenValues.Plus, left.operator);
+		assert.equal(TV.Plus, left.operator);
 		assert.equal(true, left.left.isConstantNode());
 		assert.equal('1', left.left.value);
 
 		const multiplication = left.right;
 
 		assert.equal(true, multiplication.isOperatorNode());
-		assert.equal(TokenValues.Times, multiplication.operator);
+		assert.equal(TV.Times, multiplication.operator);
 		assert.equal(true, multiplication.left.isConstantNode());
 		assert.equal('3', multiplication.left.value);
 		assert.equal(true, multiplication.right.isConstantNode());
@@ -213,7 +213,7 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isOperatorNode());
-		assert.equal(TokenValues.Greater, node.operator);
+		assert.equal(TV.Greater, node.operator);
 		assert.equal(true, node.left.isSymbolNode());
 		assert.equal('a', node.left.name);
 		assert.equal('b', node.right.name);
@@ -227,7 +227,7 @@ describe('Parser', () => {
 
 		assert.equal(true, node.isConditionalNode());
 
-		assert.equal(TokenValues.True, node.condition.value);
+		assert.equal(TV.True, node.condition.value);
 
 		assert.equal(true, node.trueExpr.isConstantNode());
 		assert.equal('1', node.trueExpr.value);
@@ -326,7 +326,7 @@ describe('Parser', () => {
 
 		const { body, condition } = node;
 		assert.equal(true, condition.isOperatorNode());
-		assert.equal(TokenValues.Greater, condition.operator);
+		assert.equal(TV.Greater, condition.operator);
 
 		assert.equal(true, body.isBlockNode());
 		assert.equal(2, body.blocks.length);
@@ -387,7 +387,7 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isOperatorNode());
-		assert.equal(TokenValues.Minus, node.operator);
+		assert.equal(TV.Minus, node.operator);
 
 		assert.equal(true, node.right.isConstantNode());
 		assert.equal('42', node.right.value);
@@ -399,7 +399,7 @@ describe('Parser', () => {
 		const node = parser.parse();
 
 		assert.equal(true, node.isOperatorNode());
-		assert.equal(TokenValues.Plus, node.operator);
+		assert.equal(TV.Plus, node.operator);
 
 		const { left } = node;
 
@@ -410,7 +410,7 @@ describe('Parser', () => {
 
 		assert.equal(true, right.isParenthesisNode());
 		assert.equal(true, right.content.isOperatorNode());
-		assert.equal(TokenValues.Minus, right.content.operator);
+		assert.equal(TV.Minus, right.content.operator);
 		assert.equal(true, right.content.left.isConstantNode());
 		assert.equal('2', right.content.left.value);
 		assert.equal(true, right.content.right.isConstantNode());

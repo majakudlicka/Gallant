@@ -1,19 +1,19 @@
-import { TokenTypes, TokenValues } from '../Lexer/tokenStructure';
-import { Lexer } from '../Lexer/Lexer';
-import { ConstantNode } from './astNodes/ConstantNode';
-import { OperatorNode } from './astNodes/OperatorNode';
-import { ConditionalNode } from './astNodes/ConditionalNode';
-import { WhileLoopNode } from './astNodes/WhileLoopNode';
-import { AssignmentNode } from './astNodes/AssignmentNode';
-import { SymbolNode } from './astNodes/SymbolNode';
-import { BlockNode } from './astNodes/BlockNode';
-import { ParenthesisNode } from './astNodes/ParenthesisNode';
-import { FunctionCallNode } from './astNodes/FunctionCallNode';
-import { FunctionDefinitionNode } from './astNodes/FunctionDefinitionNode';
-import { ArrayNode } from './astNodes/ArrayNode';
-import { AccessorNode } from './astNodes/AccessorNode';
-import { MapNode } from './astNodes/MapNode';
-import { DeAssignmentNode } from './astNodes/DeAssignmentNode';
+import { TokenStructure as TS, TokenTypes as TT, TokenValues as TV } from '../lexer/tokenStructure';
+import { Lexer } from '../lexer/lexer';
+import { ConstantNode } from './astNodes/constantNode';
+import { OperatorNode } from './astNodes/operatorNode';
+import { ConditionalNode } from './astNodes/conditionalNode';
+import { WhileLoopNode } from './astNodes/whileLoopNode';
+import { AssignmentNode } from './astNodes/assignmentNode';
+import { SymbolNode } from './astNodes/symbolNode';
+import { BlockNode } from './astNodes/blockNode';
+import { ParenthesisNode } from './astNodes/parenthesisNode';
+import { FunctionCallNode } from './astNodes/functionCallNode';
+import { FunctionDefinitionNode } from './astNodes/functionDefinitionNode';
+import { ArrayNode } from './astNodes/arrayNode';
+import { AccessorNode } from './astNodes/accessorNode';
+import { MapNode } from './astNodes/mapNode';
+import { DeAssignmentNode } from './astNodes/deAssignmentNode';
 
 export class Parser {
 	constructor(input) {
@@ -34,24 +34,23 @@ export class Parser {
 	}
 
 	isAdditiveOperator() {
-		return this.currentToken.value === TokenValues.Minus || this.currentToken.value === TokenValues.Plus;
+		return this.currentToken.value === TV.Minus || this.currentToken.value === TV.Plus;
 	}
 
 	isMultiplyDivisionOrModuloOperator() {
-		return !this.isAdditiveOperator() && this.currentToken.type === TokenTypes.Arithmetic;
+		return !this.isAdditiveOperator() && this.currentToken.type === TT.Arithmetic;
 	}
 
 	isNumber() {
-		return this.currentToken.type === TokenTypes.Decimal || this.currentToken.type === TokenTypes.Integer;
+		return this.currentToken.type === TT.Decimal || this.currentToken.type === TT.Integer;
 	}
 
 	isConstant() {
-		// TODO Rethink, do these need to be in a special categpry? Why?
-		return ['null', 'true', 'false'].includes(this.currentToken.value);
+		return Object.values(TS.Constant.values).includes(this.currentToken.value);
 	}
 
 	discardNewlines() {
-		while (this.currentToken.value === TokenValues.Newline) {
+		while (this.currentToken.value === TV.Newline) {
 			this.next();
 		}
 	}
@@ -65,11 +64,11 @@ export class Parser {
 	}
 
 	isSameBlock() {
-		return this.currentToken.value !== TokenValues.Newline && this.currentToken.value !== ';';
+		return this.currentToken.value !== TV.Newline && this.currentToken.value !== ';';
 	}
 
 	isEndOfBlock() {
-		return this.currentToken.value === TokenValues.Newline || this.currentToken.value === ';';
+		return this.currentToken.value === TV.Newline || this.currentToken.value === ';';
 	}
 
 	isTerminatedWithCurlyBrace(node) {
@@ -93,11 +92,11 @@ export class Parser {
 			}
 			if (this.isEndOfBlock()) this.next();
 			// Convention is to add this token at the end but if preferred can be added earlier in the block
-			if (this.currentToken.type === TokenTypes.Gratitude) {
+			if (this.currentToken.type === TT.Gratitude) {
 				terminatedPolitely = true;
 				this.next();
 			}
-			if (this.currentToken.type === TokenTypes.EndOfInput) break;
+			if (this.currentToken.type === TT.EndOfInput) break;
 			if (this.isSameBlock()) {
 				node = this.parseAssignment();
 				if (node) blocks.push(node);
@@ -119,7 +118,7 @@ export class Parser {
 		const params = [this.parseAddSubtract()];
 		const conditionals = [];
 
-		while (this.currentToken.type === TokenTypes.Comparison) {
+		while (this.currentToken.type === TT.Comparison) {
 			const cond = { fn: this.currentToken.value };
 			conditionals.push(cond);
 			this.next();
@@ -138,14 +137,14 @@ export class Parser {
 		// "Greeting" is essentially an equivalent of declaring variables in other languages
 		// All variables need to be "greeted" (declared)
 		let greeted = false;
-		if (this.currentToken.type === TokenTypes.Greeting) {
+		if (this.currentToken.type === TT.Greeting) {
 			greeted = true;
 			this.next();
 		}
 
 		const node = this.parseFunctionDefinition();
 
-		if (this.currentToken.value === TokenValues.Assignment) {
+		if (this.currentToken.value === TV.Assignment) {
 			if (node.isSymbolNode()) {
 				// parse a variable assignment
 				const { name } = node;
@@ -167,23 +166,23 @@ export class Parser {
 
 	parseFunctionDefinition() {
 		const node = this.parseFunctionCall();
-		if (node && node.isSymbolNode() && this.currentToken.value === TokenValues.LeftParen) {
+		if (node && node.isSymbolNode() && this.currentToken.value === TV.LeftParen) {
 			const params = [];
 			const { line } = this.currentToken;
 			this.next();
-			if (this.currentToken.value !== TokenValues.RightParen) {
+			if (this.currentToken.value !== TV.RightParen) {
 				params.push(this.parseAssignment());
 
 				// parse a list with parameters
-				while (this.currentToken.value === TokenValues.Comma) {
+				while (this.currentToken.value === TV.Comma) {
 					this.next();
 					params.push(this.parseAssignment());
 				}
 			}
-			this.expect(TokenValues.RightParen);
-			this.expect(TokenValues.LeftBrace);
+			this.expect(TV.RightParen);
+			this.expect(TV.LeftBrace);
 			const value = this.parseBlock();
-			this.expect(TokenValues.RightBrace);
+			this.expect(TV.RightBrace);
 			return new FunctionDefinitionNode(node.name, params, value, line);
 		}
 		return node;
@@ -191,14 +190,14 @@ export class Parser {
 
 	parseWhileLoop() {
 		let node = this.parseConditional();
-		while (this.currentToken.value === TokenValues.While) {
+		while (this.currentToken.value === TV.While) {
 			this.next();
-			this.expect(TokenValues.LeftParen);
+			this.expect(TV.LeftParen);
 			const condition = this.parseAssignment();
-			this.expect(TokenValues.RightParen);
-			this.expect(TokenValues.LeftBrace);
+			this.expect(TV.RightParen);
+			this.expect(TV.LeftBrace);
 			const body = this.parseBlock();
-			this.expect(TokenValues.RightBrace);
+			this.expect(TV.RightBrace);
 			const { line } = this.currentToken;
 			node = new WhileLoopNode(condition, body, line);
 		}
@@ -210,24 +209,24 @@ export class Parser {
 		let node = this.parseRelational();
 
 		const { line } = this.currentToken;
-		while (this.currentToken.value === TokenValues.If) {
+		while (this.currentToken.value === TV.If) {
 			this.next();
 			let multiline = false;
-			this.expect(TokenValues.LeftParen);
+			this.expect(TV.LeftParen);
 			const condition = this.parseRelational();
-			this.expect(TokenValues.RightParen);
-			if (this.currentToken.value === TokenValues.LeftBrace) {
+			this.expect(TV.RightParen);
+			if (this.currentToken.value === TV.LeftBrace) {
 				multiline = true;
 				this.next();
 			}
 			const trueExpr = this.parseBlock();
-			if (multiline) this.expect(TokenValues.RightBrace);
+			if (multiline) this.expect(TV.RightBrace);
 			let falseExpr = null;
-			if (this.currentToken.value === TokenValues.Else) {
+			if (this.currentToken.value === TV.Else) {
 				this.next();
-				if (multiline) this.expect(TokenValues.LeftBrace);
+				if (multiline) this.expect(TV.LeftBrace);
 				falseExpr = this.parseBlock();
-				if (multiline) this.expect(TokenValues.RightBrace);
+				if (multiline) this.expect(TV.RightBrace);
 			}
 			node = new ConditionalNode(condition, trueExpr, falseExpr, multiline, line);
 		}
@@ -276,10 +275,10 @@ export class Parser {
 	}
 
 	parseFarewell() {
-		if (this.currentToken.type === TokenTypes.Farewell) {
+		if (this.currentToken.type === TT.Farewell) {
 			this.next();
 			const { type, value, line } = this.currentToken;
-			if (type === TokenTypes.Identifier) {
+			if (type === TT.Identifier) {
 				const node = new DeAssignmentNode(value, line);
 				this.next();
 				return node;
@@ -294,7 +293,7 @@ export class Parser {
 		let node;
 
 		// check if it is a parenthesized expression
-		if (this.currentToken.value === TokenValues.LeftParen) {
+		if (this.currentToken.value === TV.LeftParen) {
 			this.next();
 
 			node = this.parseAssignment();
@@ -310,7 +309,7 @@ export class Parser {
 
 	// TODO Can this be done without passing node
 	parseAccessors(node) {
-		if (this.currentToken.value === TokenValues.At) {
+		if (this.currentToken.value === TV.At) {
 			this.next();
 			const { line } = this.currentToken;
 			// eslint-disable-next-line no-param-reassign
@@ -322,15 +321,15 @@ export class Parser {
 
 	parseFunctionCall() {
 		const { line, type } = this.currentToken;
-		if (type === TokenTypes.FunctionInvocation) {
+		if (type === TT.FunctionInvocation) {
 			this.next();
 			const node = this.parseAssignment();
 			const params = [];
-			if (![TokenTypes.Delimiter, TokenTypes.EndOfInput].includes(this.currentToken.type)) {
+			if (![TT.Delimiter, TT.EndOfInput].includes(this.currentToken.type)) {
 				params.push(this.parseAssignment());
 			}
 			// parse a list with parameters
-			while (this.currentToken.value === TokenValues.KeywordAnd) {
+			while (this.currentToken.value === TV.KeywordAnd) {
 				this.next();
 				params.push(this.parseAssignment());
 			}
@@ -340,7 +339,7 @@ export class Parser {
 	}
 
 	parseString() {
-		if (this.currentToken.type === TokenTypes.String) {
+		if (this.currentToken.type === TT.String) {
 			const { line } = this.currentToken;
 			const node = new ConstantNode(this.currentToken.value, this.currentToken.type, line);
 			this.next();
@@ -350,19 +349,19 @@ export class Parser {
 	}
 
 	parseArray() {
-		if (this.currentToken.value === TokenValues.LeftBracket) {
+		if (this.currentToken.value === TV.LeftBracket) {
 			const { line } = this.currentToken;
 			this.next();
 			const content = [];
-			if (this.currentToken.value !== TokenValues.RightBracket) {
+			if (this.currentToken.value !== TV.RightBracket) {
 				content.push(this.parseAssignment());
 
-				while (this.currentToken.value === TokenValues.Comma) {
+				while (this.currentToken.value === TV.Comma) {
 					this.next();
 					content.push(this.parseAssignment());
 				}
 			}
-			this.expect(TokenValues.RightBracket);
+			this.expect(TV.RightBracket);
 			return new ArrayNode(content, line);
 		}
 
@@ -370,7 +369,7 @@ export class Parser {
 	}
 
 	parseMap() {
-		if (this.currentToken.value === TokenValues.LeftBrace) {
+		if (this.currentToken.value === TV.LeftBrace) {
 			const { line } = this.currentToken;
 			this.next();
 			const keyValuePairs = [];
@@ -381,14 +380,14 @@ export class Parser {
 				}
 				keyValuePairs.push([symbol, value]);
 			};
-			if (this.currentToken.value !== TokenValues.RightBrace) {
+			if (this.currentToken.value !== TV.RightBrace) {
 				parseKeyValuePair();
-				while (this.currentToken.value === TokenValues.Comma) {
+				while (this.currentToken.value === TV.Comma) {
 					this.next();
 					parseKeyValuePair();
 				}
 			}
-			this.expect(TokenValues.RightBrace);
+			this.expect(TV.RightBrace);
 			return new MapNode(keyValuePairs, line);
 		}
 
@@ -399,11 +398,11 @@ export class Parser {
 		const {
 			value, type, line
 		} = this.currentToken;
-		if (this.isConstant() || type === TokenTypes.CommonEmoji) {
+		if (this.isConstant() || type === TT.CommonEmoji) {
 			const node = new ConstantNode(value, type, line);
 			this.next();
 			return node;
-		} if (this.currentToken.type === TokenTypes.Identifier) {
+		} if (this.currentToken.type === TT.Identifier) {
 			let node = new SymbolNode(value, line);
 			this.next();
 			node = this.parseAccessors(node);
@@ -416,7 +415,5 @@ export class Parser {
 
 // TODO eslint errors
 // TODO Comments
-// TODO Consistent capitalisation of files
 // TODO Go through all files 2-3 last times and polish them
 // TODO Add program examples
-// TODO Remove newlines completely?

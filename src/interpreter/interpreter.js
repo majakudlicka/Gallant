@@ -1,6 +1,6 @@
-import { Parser } from '../Parser/Parser';
+import { Parser } from '../parser/parser';
 import { SymbolTable } from '../symbol-table/symbol-table';
-import { TokenTypes } from '../Lexer/tokenStructure';
+import { TokenTypes } from '../lexer/tokenStructure';
 import jokes from '../jokes';
 
 export class Interpreter {

@@ -1,6 +1,6 @@
 import * as assert from 'assert';
-import { TokenTypes, TokenValues } from '../../Lexer/tokenStructure';
-import { Lexer } from '../../Lexer/Lexer';
+import { TokenTypes as TT, TokenValues as TV } from '../../lexer/tokenStructure';
+import { Lexer } from '../../lexer/lexer';
 
 describe('Lexer', () => {
 
@@ -20,23 +20,23 @@ describe('Lexer', () => {
 		const lexer = new Lexer('\n');
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Delimiter);
-		assert.equal(token.value, TokenValues.Newline);
+		assert.equal(token.type, TT.Delimiter);
+		assert.equal(token.value, TV.Newline);
 	});
 
 	it('should recognize a semicolon', () => {
 		const lexer = new Lexer(';');
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Delimiter);
-		assert.equal(token.value, TokenValues.SemiColon);
+		assert.equal(token.type, TT.Delimiter);
+		assert.equal(token.value, TV.SemiColon);
 	});
 
 	it('should recognize number 0', () => {
 		const lexer = new Lexer('0');
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Integer);
+		assert.equal(token.type, TT.Integer);
 		assert.equal(token.value, '0');
 	});
 
@@ -44,7 +44,7 @@ describe('Lexer', () => {
 		const lexer = new Lexer('42');
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Integer);
+		assert.equal(token.type, TT.Integer);
 		assert.equal(token.value, '42');
 	});
 
@@ -53,7 +53,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Decimal);
+		assert.equal(token.type, TT.Decimal);
 		assert.equal(token.value, '3.14');
 	});
 
@@ -62,7 +62,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Decimal);
+		assert.equal(token.type, TT.Decimal);
 		assert.equal(token.value, '.25');
 	});
 
@@ -71,7 +71,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.String);
+		assert.equal(token.type, TT.String);
 		assert.equal(token.value, '"Hello, World!"');
 	});
 
@@ -80,7 +80,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.String);
+		assert.equal(token.type, TT.String);
 		assert.equal(token.value, '"a string containing a \\n newline character."');
 	});
 
@@ -89,7 +89,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.String);
+		assert.equal(token.type, TT.String);
 		assert.equal(token.value, '"a string with a \\\\ backslash"');
 	});
 
@@ -99,8 +99,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Keyword);
-		assert.equal(token.value, TokenValues.True);
+		assert.equal(token.type, TT.Constant);
+		assert.equal(token.value, TV.True);
 	});
 
 	it('should recognize the boolean false literal', () => {
@@ -108,8 +108,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Keyword);
-		assert.equal(token.value, TokenValues.False);
+		assert.equal(token.type, TT.Constant);
+		assert.equal(token.value, TV.False);
 	});
 
 	it('should recognize an identifier of a single letter', () => {
@@ -117,7 +117,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Identifier);
+		assert.equal(token.type, TT.Identifier);
 		assert.equal(token.value, 'i');
 	});
 
@@ -126,7 +126,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Identifier);
+		assert.equal(token.type, TT.Identifier);
 		assert.equal(token.value, 'anIdentifier');
 	});
 
@@ -135,7 +135,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Identifier);
+		assert.equal(token.type, TT.Identifier);
 		assert.equal(token.value, '_identifier');
 	});
 
@@ -144,7 +144,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Identifier);
+		assert.equal(token.type, TT.Identifier);
 		assert.equal(token.value, 'an_identifier');
 	});
 
@@ -153,7 +153,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Identifier);
+		assert.equal(token.type, TT.Identifier);
 		assert.equal(token.value, 'an$identifier');
 	});
 
@@ -162,7 +162,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Identifier);
+		assert.equal(token.type, TT.Identifier);
 		assert.equal(token.value, 'identifier1');
 	});
 
@@ -172,8 +172,8 @@ describe('Lexer', () => {
 		const token = lexer.nextToken();
 		console.log('token is ', token);
 
-		assert.equal(token.type, TokenTypes.FunctionInvocation);
-		assert.equal(token.value, TokenValues.Please);
+		assert.equal(token.type, TT.FunctionInvocation);
+		assert.equal(token.value, TV.Please);
 	});
 
 	it('should recognize the and keyword', () => {
@@ -181,8 +181,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Keyword);
-		assert.equal(token.value, TokenValues.KeywordAnd);
+		assert.equal(token.type, TT.Keyword);
+		assert.equal(token.value, TV.KeywordAnd);
 	});
 
 	it('should recognize the else keyword', () => {
@@ -190,8 +190,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Keyword);
-		assert.equal(token.value, TokenValues.Else);
+		assert.equal(token.type, TT.Keyword);
+		assert.equal(token.value, TV.Else);
 	});
 
 
@@ -200,8 +200,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Greeting);
-		assert.equal(token.value, TokenValues.Hi);
+		assert.equal(token.type, TT.Greeting);
+		assert.equal(token.value, TV.Hi);
 	});
 
 	it('should recognize the hello keyword', () => {
@@ -209,8 +209,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Greeting);
-		assert.equal(token.value, TokenValues.Hello);
+		assert.equal(token.type, TT.Greeting);
+		assert.equal(token.value, TV.Hello);
 	});
 
 	it('should recognize the waving hand emoji as a greeting', () => {
@@ -218,8 +218,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Greeting);
-		assert.equal(token.value, TokenValues.WaveEmoji);
+		assert.equal(token.type, TT.Greeting);
+		assert.equal(token.value, TV.WaveEmoji);
 	});
 
 	it('should recognize the please emoji as function invocation', () => {
@@ -227,8 +227,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.FunctionInvocation);
-		assert.equal(token.value, TokenValues.PleaseEmoji);
+		assert.equal(token.type, TT.FunctionInvocation);
+		assert.equal(token.value, TV.PleaseEmoji);
 	});
 
 	it('should recognize "thank you" keyword as token type gratitude', () => {
@@ -236,8 +236,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Gratitude);
-		assert.equal(token.value, TokenValues.ThankYou);
+		assert.equal(token.type, TT.Gratitude);
+		assert.equal(token.value, TV.ThankYou);
 	});
 
 	it('should recognize "thanks" keyword as token type gratitude', () => {
@@ -245,8 +245,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Gratitude);
-		assert.equal(token.value, TokenValues.Thanks);
+		assert.equal(token.type, TT.Gratitude);
+		assert.equal(token.value, TV.Thanks);
 	});
 
 	it('should recognize "cheers" keyword as token type gratitude', () => {
@@ -254,8 +254,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Gratitude);
-		assert.equal(token.value, TokenValues.Cheers);
+		assert.equal(token.type, TT.Gratitude);
+		assert.equal(token.value, TV.Cheers);
 	});
 
 	it('should recognize heart emoji as token type gratitude', () => {
@@ -263,8 +263,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Gratitude);
-		assert.equal(token.value, TokenValues.HeartEmoji);
+		assert.equal(token.type, TT.Gratitude);
+		assert.equal(token.value, TV.HeartEmoji);
 	});
 
 	it('should recognize hug emoji as token type gratitude', () => {
@@ -272,8 +272,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Gratitude);
-		assert.equal(token.value, TokenValues.HugEmoji);
+		assert.equal(token.type, TT.Gratitude);
+		assert.equal(token.value, TV.HugEmoji);
 	});
 
 	it('should recognize heart face emoji as token type gratitude', () => {
@@ -281,8 +281,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Gratitude);
-		assert.equal(token.value, TokenValues.HeartFaceEmoji);
+		assert.equal(token.type, TT.Gratitude);
+		assert.equal(token.value, TV.HeartFaceEmoji);
 	});
 
 	it('should recognize "goodbye" keyword as token type farewell', () => {
@@ -290,8 +290,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Farewell);
-		assert.equal(token.value, TokenValues.Goodbye);
+		assert.equal(token.type, TT.Farewell);
+		assert.equal(token.value, TV.Goodbye);
 	});
 
 	it('should recognize "bye" keyword as token type farewell', () => {
@@ -299,8 +299,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Farewell);
-		assert.equal(token.value, TokenValues.Bye);
+		assert.equal(token.type, TT.Farewell);
+		assert.equal(token.value, TV.Bye);
 	});
 
 	it('should recognize "ciao" keyword as token type farewell', () => {
@@ -308,8 +308,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Farewell);
-		assert.equal(token.value, TokenValues.Ciao);
+		assert.equal(token.type, TT.Farewell);
+		assert.equal(token.value, TV.Ciao);
 	});
 
 	it('should recognize bye emoji as token type farewell', () => {
@@ -317,8 +317,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Farewell);
-		assert.equal(token.value, TokenValues.ByeEmoji);
+		assert.equal(token.type, TT.Farewell);
+		assert.equal(token.value, TV.ByeEmoji);
 	});
 
 	it('should recognize kiss emoji as token type farewell', () => {
@@ -326,8 +326,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Farewell);
-		assert.equal(token.value, TokenValues.KissEmoji);
+		assert.equal(token.type, TT.Farewell);
+		assert.equal(token.value, TV.KissEmoji);
 	});
 
 	it('should recognize common (bearing no special meaning) emoji as token type emoji', () => {
@@ -335,7 +335,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.CommonEmoji);
+		assert.equal(token.type, TT.CommonEmoji);
 		assert.equal(token.value, '🍇');
 	});
 
@@ -344,8 +344,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Keyword);
-		assert.equal(token.value, TokenValues.If);
+		assert.equal(token.type, TT.Keyword);
+		assert.equal(token.value, TV.If);
 	});
 
 	it('should recognize the hola keyword', () => {
@@ -353,8 +353,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Greeting);
-		assert.equal(token.value, TokenValues.Hola);
+		assert.equal(token.type, TT.Greeting);
+		assert.equal(token.value, TV.Hola);
 	});
 
 	it('should recognize the new keyword', () => {
@@ -362,8 +362,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Greeting);
-		assert.equal(token.value, TokenValues.Aloha);
+		assert.equal(token.type, TT.Greeting);
+		assert.equal(token.value, TV.Aloha);
 	});
 
 	it('should recognize the null keyword', () => {
@@ -371,8 +371,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Keyword);
-		assert.equal(token.value, TokenValues.Null);
+		assert.equal(token.type, TT.Constant);
+		assert.equal(token.value, TV.Null);
 	});
 
 
@@ -381,8 +381,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Keyword);
-		assert.equal(token.value, TokenValues.While);
+		assert.equal(token.type, TT.Keyword);
+		assert.equal(token.value, TV.While);
 	});
 
 	it('should recognize an identifier starting with a reserved keyword', () => {
@@ -390,7 +390,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Identifier);
+		assert.equal(token.type, TT.Identifier);
 		assert.equal(token.value, 'toString');
 	});
 
@@ -399,7 +399,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Accessor);
+		assert.equal(token.type, TT.Accessor);
 		assert.equal(token.value, '.');
 	});
 
@@ -408,8 +408,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Assignment);
-		assert.equal(token.value, TokenValues.Assignment);
+		assert.equal(token.type, TT.Assignment);
+		assert.equal(token.value, TV.Assignment);
 	});
 
 	it('should recognize the div (/) operator', () => {
@@ -417,8 +417,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Arithmetic);
-		assert.equal(token.value, TokenValues.Div);
+		assert.equal(token.type, TT.Arithmetic);
+		assert.equal(token.value, TV.Div);
 	});
 
 	it('should recognize the modulo (%) operator', () => {
@@ -426,8 +426,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Arithmetic);
-		assert.equal(token.value, TokenValues.Modulo);
+		assert.equal(token.type, TT.Arithmetic);
+		assert.equal(token.value, TV.Modulo);
 	});
 
 	it('should recognize the minus (-) operator', () => {
@@ -435,8 +435,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Arithmetic);
-		assert.equal(token.value, TokenValues.Minus);
+		assert.equal(token.type, TT.Arithmetic);
+		assert.equal(token.value, TV.Minus);
 	});
 
 	it('should recognize the plus (+) operator', () => {
@@ -444,8 +444,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Arithmetic);
-		assert.equal(token.value, TokenValues.Plus);
+		assert.equal(token.type, TT.Arithmetic);
+		assert.equal(token.value, TV.Plus);
 	});
 
 	it('should recognize the times (*) operator', () => {
@@ -453,8 +453,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Arithmetic);
-		assert.equal(token.value, TokenValues.Times);
+		assert.equal(token.type, TT.Arithmetic);
+		assert.equal(token.value, TV.Times);
 	});
 
 	it('should recognize the double-equal (==) operator', () => {
@@ -462,8 +462,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Comparison);
-		assert.equal(token.value, TokenValues.Equal);
+		assert.equal(token.type, TT.Comparison);
+		assert.equal(token.value, TV.Equal);
 	});
 
 	it('should recognize the greater (>) operator', () => {
@@ -471,8 +471,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Comparison);
-		assert.equal(token.value, TokenValues.Greater);
+		assert.equal(token.type, TT.Comparison);
+		assert.equal(token.value, TV.Greater);
 	});
 
 	it('should recognize the greater-or-equal (>=) operator', () => {
@@ -480,8 +480,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Comparison);
-		assert.equal(token.value, TokenValues.GreaterOrEqual);
+		assert.equal(token.type, TT.Comparison);
+		assert.equal(token.value, TV.GreaterOrEqual);
 	});
 
 	it('should recognize the less (<) operator', () => {
@@ -489,8 +489,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Comparison);
-		assert.equal(token.value, TokenValues.Less);
+		assert.equal(token.type, TT.Comparison);
+		assert.equal(token.value, TV.Less);
 	});
 
 	it('should recognize the less-or-equal operator', () => {
@@ -498,8 +498,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Comparison);
-		assert.equal(token.value, TokenValues.LessOrEqual);
+		assert.equal(token.type, TT.Comparison);
+		assert.equal(token.value, TV.LessOrEqual);
 	});
 
 	it('should recognize the not-equal (!=) operator', () => {
@@ -507,8 +507,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Logical);
-		assert.equal(token.value, TokenValues.NotEqual);
+		assert.equal(token.type, TT.Logical);
+		assert.equal(token.value, TV.NotEqual);
 	});
 
 	it('should recognize the and (&&) operator', () => {
@@ -516,8 +516,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Logical);
-		assert.equal(token.value, TokenValues.And);
+		assert.equal(token.type, TT.Logical);
+		assert.equal(token.value, TV.And);
 	});
 
 	it('should recognize the not (!) operator', () => {
@@ -525,7 +525,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Not);
+		assert.equal(token.type, TT.Not);
 		assert.equal(token.value, '!');
 	});
 
@@ -534,8 +534,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Logical);
-		assert.equal(token.value, TokenValues.Or);
+		assert.equal(token.type, TT.Logical);
+		assert.equal(token.value, TV.Or);
 	});
 
 	it('should recognize a comma (,)', () => {
@@ -543,8 +543,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Delimiter);
-		assert.equal(token.value, TokenValues.Comma);
+		assert.equal(token.type, TT.Delimiter);
+		assert.equal(token.value, TV.Comma);
 	});
 
 	it('should recognize a left brace ({)', () => {
@@ -552,8 +552,8 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Delimiter);
-		assert.equal(token.value, TokenValues.LeftBrace);
+		assert.equal(token.type, TT.Delimiter);
+		assert.equal(token.value, TV.LeftBrace);
 	});
 
 	it('should recognize a right brace (})', () => {
@@ -561,7 +561,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Delimiter);
+		assert.equal(token.type, TT.Delimiter);
 		assert.equal(token.value, '}');
 	});
 
@@ -570,7 +570,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Delimiter);
+		assert.equal(token.type, TT.Delimiter);
 		assert.equal(token.value, '[');
 	});
 
@@ -579,7 +579,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Delimiter);
+		assert.equal(token.type, TT.Delimiter);
 		assert.equal(token.value, ']');
 	});
 
@@ -588,7 +588,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Delimiter);
+		assert.equal(token.type, TT.Delimiter);
 		assert.equal(token.value, '(');
 	});
 
@@ -597,7 +597,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TokenTypes.Delimiter);
+		assert.equal(token.type, TT.Delimiter);
 		assert.equal(token.value, ')');
 	});
 
@@ -608,7 +608,7 @@ describe('Lexer', () => {
 
 		const tokens = [];
 		let token = lexer.nextToken();
-		while (token.type !== TokenTypes.EndOfInput) {
+		while (token.type !== TT.EndOfInput) {
 			tokens.push(token);
 			token = lexer.nextToken();
 		}

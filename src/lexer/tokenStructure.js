@@ -4,12 +4,17 @@ export const TokenStructure = {
 		name: 'keyword',
 		values: {
 			Else: 'else',
-			False: 'false',
 			If: 'if',
-			Null: 'null',
-			True: 'true',
 			While: 'while',
 			KeywordAnd: 'and'
+		}
+	},
+	Constant: {
+		name: 'constant',
+		values: {
+			Null: 'null',
+			True: 'true',
+			False: 'false'
 		}
 	},
 	// Accessor operators
@@ -122,4 +127,4 @@ export const TokenValues = Object.assign({},
 	TokenStructure.Keyword.values, TokenStructure.Accessor.values, TokenStructure.Assignment.values,
 	TokenStructure.Arithmetic.values, TokenStructure.FunctionInvocation.values, TokenStructure.Comparison.values,
 	TokenStructure.Logical.values, TokenStructure.Delimiter.values, TokenStructure.Greeting.values, TokenStructure.Gratitude.values,
-	TokenStructure.Farewell.values);
+	TokenStructure.Farewell.values, TokenStructure.Constant.values);
