@@ -19,8 +19,8 @@
   "scripts": {
     "build": "babel src --source-maps --out-dir build",
     "test": "babel src --source-maps --out-dir build && mocha --recursive build/test/",
-    "repl": "babel src --source-maps --out-dir build && node build/run-repl.js",
-    "load": "babel src --source-maps --out-dir build && node build/load-file.js"
+    "repl": "node build/run-repl.js",
+    "load": "node build/load-file.js"
   },
   "repository": {
     "type": "git",

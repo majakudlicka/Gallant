@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { SymbolTable } from '../../Parser/semanticAnalysis/symbolTable';
+import { SymbolTable } from '../../symbol-table/symbol-table';
 
 describe('Symbol Table', () => {
 

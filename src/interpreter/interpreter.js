@@ -1,7 +1,7 @@
 import { Parser } from '../Parser/Parser';
-import { SymbolTable } from '../Parser/semanticAnalysis/symbolTable';
+import { SymbolTable } from '../symbol-table/symbol-table';
 import { TokenTypes } from '../Lexer/tokenStructure';
-import jokes from '../../jokes';
+import jokes from '../jokes';
 
 export class Interpreter {
 	constructor(input) {

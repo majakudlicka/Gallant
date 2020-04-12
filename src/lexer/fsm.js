@@ -1,5 +1,6 @@
 export const InvalidFsmState = -1;
 
+// Finite State Machine
 export class FSM {
 	constructor(states, initialState, acceptingStates, nextState) {
 		this.states = states;
@@ -8,9 +9,9 @@ export class FSM {
 		this.nextState = nextState; // The transition function.
 	}
 
-	// / Runs this FSM on the specified 'input' string.
-	// / Returns 'true' if 'input' or a subset of 'input' matches
-	// / the regular expression corresponding to this FSM.
+	// Runs this FSM on the specified 'input' string.
+	// Returns 'true' if 'input' or a subset of 'input' matches
+	// the regular expression corresponding to this FSM.
 	run(input) {
 		let currentState = this.initialState;
 		let value = '';

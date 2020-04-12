@@ -156,6 +156,7 @@ used inside repl. Newline is optional after curly braces.
 First steps:
 
 - `npm install`
+- `npm run build`
 - `npm run test`
 
 You have following options to get started with Gallant: 
