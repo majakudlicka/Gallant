@@ -2,7 +2,28 @@
 
 ✨ Welcome to Gallant, a courteous programming language! ✨
 
-### Basic language features
+## How to get started
+
+First steps:
+
+- `npm install`
+- `npm run build`
+- `npm run test`
+
+You have following options to get started with Gallant: 
+
+- Play around with tests
+- Use repl (see Repl section)
+- Looks at code samples in "code-samples" folder
+- Upload a file (see Read code from a file section)
+
+I strongly recommend looking at the tests sets to gain an understanding of what Gallant is capable of.
+Bear in mind that only Interpreter tests are fully working code examples, while Lexer and Parser test
+their respective parts in isolation and may not be fully coherent from semantic analysis/ interpretation point of view.
+(For example, a parser test might assert that it correctly parses function call - but it wouldn't work as a 
+standalone program because the function hasn't been declared before). All tests are located in `test` folder.
+
+## Core language features
 
 Gallant is a courteous language and a lot of its rules are based around behaving politely. Gallant is interpreted
 to Javascript.
@@ -151,28 +172,7 @@ used inside repl. Newline is optional after curly braces.
 - Gallant supports integers, floating point numbers, booleans as well as basic mathematical and logical operators.
  
 
-### How to get started
-
-First steps:
-
-- `npm install`
-- `npm run build`
-- `npm run test`
-
-You have following options to get started with Gallant: 
-
-- Play around with tests
-- Use repl (see Repl section)
-- Looks at code samples in "code-samples" folder
-- Upload a file (see Read code from a file section)
-
-I strongly recommend looking at the tests sets to gain an understanding of what Gallant is capable of.
-Bear in mind that only Interpreter tests are fully working code examples, while Lexer and Parser test
-their respective parts in isolation and may not be fully coherent from semantic analysis/ interpretation point of view.
-(For example, a parser test might assert that it correctly parses function call - but it wouldn't work as a 
-standalone program because the function hasn't been declared before). All tests are located in `test` folder.
-
-### Repl
+## Repl
 
 You can easily test out small snippets of code using repl! To start repl, run the command `npm run repl`.
 
@@ -183,14 +183,14 @@ as a signal to wait for more code
 - If you want your code to execute immediately, do not put a semicolon at the end. Alternatively you can also hit Enter twice.
 - If you wish to use emoji in your code, you have following options:
    1. Copy and paste it from somewhere
-   2. Write a text representation of the emoji. For example, ":grapes:" for 🍇
+   2. Write a text representation of the emoji. For example, `:grapes:` for 🍇
    3. Start the line with `:emoji` followed by the name of the emoji you are looking for (for example `:emoji cat`) and hit Enter. This
       will trigger a simple emoji search tool. Respond by typing the number of emoji you wish to choose. The emoji will get
       copied to your clipboard and you can then paste it whenever you wish.
 
 Have fun!
 
-### Read code from a file
+## Read code from a file
 
 In order to process a code from a file, `npm run load [path to file]`. For example, from the root directory
 `npm run load src/code-samples/sample1.csv`. File is expected to be in csv format.
