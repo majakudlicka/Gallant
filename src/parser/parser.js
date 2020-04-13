@@ -438,7 +438,3 @@ export class Parser {
 		return node;
 	}
 }
-
-
-// TODO Comments
-// TODO Go through all files 2-3 last times and polish them

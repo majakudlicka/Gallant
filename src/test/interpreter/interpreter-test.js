@@ -2,28 +2,28 @@ import * as assert from 'assert';
 import { Interpreter } from '../../interpreter/interpreter';
 
 describe('Interpreter', () => {
-	it('Should interpret boolean expression', () => {
+	it('Should interpret boolean constant', () => {
 		const source = 'false';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(false, output);
 	});
 
-	it('Should interpret a standalone integer', () => {
+	it('Should interpret an integer', () => {
 		const source = '5';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(5, output);
 	});
 
-	it('Should interpret a standalone decimal', () => {
+	it('Should interpret a decimal', () => {
 		const source = '5.5';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(5.5, output);
 	});
 
-	it('Should interpret a standalone string', () => {
+	it('Should interpret a string', () => {
 		const source = '"Hello, how you doing?"';
 		const i = new Interpreter(source);
 		const output = i.interpret();
@@ -176,7 +176,7 @@ describe('Interpreter', () => {
 		assert.equal(8, i.symbolTable.findSymbol('y'));
 	});
 
-	it('Should parse a multiline if-else statement and execute else branch', () => {
+	it('Should interpret a multiline if-else statement and execute else branch', () => {
 		const source = 'aloha x = 0;'
 			+ 'aloha y = 8;'
 			+ 'if (x > 0) {\n'
@@ -193,28 +193,28 @@ describe('Interpreter', () => {
 		assert.equal(40, i.symbolTable.findSymbol('y'));
 	});
 
-	it('Should interpret a simple addition', () => {
+	it('Should interpret an addition', () => {
 		const source = '10 + 5';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(15, output);
 	});
 
-	it('Should interpret a simple subtraction', () => {
+	it('Should interpret a subtraction', () => {
 		const source = '10 - 5';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(5, output);
 	});
 
-	it('Should interpret a simple multiplication', () => {
+	it('Should interpret a multiplication', () => {
 		const source = '10 * 5';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(50, output);
 	});
 
-	it('Should interpret a simple division', () => {
+	it('Should interpret a division', () => {
 		const source = '10 / 5';
 		const i = new Interpreter(source);
 		const output = i.interpret();
@@ -274,7 +274,7 @@ describe('Interpreter', () => {
 	});
 
 	it('Should not error if newline chars are omitted', () => {
-		// Newlines after curly braces are optional
+		// Newlines after curly braces are optional - useful for repl
 		const source = 'hello x = 4;hello y = 5;giveMax(a,b) {if (a > b) a else b;}please giveMax x and y;🤗';
 		const i = new Interpreter(source);
 		let error = null;
@@ -300,14 +300,14 @@ describe('Interpreter', () => {
 		assert.equal(20, i.symbolTable.findSymbol('y'));
 	});
 
-	it('Should interpret a standalone array', () => {
+	it('Should interpret an array', () => {
 		const source = '[1, 2, 3]';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.deepEqual([1, 2, 3], output);
 	});
 
-	it('Should interpret an assignment with array on the right hand side', () => {
+	it('Should interpret an assignment to an array', () => {
 		const source = '👋 arr = [1, 2, 3]';
 		const i = new Interpreter(source);
 		i.interpret();
