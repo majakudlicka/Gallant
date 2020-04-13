@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build": "babel src --source-maps --out-dir build",
-    "test": "babel src --source-maps --out-dir build && mocha --recursive build/test/",
+    "test": "mocha --recursive build/test/",
     "repl": "node build/run-repl.js",
     "load": "node build/load-file.js"
   },
