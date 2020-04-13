@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Parser } from '../parser/parser';
 import { SymbolTable } from '../symbol-table/symbol-table';
 import { TokenTypes } from '../lexer/tokenStructure';
@@ -91,23 +92,26 @@ export class Interpreter {
 	}
 
 	interpretAccessorNode(node) {
-		// TODO Clean up this func
-		// obj could be map or array
-		const obj = this.interpretNode(node.ref);
-		if (!obj) {
+		// Reference can be an array or a map
+		const reference = this.interpretNode(node.ref);
+		if (!reference) {
 			return this.throwIntrepreterError(node.line,
-				'Object you are trying to access does not exist in the current scope');
+				'Array or map you are trying to access does not exist in the current scope');
 		}
 		try {
-			if (node.key.name === 'size') {
-				return Array.isArray(obj) ? obj.length : obj.size;
+			const isArray = Array.isArray(reference);
+			// Handle special case of "size" keyword
+			if (_.get(node, 'key.name') === 'size') {
+				return isArray ? reference.length : reference.size;
 			}
-			if (Array.isArray(obj)) {
+			// Return element of the array at given index
+			if (isArray) {
 				const index = this.interpretNode(node.key);
-				return obj[index];
+				return reference[index];
 			}
+			// Return map element for given key
 			const key = node.key && node.key.name;
-			return obj.get(key);
+			return reference.get(key);
 		} catch (err) {
 			return this.throwIntrepreterError(node.line, err.message);
 		}
@@ -173,7 +177,10 @@ export class Interpreter {
 	interpretAssignmentNode(node) {
 		try {
 			let value;
-			if (node.value && node.value.isConstantNode()) {
+			if (!node.value) {
+				throw new Error('Invalid assignment');
+			}
+			if (node.value.isConstantNode()) {
 				value = this.interpretConstantNode(node.value);
 			} else if (node.value.isOperatorNode()) {
 				value = this.interpretOperatorNode(node.value);
@@ -181,6 +188,10 @@ export class Interpreter {
 				value = this.interpretArrayNode(node.value);
 			} else if (node.value.isMapNode()) {
 				value = this.interpretMapNode(node.value);
+			} else if (node.value.isFunctionCallNode()) {
+				value = this.interpretFunctionCall(node.value);
+			} else if (node.value.isAccessorNode()) {
+				value = this.interpretAccessorNode(node.value);
 			}
 			if (node.symbol.isAccessorNode()) {
 				const { ref, key } = node.symbol;

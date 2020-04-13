@@ -21,6 +21,14 @@ export class Parser {
 		this.next();
 	}
 
+	parse() {
+		return this.parseBlock();
+	}
+
+	next() {
+		this.currentToken = this.lexer.nextToken();
+	}
+
 	throwParserError(message = 'Error parsing code') {
 		throw new Error(`[PARSER]: ${message} at line ${this.currentToken.line}`);
 	}
@@ -55,20 +63,12 @@ export class Parser {
 		}
 	}
 
-	parse() {
-		return this.parseBlock();
-	}
-
-	next() {
-		this.currentToken = this.lexer.nextToken();
-	}
-
 	isSameBlock() {
 		return this.currentToken.value !== TV.Newline && this.currentToken.value !== ';';
 	}
 
 	isEndOfBlock() {
-		return this.currentToken.value === TV.Newline || this.currentToken.value === ';';
+		return !this.isSameBlock();
 	}
 
 	isTerminatedWithCurlyBrace(node) {
@@ -77,16 +77,18 @@ export class Parser {
 			|| (node.isConditionalNode() && node.multiline));
 	}
 
+	// Parse code block
 	parseBlock() {
 		let node;
-		let lastparsedNode;
+		let lastParsedNode;
 		const blocks = [];
 		let terminatedPolitely = false;
 		if (this.isSameBlock()) {
 			node = this.parseAssignment();
 		}
 		// If there is more than one block, start to populate blocks array
-		while (this.isEndOfBlock() || this.isTerminatedWithCurlyBrace(lastparsedNode)) {
+		// Account for the case when there is no newline after curly brace (useful for repl)
+		while (this.isEndOfBlock() || this.isTerminatedWithCurlyBrace(lastParsedNode)) {
 			if (blocks.length === 0 && node) {
 				blocks.push(node);
 			}
@@ -100,7 +102,7 @@ export class Parser {
 			if (this.isSameBlock()) {
 				node = this.parseAssignment();
 				if (node) blocks.push(node);
-				lastparsedNode = node;
+				lastParsedNode = node;
 			}
 		}
 
@@ -108,31 +110,15 @@ export class Parser {
 			const { line } = this.currentToken;
 			return new BlockNode(blocks, line, terminatedPolitely);
 		} if (blocks.length === 1) {
+			// This is the case when we assumed there are going to be more blocks (because of block-ending delimiter)
+			// But the assumption turned out wrong. Don't create a block node, just return the current node
 			return blocks[0];
 		}
-		// If there was only one block, just return the current node
+		// One line statement, just return the current node
 		return node;
 	}
 
-	parseRelational() {
-		const params = [this.parseAddSubtract()];
-		const conditionals = [];
-
-		while (this.currentToken.type === TT.Comparison) {
-			const cond = { fn: this.currentToken.value };
-			conditionals.push(cond);
-			this.next();
-			params.push(this.parseAddSubtract());
-		}
-		const { line } = this.currentToken;
-		if (params.length === 1) {
-			return params[0];
-		} if (params.length === 2) {
-			return new OperatorNode(conditionals[0].fn, params[0], params[1], line);
-		}
-		return this.throwParserError();
-	}
-
+	// Parse assignment (lowest operator precedence)
 	parseAssignment() {
 		// "Greeting" is essentially an equivalent of declaring variables in other languages
 		// All variables need to be "greeted" (declared)
@@ -145,6 +131,7 @@ export class Parser {
 		const node = this.parseFunctionDefinition();
 
 		if (this.currentToken.value === TV.Assignment) {
+			// Left side of an assignment is a symbol
 			if (node.isSymbolNode()) {
 				// parse a variable assignment
 				const { name } = node;
@@ -152,6 +139,8 @@ export class Parser {
 				const value = this.parseAssignment();
 				const { line } = this.currentToken;
 				return new AssignmentNode(new SymbolNode(name, line), value, greeted, line);
+				// Left side of an assignment is an accessor node
+				// Used to modify elements inside maps or arrays
 			} if (node.isAccessorNode()) {
 				this.next();
 				const value = this.parseAssignment();
@@ -164,6 +153,7 @@ export class Parser {
 		return node;
 	}
 
+	// Parse function declaration
 	parseFunctionDefinition() {
 		const node = this.parseFunctionCall();
 		if (node && node.isSymbolNode() && this.currentToken.value === TV.LeftParen) {
@@ -188,6 +178,28 @@ export class Parser {
 		return node;
 	}
 
+	// Parse function invocation
+	// Function invocation is performed using one of the "plead" tokens
+	parseFunctionCall() {
+		const { line, type } = this.currentToken;
+		if (type === TT.Plead) {
+			this.next();
+			const node = this.parseAssignment();
+			const params = [];
+			if (![TT.Delimiter, TT.EndOfInput].includes(this.currentToken.type)) {
+				params.push(this.parseAssignment());
+			}
+			// parse a list of parameters
+			while (this.currentToken.value === TV.KeywordAnd) {
+				this.next();
+				params.push(this.parseAssignment());
+			}
+			return new FunctionCallNode(node, params, line);
+		}
+		return this.parseWhileLoop();
+	}
+
+	// Parse while loop
 	parseWhileLoop() {
 		let node = this.parseConditional();
 		while (this.currentToken.value === TV.While) {
@@ -205,6 +217,8 @@ export class Parser {
 		return node;
 	}
 
+	// Parse if else statements
+	// Supports two variants of acceptable syntax - single-line and multi-line
 	parseConditional() {
 		let node = this.parseRelational();
 
@@ -224,9 +238,13 @@ export class Parser {
 			let falseExpr = null;
 			if (this.currentToken.value === TV.Else) {
 				this.next();
-				if (multiline) this.expect(TV.LeftBrace);
-				falseExpr = this.parseBlock();
-				if (multiline) this.expect(TV.RightBrace);
+				if (multiline) {
+					this.expect(TV.LeftBrace);
+					falseExpr = this.parseBlock();
+					this.expect(TV.RightBrace);
+				} else {
+					falseExpr = this.parseAssignment();
+				}
 			}
 			node = new ConditionalNode(condition, trueExpr, falseExpr, multiline, line);
 		}
@@ -234,21 +252,27 @@ export class Parser {
 		return node;
 	}
 
-	parseMultiplyDivide() {
-		let node = this.parseSymbolOrConstant();
-		const { line } = this.currentToken;
+	// Parse (relational) comparison statements
+	parseRelational() {
+		const params = [this.parseAddSubtract()];
+		const conditionals = [];
 
-		while (this.isMultiplyDivisionOrModuloOperator()) {
-			const operator = this.currentToken.value;
+		while (this.currentToken.type === TT.Comparison) {
+			const cond = { fn: this.currentToken.value };
+			conditionals.push(cond);
 			this.next();
-			const left = node;
-			const right = this.parseSymbolOrConstant();
-			node = new OperatorNode(operator, left, right, line);
+			params.push(this.parseAddSubtract());
 		}
-
-		return node;
+		const { line } = this.currentToken;
+		if (params.length === 1) {
+			return params[0];
+		} if (params.length === 2) {
+			return new OperatorNode(conditionals[0].fn, params[0], params[1], line);
+		}
+		return this.throwParserError();
 	}
 
+	// Parse add and subtract operations
 	parseAddSubtract() {
 		let node = this.parseMultiplyDivide();
 		const { line } = this.currentToken;
@@ -264,79 +288,41 @@ export class Parser {
 		return node;
 	}
 
-	parseNumber() {
-		if (this.isNumber()) {
-			const { value, type, line } = this.currentToken;
+	// Parse multiple, divide and modulo operations
+	parseMultiplyDivide() {
+		let node = this.parseSymbolOrConstant();
+		const { line } = this.currentToken;
+
+		while (this.isMultiplyDivisionOrModuloOperator()) {
+			const operator = this.currentToken.value;
+			this.next();
+			const left = node;
+			const right = this.parseSymbolOrConstant();
+			node = new OperatorNode(operator, left, right, line);
+		}
+
+		return node;
+	}
+
+	// Parse symbol (identifier) or constant
+	parseSymbolOrConstant() {
+		const {
+			value, type, line
+		} = this.currentToken;
+		if (this.isConstant() || type === TT.CommonEmoji) {
 			const node = new ConstantNode(value, type, line);
 			this.next();
 			return node;
-		}
-		return this.parseFarewell();
-	}
-
-	parseFarewell() {
-		if (this.currentToken.type === TT.Farewell) {
+		} if (this.currentToken.type === TT.Identifier) {
+			let node = new SymbolNode(value, line);
 			this.next();
-			const { type, value, line } = this.currentToken;
-			if (type === TT.Identifier) {
-				const node = new DeAssignmentNode(value, line);
-				this.next();
-				return node;
-			}
-			this.throwParserError('Farewell tokens can only be used with identifiers');
-
-		}
-		return this.parseParentheses();
-	}
-
-	parseParentheses() {
-		let node;
-
-		// check if it is a parenthesized expression
-		if (this.currentToken.value === TV.LeftParen) {
-			this.next();
-
-			node = this.parseAssignment();
-			const { line } = this.currentToken;
-			this.expect(')');
-
-			node = new ParenthesisNode(node, line);
 			node = this.parseAccessors(node);
+			return node;
 		}
-		return node;
+		return this.parseString();
 	}
 
-	// TODO Can this be done without passing node
-	parseAccessors(node) {
-		if (this.currentToken.value === TV.At) {
-			this.next();
-			const { line } = this.currentToken;
-			// eslint-disable-next-line no-param-reassign
-			return new AccessorNode(node, this.parseSymbolOrConstant(), line);
-		}
-
-		return node;
-	}
-
-	parseFunctionCall() {
-		const { line, type } = this.currentToken;
-		if (type === TT.Plead) {
-			this.next();
-			const node = this.parseAssignment();
-			const params = [];
-			if (![TT.Delimiter, TT.EndOfInput].includes(this.currentToken.type)) {
-				params.push(this.parseAssignment());
-			}
-			// parse a list with parameters
-			while (this.currentToken.value === TV.KeywordAnd) {
-				this.next();
-				params.push(this.parseAssignment());
-			}
-			return new FunctionCallNode(node, params, line);
-		}
-		return this.parseWhileLoop();
-	}
-
+	// Parse string. Only double quotes are supported
 	parseString() {
 		if (this.currentToken.type === TT.String) {
 			const { line } = this.currentToken;
@@ -347,6 +333,7 @@ export class Parser {
 		return this.parseArray();
 	}
 
+	// Parse array
 	parseArray() {
 		if (this.currentToken.value === TV.LeftBracket) {
 			const { line } = this.currentToken;
@@ -367,6 +354,7 @@ export class Parser {
 		return this.parseMap();
 	}
 
+	// Parse map (object)
 	parseMap() {
 		if (this.currentToken.value === TV.LeftBrace) {
 			const { line } = this.currentToken;
@@ -393,26 +381,64 @@ export class Parser {
 		return this.parseNumber();
 	}
 
-	parseSymbolOrConstant() {
-		const {
-			value, type, line
-		} = this.currentToken;
-		if (this.isConstant() || type === TT.CommonEmoji) {
+	// Parse number - integer or decimal
+	parseNumber() {
+		if (this.isNumber()) {
+			const { value, type, line } = this.currentToken;
 			const node = new ConstantNode(value, type, line);
 			this.next();
 			return node;
-		} if (this.currentToken.type === TT.Identifier) {
-			let node = new SymbolNode(value, line);
-			this.next();
-			node = this.parseAccessors(node);
-			return node;
 		}
-		return this.parseString();
+		return this.parseFarewell();
+	}
+
+	// Parse variable deassignment
+	// Free up memory from unused values
+	parseFarewell() {
+		if (this.currentToken.type === TT.Farewell) {
+			this.next();
+			const { type, value, line } = this.currentToken;
+			if (type === TT.Identifier) {
+				const node = new DeAssignmentNode(value, line);
+				this.next();
+				return node;
+			}
+			this.throwParserError('Farewell tokens can only be used with identifiers');
+
+		}
+		return this.parseParentheses();
+	}
+
+	// Parse parenthesized expressions
+	parseParentheses() {
+		let node;
+
+		// check if it is a parenthesized expression
+		if (this.currentToken.value === TV.LeftParen) {
+			this.next();
+
+			node = this.parseAssignment();
+			const { line } = this.currentToken;
+			this.expect(')');
+
+			node = new ParenthesisNode(node, line);
+			node = this.parseAccessors(node);
+		}
+		return node;
+	}
+
+	// Parse accessors - statements accessing an elements inside of array or map
+	parseAccessors(node) {
+		if (this.currentToken.value === TV.At) {
+			this.next();
+			const { line } = this.currentToken;
+			return new AccessorNode(node, this.parseSymbolOrConstant(), line);
+		}
+
+		return node;
 	}
 }
 
 
-// TODO eslint errors
 // TODO Comments
 // TODO Go through all files 2-3 last times and polish them
-// TODO Add program examples

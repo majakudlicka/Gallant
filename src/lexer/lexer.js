@@ -11,18 +11,14 @@ export class Lexer {
 		this.line = 1;
 	}
 
-	// / Returns the next recognized 'Token' in the input.
+	// Returns the next recognized 'token' from the input
 	nextToken() {
-
 		if (this.position >= this.input.length) {
 			return new Token(TT.EndOfInput, TV.EndOfInput, this.line);
 		}
 
-		// We skip all the whitespaces and new lines in the input.
 		this.skipWhitespaces();
-
 		const character = this.input.charAt(this.position);
-
 
 		if (CharUtils.isNewLine(character)) {
 			return this.recognizeNewLine();
@@ -33,7 +29,7 @@ export class Lexer {
 		}
 
 		if (CharUtils.isValidPartOfNumber(character)) {
-			return this.recognizeNumberOrDot();
+			return this.recognizeNumber();
 		}
 
 		if (CharUtils.isOperator(character)) {
@@ -54,7 +50,6 @@ export class Lexer {
 
 		return this.throwLexerError(character);
 
-
 	}
 
 	throwLexerError(char) {
@@ -73,7 +68,6 @@ export class Lexer {
 		this.position += 1;
 		return new Token(TT.Delimiter, character, line);
 	}
-
 
 	recognizeOperator() {
 		const character = this.input.charAt(this.position);
@@ -97,6 +91,7 @@ export class Lexer {
 	recognizeComparisonOperator() {
 		const { position, line } = this;
 		const character = this.input.charAt(position);
+		// Check the next character to determine the type of token
 		const lookahead = position + 1 < this.input.length ? this.input.charAt(position + 1) : null;
 		const isLookaheadEqualSymbol = lookahead !== null && lookahead === '=';
 
@@ -128,6 +123,7 @@ export class Lexer {
 	recognizeBooleanOperator() {
 		const { position, line } = this;
 		const character = this.input.charAt(position);
+		// Check the next character to determine the type of token
 		const lookahead = position + 1 < this.input.length ? this.input.charAt(position + 1) : null;
 		const isLookaheadEqualSymbol = lookahead !== null;
 
@@ -175,12 +171,6 @@ export class Lexer {
 		return new Token(TT.Delimiter, character, line);
 	}
 
-	recognizeDot() {
-		const { line } = this;
-		this.position += 1;
-		return new Token(TT.Accessor, TV.Dot, line);
-	}
-
 	recognizeIdentifier() {
 		let identifier = '';
 		const { line } = this;
@@ -202,7 +192,6 @@ export class Lexer {
 
 		if (Object.values(TS.Keyword.values).includes(identifier)) {
 			tokenType = TT.Keyword;
-
 		}
 
 		if (Object.values(TS.Constant.values).includes(identifier)) {
@@ -227,7 +216,7 @@ export class Lexer {
 
 		if (tokenType) return new Token(tokenType, identifier, line);
 
-		// Special case for special "thank you" token including space inbetween
+		// Special case for special "thank you" token including space in between
 		const lookahead = position + 4 >= this.input.length ? this.input.substring(position + 1, position + 5) : null;
 		if (identifier === 'thank' && lookahead === 'you') {
 			return new Token(TT.Gratitude, 'thank you', line);
@@ -236,8 +225,9 @@ export class Lexer {
 		return new Token(TT.Identifier, identifier, line);
 	}
 
-	recognizeNumberOrDot() {
+	recognizeNumber() {
 		const { line } = this;
+		// Use finite state machine to recognize all possible variants of valid numbers
 		const fsm = this.buildNumberRecognizer();
 		const fsmInput = this.input.substring(this.position);
 		const { isNumberRecognized, number, state } = fsm.run(fsmInput);
@@ -245,14 +235,14 @@ export class Lexer {
 		if (isNumberRecognized) {
 			this.position += number.length;
 			let tokenType;
-			if (state === 2) {
+			// Integer
+			if (state === 'Integer') {
 				tokenType = TT.Integer;
-			} else if (state === 4) {
+			// Decimal
+			} else if (state === 'NumberWithFractionalPart') {
 				tokenType = TT.Decimal;
 			}
 			return new Token(tokenType, number, line);
-		} if (number === TV.Dot && state === 3) {
-			return this.recognizeDot();
 		}
 		return this.throwLexerError(number);
 	}
@@ -275,7 +265,6 @@ export class Lexer {
 		}
 
 		this.position += string.length;
-
 		return new Token(TT.String, string, line);
 	}
 
@@ -301,19 +290,33 @@ export class Lexer {
 		this.position += emoji.length;
 		if (CharUtils.isWaveHandEmoji(emoji)) {
 			return new Token(TT.Greeting, TV.WaveEmoji, line);
-		} if (CharUtils.isPleaseEmoji(emoji)) {
+		}
+
+		if (CharUtils.isPleaseEmoji(emoji)) {
 			return new Token(TT.Plead, TV.PleaseEmoji, line);
-		} if (CharUtils.isHeartFaceEmoji(emoji)) {
+		}
+
+		if (CharUtils.isHeartFaceEmoji(emoji)) {
 			return new Token(TT.Gratitude, TV.HeartFaceEmoji, line);
-		} if (CharUtils.isHeartEmoji(emoji)) {
+		}
+
+		if (CharUtils.isHeartEmoji(emoji)) {
 			return new Token(TT.Gratitude, TV.HeartEmoji, line);
-		} if (CharUtils.isHugEmoji(emoji)) {
+		}
+
+		if (CharUtils.isHugEmoji(emoji)) {
 			return new Token(TT.Gratitude, TV.HugEmoji, line);
-		} if (CharUtils.isByeEmoji(emoji)) {
+		}
+
+		if (CharUtils.isByeEmoji(emoji)) {
 			return new Token(TT.Farewell, TV.ByeEmoji, line);
-		} if (CharUtils.isKissEmoji(emoji)) {
+		}
+
+		if (CharUtils.isKissEmoji(emoji)) {
 			return new Token(TT.Farewell, TV.KissEmoji, line);
-		} if (CharUtils.isCommonEmoji(emoji)) {
+		}
+
+		if (CharUtils.isCommonEmoji(emoji)) {
 			return new Token(TT.CommonEmoji, emoji, line);
 		}
 
@@ -322,13 +325,15 @@ export class Lexer {
 
 	// Use Finite State Machine to recognize different types of numbers
 	buildNumberRecognizer() {
-		// We name our states for readability.
+		// This is a simplified finite state machine model for Gallant grammar
+		// For more advanced grammars model could be built up to account for cases such as
+		// using scientific notation or comma separator
 		const State = {
-			Initial: 1,
-			Integer: 2,
-			BeginNumberWithFractionalPart: 3,
-			NumberWithFractionalPart: 4,
-			NoNextState: -1
+			Initial: 'Initial',
+			Integer: 'Integer',
+			BeginNumberWithFractionalPart: 'BeginNumberWithFractionalPart',
+			NumberWithFractionalPart: 'NumberWithFractionalPart',
+			NoNextState: 'NoNextState'
 		};
 
 		const fsm = new FSM();

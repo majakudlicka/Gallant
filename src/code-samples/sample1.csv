@@ -1,14 +1,41 @@
-👋 arr = [1, 2, 3];
+hi integer = 1;
+hello float1 = 1.5;
+hola float2 = .25;
+aloha string = "Hello World";
+👋 bool = true;
+👋 map1 = { x = 5, y = 7, z = 0 };
+
+goodbye integer;
+bye float1;
+ciao float2;
+✋ string;
+bye bool;
+😘 map1;
+
+👋 arr1 = [1, 2, 3];
+👋 arr2 = [5, 10, 15];
+
+multiplyByThree(arr) {
 👋 i = 0;
-aloha j = 10;
-👋 myMap = {a = 1, b = 2};
-myMap@a = 5;
-myMap@a;
 while (i < arr@size) {
-arr@i = arr@i * 3;
-i = i + 1;
-j = j + i;
+	arr@i = arr@i * 3;
+	i = i + 1;
+	}
+	arr;
 }
-😉;
-j;
+
+sumArrays(arr_1, arr_2) {
+👋 i = 0;
+👋 resultArr = [];
+while (i < arr_1@size) {
+	resultArr@i = arr_1@i + arr_2@i;
+	i = i + 1;
+	}
+resultArr;
+}
+
+😉
+
+hi arr3 = please multiplyByThree arr1;
+please sumArrays arr3 and arr2;
 ❤️

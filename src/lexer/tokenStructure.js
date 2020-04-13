@@ -17,8 +17,6 @@ export const TokenStructure = {
 			False: 'false'
 		}
 	},
-	// Accessor operators
-	Accessor: { name: 'accessor', values: { At: '@', Dot: '.' } },
 	// Assignment operators
 	Assignment: { name: 'assignment', values: { Assignment: 'assignment' } },
 	// Arithmetic operators
@@ -71,7 +69,8 @@ export const TokenStructure = {
 			RightBracket: ']',
 			RightParen: ')',
 			SemiColon: ';',
-			Colon: ':'
+			Colon: ':',
+			At: '@'
 		}
 	},
 	// Variable declaration

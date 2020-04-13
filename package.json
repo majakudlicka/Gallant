@@ -7,8 +7,8 @@
     "babel-preset-es2015": "^6.1.18",
     "clipboardy": "2.3.0",
     "emoji-regex": "8.0.0",
-    "node-emoji": "1.10.0",
-	"clipboardy": "latest"
+    "lodash": "4.17.15",
+    "node-emoji": "1.10.0"
   },
   "devDependencies": {
     "babel-cli": "^6.2.0",

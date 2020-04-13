@@ -1,4 +1,4 @@
-export const InvalidFsmState = -1;
+export const InvalidFsmState = 'NoNextState';
 
 // Finite State Machine
 export class FSM {
@@ -16,7 +16,7 @@ export class FSM {
 		let currentState = this.initialState;
 		let value = '';
 
-		for (let i = 0, { length } = input; i < length; ++i) {
+		for (let i = 0, { length } = input; i < length; i++) {
 			const character = input.charAt(i);
 			const nextState = this.nextState(currentState, character);
 

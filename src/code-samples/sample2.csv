@@ -1,7 +1,29 @@
-hello x = 4;
-hello y = 5;
-giveMax(a,b) {
-    if (a > b) a else b;
+👋 validIdentifier = "test";
+👋 alsoValidIdentifier000 = "test";
+👋 _alsoValidIdentifier = "test";
+👋 alsoValid$$$Identifier = "test";
+
+bye validIdentifier;
+ciao alsoValidIdentifier000;
+goodbye _alsoValidIdentifier;
+✋ alsoValid$$$Identifier;
+
+hello myMap = {i = 4, j = 6};
+👋 a = myMap@i;
+👋 b = myMap@j;
+
+processValues(x ,y) {
+	if (x > 0) {
+		x = x + 1;
+	} else {
+		x = x - 1;
+		y = y * 5;
+		}
+	x;
 }
-please giveMax x and y;
+
+hi res = 🙏 processValues a and b;
+aloha myMapsize = myMap@size;
+
+if (res > myMapsize) "Result is bigger than size of map" else "Result is not bigger than size of map";
 🤗

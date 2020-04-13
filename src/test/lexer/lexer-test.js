@@ -4,7 +4,7 @@ import { Lexer } from '../../lexer/lexer';
 
 describe('Lexer', () => {
 
-	it('should throw an error if given character does not belong to language grammar', () => {
+	it('should throw an error if given character does not belong to Gallant grammar', () => {
 		let error;
 		try {
 			const lexer = new Lexer('§');
@@ -66,7 +66,7 @@ describe('Lexer', () => {
 		assert.equal(token.value, '.25');
 	});
 
-	it('should recognize a simple string literal', () => {
+	it('should recognize a string', () => {
 		const lexer = new Lexer('"Hello, World!"');
 
 		const token = lexer.nextToken();
@@ -84,7 +84,7 @@ describe('Lexer', () => {
 		assert.equal(token.value, '"a string containing a \\n newline character."');
 	});
 
-	it('should recognize a string containing an espaced backslash', () => {
+	it('should recognize a string containing an escaped backslash', () => {
 		const lexer = new Lexer('"a string with a \\\\ backslash"');
 
 		const token = lexer.nextToken();
@@ -94,7 +94,7 @@ describe('Lexer', () => {
 	});
 
 
-	it('should recognize the boolean true literal', () => {
+	it('should recognize the boolean constant "true"', () => {
 		const lexer = new Lexer('true');
 
 		const token = lexer.nextToken();
@@ -103,7 +103,7 @@ describe('Lexer', () => {
 		assert.equal(token.value, TV.True);
 	});
 
-	it('should recognize the boolean false literal', () => {
+	it('should recognize the boolean constant "false"', () => {
 		const lexer = new Lexer('false');
 
 		const token = lexer.nextToken();
@@ -112,7 +112,16 @@ describe('Lexer', () => {
 		assert.equal(token.value, TV.False);
 	});
 
-	it('should recognize an identifier of a single letter', () => {
+	it('should recognize the constant "null"', () => {
+		const lexer = new Lexer('null');
+
+		const token = lexer.nextToken();
+
+		assert.equal(token.type, TT.Constant);
+		assert.equal(token.value, TV.Null);
+	});
+
+	it('should recognize an identifier consisting of a single letter', () => {
 		const lexer = new Lexer('i');
 
 		const token = lexer.nextToken();
@@ -121,7 +130,7 @@ describe('Lexer', () => {
 		assert.equal(token.value, 'i');
 	});
 
-	it('should recognize an identifier made of letters', () => {
+	it('should recognize an identifier made of multiple letters', () => {
 		const lexer = new Lexer('anIdentifier');
 
 		const token = lexer.nextToken();
@@ -166,16 +175,6 @@ describe('Lexer', () => {
 		assert.equal(token.value, 'identifier1');
 	});
 
-	it('should recognize the please keyword', () => {
-		const lexer = new Lexer('please');
-
-		const token = lexer.nextToken();
-		console.log('token is ', token);
-
-		assert.equal(token.type, TT.Plead);
-		assert.equal(token.value, TV.Please);
-	});
-
 	it('should recognize the and keyword', () => {
 		const lexer = new Lexer('and');
 
@@ -183,6 +182,15 @@ describe('Lexer', () => {
 
 		assert.equal(token.type, TT.Keyword);
 		assert.equal(token.value, TV.KeywordAnd);
+	});
+
+	it('should recognize the if keyword', () => {
+		const lexer = new Lexer('if');
+
+		const token = lexer.nextToken();
+
+		assert.equal(token.type, TT.Keyword);
+		assert.equal(token.value, TV.If);
 	});
 
 	it('should recognize the else keyword', () => {
@@ -194,8 +202,16 @@ describe('Lexer', () => {
 		assert.equal(token.value, TV.Else);
 	});
 
+	it('should recognize the while keyword', () => {
+		const lexer = new Lexer('while');
 
-	it('should recognize the hi keyword', () => {
+		const token = lexer.nextToken();
+
+		assert.equal(token.type, TT.Keyword);
+		assert.equal(token.value, TV.While);
+	});
+
+	it('should recognize the "hi" keyword as token type greeting', () => {
 		const lexer = new Lexer('hi');
 
 		const token = lexer.nextToken();
@@ -204,7 +220,7 @@ describe('Lexer', () => {
 		assert.equal(token.value, TV.Hi);
 	});
 
-	it('should recognize the hello keyword', () => {
+	it('should recognize the "hello" keyword as token type greeting', () => {
 		const lexer = new Lexer('hello');
 
 		const token = lexer.nextToken();
@@ -213,13 +229,41 @@ describe('Lexer', () => {
 		assert.equal(token.value, TV.Hello);
 	});
 
-	it('should recognize the waving hand emoji as a greeting', () => {
+	it('should recognize the "hola" keyword as token type greeting', () => {
+		const lexer = new Lexer('hola');
+
+		const token = lexer.nextToken();
+
+		assert.equal(token.type, TT.Greeting);
+		assert.equal(token.value, TV.Hola);
+	});
+
+	it('should recognize the "aloha" keyword as token type greeting', () => {
+		const lexer = new Lexer('aloha');
+
+		const token = lexer.nextToken();
+
+		assert.equal(token.type, TT.Greeting);
+		assert.equal(token.value, TV.Aloha);
+	});
+
+	it('should recognize the waving hand emoji as token type greeting', () => {
 		const lexer = new Lexer('👋');
 
 		const token = lexer.nextToken();
 
 		assert.equal(token.type, TT.Greeting);
 		assert.equal(token.value, TV.WaveEmoji);
+	});
+
+	it('should recognize the "please" keyword as function invocation', () => {
+		const lexer = new Lexer('please');
+
+		const token = lexer.nextToken();
+		console.log('token is ', token);
+
+		assert.equal(token.type, TT.Plead);
+		assert.equal(token.value, TV.Please);
 	});
 
 	it('should recognize the please emoji as function invocation', () => {
@@ -330,77 +374,13 @@ describe('Lexer', () => {
 		assert.equal(token.value, TV.KissEmoji);
 	});
 
-	it('should recognize common (bearing no special meaning) emoji as token type emoji', () => {
+	it('should recognize a common (bearing no special meaning) emoji as token type emoji', () => {
 		const lexer = new Lexer('🍇');
 
 		const token = lexer.nextToken();
 
 		assert.equal(token.type, TT.CommonEmoji);
 		assert.equal(token.value, '🍇');
-	});
-
-	it('should recognize the if keyword', () => {
-		const lexer = new Lexer('if');
-
-		const token = lexer.nextToken();
-
-		assert.equal(token.type, TT.Keyword);
-		assert.equal(token.value, TV.If);
-	});
-
-	it('should recognize the hola keyword', () => {
-		const lexer = new Lexer('hola');
-
-		const token = lexer.nextToken();
-
-		assert.equal(token.type, TT.Greeting);
-		assert.equal(token.value, TV.Hola);
-	});
-
-	it('should recognize the new keyword', () => {
-		const lexer = new Lexer('aloha');
-
-		const token = lexer.nextToken();
-
-		assert.equal(token.type, TT.Greeting);
-		assert.equal(token.value, TV.Aloha);
-	});
-
-	it('should recognize the null keyword', () => {
-		const lexer = new Lexer('null');
-
-		const token = lexer.nextToken();
-
-		assert.equal(token.type, TT.Constant);
-		assert.equal(token.value, TV.Null);
-	});
-
-
-	it('should recognize the while keyword', () => {
-		const lexer = new Lexer('while');
-
-		const token = lexer.nextToken();
-
-		assert.equal(token.type, TT.Keyword);
-		assert.equal(token.value, TV.While);
-	});
-
-	it('should recognize an identifier starting with a reserved keyword', () => {
-		const lexer = new Lexer('toString');
-
-		const token = lexer.nextToken();
-
-		assert.equal(token.type, TT.Identifier);
-		assert.equal(token.value, 'toString');
-	});
-
-	it('should recognize the accessor (.) operator', () => {
-		const lexer = new Lexer('.');
-
-		const token = lexer.nextToken();
-
-		assert.equal(token.type, TT.Accessor);
-		assert.equal(token.value, '.');
 	});
 
 	it('should recognize the assign (=) operator', () => {
@@ -538,7 +518,17 @@ describe('Lexer', () => {
 		assert.equal(token.value, TV.Or);
 	});
 
-	it('should recognize a comma (,)', () => {
+	it('should recognize the at (@) delimiter', () => {
+		const lexer = new Lexer('@');
+
+		const token = lexer.nextToken();
+		console.log('tolen ', token);
+
+		assert.equal(token.type, TT.Delimiter);
+		assert.equal(token.value, '@');
+	});
+
+	it('should recognize a comma (,) delimiter', () => {
 		const lexer = new Lexer(',');
 
 		const token = lexer.nextToken();
@@ -547,7 +537,7 @@ describe('Lexer', () => {
 		assert.equal(token.value, TV.Comma);
 	});
 
-	it('should recognize a left brace ({)', () => {
+	it('should recognize a left brace ({) delimiter', () => {
 		const lexer = new Lexer('{');
 
 		const token = lexer.nextToken();
@@ -556,7 +546,7 @@ describe('Lexer', () => {
 		assert.equal(token.value, TV.LeftBrace);
 	});
 
-	it('should recognize a right brace (})', () => {
+	it('should recognize a right brace (}) delimiter', () => {
 		const lexer = new Lexer('}');
 
 		const token = lexer.nextToken();
@@ -565,7 +555,7 @@ describe('Lexer', () => {
 		assert.equal(token.value, '}');
 	});
 
-	it('should recognize a left bracket ([)', () => {
+	it('should recognize a left bracket ([) delimiter', () => {
 		const lexer = new Lexer('[');
 
 		const token = lexer.nextToken();
@@ -574,7 +564,7 @@ describe('Lexer', () => {
 		assert.equal(token.value, '[');
 	});
 
-	it('should recognize a right bracket (])', () => {
+	it('should recognize a right bracket (] delimiter)', () => {
 		const lexer = new Lexer(']');
 
 		const token = lexer.nextToken();
@@ -583,7 +573,7 @@ describe('Lexer', () => {
 		assert.equal(token.value, ']');
 	});
 
-	it('should recognize a left parenthesis (()', () => {
+	it('should recognize a left parenthesis (() delimiter', () => {
 		const lexer = new Lexer('(');
 
 		const token = lexer.nextToken();
@@ -592,7 +582,7 @@ describe('Lexer', () => {
 		assert.equal(token.value, '(');
 	});
 
-	it('should recognize a right parenthesis ())', () => {
+	it('should recognize a right parenthesis ()) delimiter', () => {
 		const lexer = new Lexer(')');
 
 		const token = lexer.nextToken();

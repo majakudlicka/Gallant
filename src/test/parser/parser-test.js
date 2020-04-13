@@ -551,7 +551,7 @@ describe('Parser', () => {
 		assert.equal(true, key.isConstantNode());
 	});
 
-	it('should parse a simple map map', () => {
+	it('should parse a simple map', () => {
 		const parser = new Parser(
 			'{a = 1, b = 2}'
 		);
