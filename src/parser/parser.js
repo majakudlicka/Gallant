@@ -49,6 +49,10 @@ export class Parser {
 		return !this.isAdditiveOperator() && this.currentToken.type === TT.Arithmetic;
 	}
 
+	isLogicalOperator() {
+		return this.currentToken.type === TT.Logical;
+	}
+
 	isNumber() {
 		return this.currentToken.type === TT.Decimal || this.currentToken.type === TT.Integer;
 	}
@@ -220,14 +224,14 @@ export class Parser {
 	// Parse if else statements
 	// Supports two variants of acceptable syntax - single-line and multi-line
 	parseConditional() {
-		let node = this.parseRelational();
+		let node = this.parseLogical();
 
 		const { line } = this.currentToken;
 		while (this.currentToken.value === TV.If) {
 			this.next();
 			let multiline = false;
 			this.expect(TV.LeftParen);
-			const condition = this.parseRelational();
+			const condition = this.parseLogical();
 			this.expect(TV.RightParen);
 			if (this.currentToken.value === TV.LeftBrace) {
 				multiline = true;
@@ -247,6 +251,22 @@ export class Parser {
 				}
 			}
 			node = new ConditionalNode(condition, trueExpr, falseExpr, multiline, line);
+		}
+
+		return node;
+	}
+
+	// Parse logical expressions (AND / OR)
+	parseLogical() {
+		let node = this.parseRelational();
+		const { line } = this.currentToken;
+
+		while (this.isLogicalOperator()) {
+			const operator = this.currentToken.value;
+			this.next();
+			const left = node;
+			const right = this.parseAssignment();
+			node = new OperatorNode(operator, left, right, line);
 		}
 
 		return node;

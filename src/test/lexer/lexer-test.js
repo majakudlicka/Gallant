@@ -487,7 +487,7 @@ describe('Lexer', () => {
 
 		const token = lexer.nextToken();
 
-		assert.equal(token.type, TT.Logical);
+		assert.equal(token.type, TT.Comparison);
 		assert.equal(token.value, TV.NotEqual);
 	});
 
@@ -498,15 +498,6 @@ describe('Lexer', () => {
 
 		assert.equal(token.type, TT.Logical);
 		assert.equal(token.value, TV.And);
-	});
-
-	it('should recognize the not (!) operator', () => {
-		const lexer = new Lexer('!');
-
-		const token = lexer.nextToken();
-
-		assert.equal(token.type, TT.Not);
-		assert.equal(token.value, '!');
 	});
 
 	it('should recognize the or (||) operator', () => {

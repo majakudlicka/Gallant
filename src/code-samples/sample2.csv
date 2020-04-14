@@ -12,8 +12,8 @@ hello myMap = {i = 4, j = 6};
 👋 a = myMap@i;
 👋 b = myMap@j;
 
-processValues(x ,y) {
-	if (x > 0) {
+processValues(x,y) {
+	if (x > 0 && y > 0) {
 		x = x + 1;
 	} else {
 		x = x - 1;

@@ -228,7 +228,7 @@ describe('Interpreter', () => {
 		assert.equal(2, output);
 	});
 
-	it('Should respect operator precedence', () => {
+	it('Should respect operator precedence between two arithmetic operators', () => {
 		const source = '10 + 5 * 4';
 		const i = new Interpreter(source);
 		const output = i.interpret();
@@ -242,8 +242,29 @@ describe('Interpreter', () => {
 		assert.equal(60, output);
 	});
 
-	it('Should interpret simple relational expression', () => {
+	it('Should interpret a relational expression', () => {
 		const source = '10 > 5';
+		const i = new Interpreter(source);
+		const output = i.interpret();
+		assert.equal(true, output);
+	});
+
+	it('Should interpret a logical expression', () => {
+		const source = 'false || true';
+		const i = new Interpreter(source);
+		const output = i.interpret();
+		assert.equal(true, output);
+	});
+
+	it('Should respect operator precedence between logical and arithmetic operators', () => {
+		const source = '3*5 || 4*0';
+		const i = new Interpreter(source);
+		const output = i.interpret();
+		assert.equal(15, output);
+	});
+
+	it('Should respect operator precedence between relational and arithmetic operators', () => {
+		const source = '3*5 > 4*0';
 		const i = new Interpreter(source);
 		const output = i.interpret();
 		assert.equal(true, output);

@@ -181,7 +181,7 @@ describe('Parser', () => {
 		assert.equal('2', node.right.value);
 	});
 
-	it('should correctly handle operator precedence', () => {
+	it('should correctly handle operator precedence between arithmetic operators', () => {
 		const parser = new Parser('1 + 3 * 5 - 8');
 
 		const node = parser.parse();
@@ -246,7 +246,7 @@ describe('Parser', () => {
 		assert.equal('3.14', right.content.right.value);
 	});
 
-	it('should parse relational expressions', () => {
+	it('should parse a relational expression', () => {
 		const parser = new Parser('a > b');
 		const node = parser.parse();
 
@@ -257,6 +257,61 @@ describe('Parser', () => {
 		assert.equal('b', node.right.name);
 	});
 
+	it('should parse a logical AND expression', () => {
+		const parser = new Parser('a && b');
+		const node = parser.parse();
+
+		assert.equal(true, node.isOperatorNode());
+		assert.equal(TV.And, node.operator);
+		assert.equal(true, node.left.isSymbolNode());
+		assert.equal('a', node.left.name);
+		assert.equal('b', node.right.name);
+	});
+
+	it('should parse a logical OR expression', () => {
+		const parser = new Parser('a || b');
+		const node = parser.parse();
+
+		assert.equal(true, node.isOperatorNode());
+		assert.equal(TV.Or, node.operator);
+		assert.equal(true, node.left.isSymbolNode());
+		assert.equal('a', node.left.name);
+		assert.equal('b', node.right.name);
+	});
+
+	it('should correctly handle operator precedence between arithmetic and logical operators', () => {
+		const parser = new Parser('3*5 || 4*0');
+
+		const node = parser.parse();
+
+		assert.equal(true, node.isOperatorNode());
+		assert.equal(TV.Or, node.operator);
+
+		const { left, right } = node;
+
+		assert.equal(true, left.isOperatorNode());
+		assert.equal(TV.Times, left.operator);
+
+		assert.equal(true, right.isOperatorNode());
+		assert.equal(TV.Times, right.operator);
+	});
+
+	it('should correctly handle operator precedence between arithmetic and relational operators', () => {
+		const parser = new Parser('3+5 >= 4+0');
+
+		const node = parser.parse();
+
+		assert.equal(true, node.isOperatorNode());
+		assert.equal(TV.GreaterOrEqual, node.operator);
+
+		const { left, right } = node;
+
+		assert.equal(true, left.isOperatorNode());
+		assert.equal(TV.Plus, left.operator);
+
+		assert.equal(true, right.isOperatorNode());
+		assert.equal(TV.Plus, right.operator);
+	});
 
 	it('should parse a single line if/else statement', () => {
 		const parser = new Parser('if (true) 1 else 2');

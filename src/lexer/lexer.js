@@ -136,8 +136,8 @@ export class Lexer {
 		switch (character) {
 			case '!':
 				return isLookaheadEqualSymbol && lookahead === '='
-					? new Token(TT.Logical, TV.NotEqual, line)
-					: new Token(TT.Not, '!', line);
+					? new Token(TT.Comparison, TV.NotEqual, line)
+					: new Error(`Unrecognized character ${character} at line ${this.line}.`);
 
 			case '&':
 				return isLookaheadEqualSymbol && lookahead === '&'

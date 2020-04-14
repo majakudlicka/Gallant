@@ -47,7 +47,6 @@ export const TokenStructure = {
 		name: 'logical',
 		values: {
 			And: '&&',
-			Not: '!',
 			Or: '||'
 		}
 	},
